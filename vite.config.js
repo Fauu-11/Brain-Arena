@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
 export default defineConfig({
-  plugins: [react()],
-  base: './', // Root domain or subfolder, without rewriting asset URLs.
-  build: { target: 'es2022' },
-});
+  plugins: [vue()],
+  base: '/Brain-Arena/',
+})
