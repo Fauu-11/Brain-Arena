@@ -1,0 +1,269 @@
+
+:root {
+  --uw-bg: #f5f4f0;
+  --uw-bg-strong: #ece9e3;
+  --uw-surface: #fdfcfb;
+  --uw-surface-strong: #ffffff;
+  --uw-surface-alt: #e8e5df;
+  --uw-border: #dddad4;
+  --uw-border-strong: #b5b2a8;
+  --uw-text: #1d2a34;
+  --uw-text-muted: #5c6869;
+  --uw-text-muted-strong: #4f5a5b;
+  --uw-text-on-primary: #f4f7fb;
+  --uw-primary: #1f3149;
+  --uw-primary-hover: #17263a;
+  --uw-secondary: #218a8f;
+  --uw-secondary-hover: #176f74;
+  --uw-secondary-card: #1a7478;
+  --uw-secondary-card-hover: #155f63;
+  --uw-info: #3c78d3;
+  --uw-info-hover: #2f63b4;
+  --uw-info-active: #284f8f;
+  --uw-success: #2f9d63;
+  --uw-warning: #c99328;
+  --uw-danger: #c95555;
+  --uw-neutral: #d8e5dc;
+  --uw-neutral-hover: #c7d7cc;
+  --uw-neutral-active: #b4c8ba;
+  --uw-icon-muted: #a6b9ad;
+  --uw-player1-active: #1f3149;
+  --uw-player2-active: #218a8f;
+  --uw-player-active-text: #f4f7fb;
+  --uw-player-inactive-bg: #e8e5df;
+  --uw-player-inactive-text: #5c6869;
+  --uw-shadow-sm: 0 8px 18px rgba(18, 30, 42, 0.09);
+  --uw-shadow-md: 0 14px 28px rgba(18, 30, 42, 0.14);
+  --uw-radius-sm: 12px;
+  --uw-radius-md: 16px;
+  --uw-radius-lg: 22px;
+  --uw-space-1: 6px;
+  --uw-space-2: 10px;
+  --uw-space-3: 14px;
+  --uw-space-4: 18px;
+  --uw-space-5: 24px;
+  --uw-space-6: 32px;
+  --uw-crimson: #be2828;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--uw-bg);
+  color: var(--uw-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Arial', 'Inter', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+/* Common UI styles */
+.uw-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--uw-space-4);
+  width: 100%;
+}
+
+.uw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uw-space-2);
+  padding: var(--uw-space-2) var(--uw-space-4);
+  border-radius: var(--uw-radius-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.uw-btn-primary {
+  background-color: var(--uw-primary);
+  color: var(--uw-text-on-primary);
+}
+.uw-btn-primary:hover {
+  background-color: var(--uw-primary-hover);
+  transform: translateY(-1px);
+}
+
+.uw-btn-secondary {
+  background-color: var(--uw-secondary);
+  color: var(--uw-text-on-primary);
+}
+.uw-btn-secondary:hover {
+  background-color: var(--uw-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.uw-btn-neutral {
+  background-color: var(--uw-neutral);
+  color: var(--uw-text);
+  border-color: var(--uw-border);
+}
+.uw-btn-neutral:hover {
+  background-color: var(--uw-neutral-hover);
+}
+
+/* Glassmorphism card */
+.uw-card {
+  background-color: var(--uw-surface-strong);
+  border: 1px solid var(--uw-border);
+  border-radius: var(--uw-radius-md);
+  box-shadow: var(--uw-shadow-sm);
+  padding: var(--uw-space-4);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.uw-card:not(.uw-card-static):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--uw-shadow-md);
+}
+
+/* Animation utilities */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 15px rgba(33, 138, 143, 0.4);
+  }
+}
+
+.glow-active {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3D Voxel Cube stack styles */
+.cube-stack-container {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle, var(--uw-bg-strong) 40%, var(--uw-bg) 100%);
+  border-radius: var(--uw-radius-lg);
+  border: 1px solid var(--uw-border);
+  box-shadow: var(--uw-shadow-sm);
+}
+
+.cube-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.cube {
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: rotateX(-35.26deg) rotateY(-45deg) rotateZ(0deg);
+  transform-origin: center center;
+}
+
+.side {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  user-select: none;
+}
+
+.side.front {
+  background: #2a8a8f;
+}
+.side.back {
+  background: #1c6265;
+}
+.side.right {
+  background: #207377;
+}
+.side.left {
+  background: #207377;
+}
+.side.top {
+  background: #3ebbc1;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+.side.bottom {
+  background: #154c4e;
+}
+
+/* Season tab — used in Home and Cast pages */
+.uw-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: var(--uw-text-muted);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.uw-tab-btn:hover {
+  color: var(--uw-text);
+}
+.uw-tab-btn.active {
+  color: var(--uw-text);
+  border-bottom-color: var(--uw-primary);
+}
+
+/* Game card row */
+.uw-game-card {
+  background-color: var(--uw-surface-strong);
+  border: 1px solid var(--uw-border);
+  border-left: 3px solid transparent;
+  border-radius: var(--uw-radius-sm);
+  padding: 18px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: border-left-color 150ms ease, box-shadow 150ms ease;
+}
+.uw-game-card:hover {
+  border-left-color: var(--uw-secondary);
+  box-shadow: var(--uw-shadow-sm);
+}
+.uw-game-card:hover .uw-card-num {
+  color: var(--uw-border-strong);
+}
+
+/* Card number */
+.uw-card-num {
+  font-family: 'Arial', sans-serif;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--uw-border);
+  flex-shrink: 0;
+  width: 44px;
+  text-align: center;
+  user-select: none;
+  transition: color 150ms ease;
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "name": "responsive-320",
+    "details": {
+      "bounds": {
+        "width": 320,
+        "doc": 320,
+        "clipped": []
+      },
+      "result": "win",
+      "secondTurn": true
+    },
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "responsive-390",
+    "details": {
+      "bounds": {
+        "width": 390,
+        "doc": 390,
+        "clipped": []
+      },
+      "result": "win",
+      "secondTurn": true
+    },
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "responsive-768",
+    "details": {
+      "bounds": {
+        "width": 768,
+        "doc": 768,
+        "clipped": []
+      },
+      "result": "win",
+      "secondTurn": true
+    },
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "responsive-1440",
+    "details": {
+      "bounds": {
+        "width": 1440,
+        "doc": 1440,
+        "clipped": []
+      },
+      "result": "win",
+      "secondTurn": true
+    },
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "keyboard-and-editing",
+    "details": "Arrow/WASD, undo, clear, boundary, max-count and keyboard result confirmation passed.",
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "rules-pause-timeout",
+    "details": "Rules pause the timer and keys. Timeout deducts one point exactly once; next turn starts at unchanged START.",
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "win-lose-draw-negative",
+    "details": [
+      "lose",
+      "win",
+      "draw"
+    ],
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "complete-match-and-restart",
+    "details": {
+      "completedTurns": 7,
+      "restartScores": [
+        0,
+        0
+      ]
+    },
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "exit-midroll",
+    "details": "Navigation unmounts the game and cancels pending roll callbacks.",
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "name": "live-language",
+    "details": "English start, roll, result and live Indonesian switch keep the current match.",
+    "passed": true,
+    "jsErrors": []
+  }
+]

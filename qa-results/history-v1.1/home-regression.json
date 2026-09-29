@@ -1,0 +1,12 @@
+[
+  {
+    "width": 1440,
+    "passed": true,
+    "checks": "7 catalog routes, back from each game, catalog search, document width, uncaught errors"
+  },
+  {
+    "width": 390,
+    "passed": true,
+    "checks": "7 catalog routes, back from each game, catalog search, document width, uncaught errors"
+  }
+]

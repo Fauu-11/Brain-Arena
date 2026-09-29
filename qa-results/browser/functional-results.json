@@ -1,0 +1,122 @@
+[
+  {
+    "name": "sudoku-complete-restart",
+    "passed": true,
+    "detail": "Solved via memorized board; result and restart work.",
+    "errors": []
+  },
+  {
+    "name": "cube-complete",
+    "passed": true,
+    "detail": "Five correct cube counts; final 5/5 and level breakdown rendered.",
+    "errors": []
+  },
+  {
+    "name": "pixel-complete",
+    "passed": true,
+    "detail": "Solved by visible pixel patterns using keyboard activation; result rendered.",
+    "errors": []
+  },
+  {
+    "name": "prime-local-duel",
+    "passed": true,
+    "detail": "Local duel starts, correct prime scores one point.",
+    "errors": []
+  },
+  {
+    "name": "mnm-local-duel",
+    "passed": true,
+    "detail": "Local duel starts, matching remembered chips scores one point.",
+    "errors": []
+  },
+  {
+    "name": "rps-roll",
+    "passed": true,
+    "detail": "Plan three moves, roll die, show battle feedback and continue.",
+    "errors": []
+  },
+  {
+    "name": "sudoku-largest-board",
+    "passed": true,
+    "detail": "Largest board fits stage; no clipped controls.",
+    "errors": []
+  },
+  {
+    "name": "mnm-largest-board",
+    "passed": true,
+    "detail": "Largest board fits stage; no clipped controls.",
+    "errors": []
+  },
+  {
+    "name": "rps-largest-board",
+    "passed": true,
+    "detail": "Largest board fits stage; no clipped controls.",
+    "errors": []
+  },
+  {
+    "name": "pixel-largest-board",
+    "passed": true,
+    "detail": "Largest board fits stage; no clipped controls.",
+    "errors": []
+  },
+  {
+    "name": "prime-largest-board",
+    "passed": true,
+    "detail": "Largest board fits stage; no clipped controls.",
+    "errors": []
+  },
+  {
+    "name": "arithmetic-arena",
+    "passed": true,
+    "detail": "Arena mode renders 30 inputs; invalid submission triggers original lock penalty.",
+    "errors": []
+  },
+  {
+    "name": "favorites-language",
+    "passed": true,
+    "detail": "Game favorite toggle and live ID/EN language switch work.",
+    "errors": []
+  },
+  {
+    "name": "300-english",
+    "passed": true,
+    "detail": "Find your rhythm",
+    "errors": []
+  },
+  {
+    "name": "prime-english",
+    "passed": true,
+    "detail": "Configure Match",
+    "errors": []
+  },
+  {
+    "name": "pixel-english",
+    "passed": true,
+    "detail": "Choose Difficulty",
+    "errors": []
+  },
+  {
+    "name": "mnm-english",
+    "passed": true,
+    "detail": "Game Mode & Difficulty",
+    "errors": []
+  },
+  {
+    "name": "cube-english",
+    "passed": true,
+    "detail": "Set your perspective",
+    "errors": []
+  },
+  {
+    "name": "rps-english",
+    "passed": true,
+    "detail": "Select Arena Mode",
+    "errors": []
+  },
+  {
+    "name": "sudoku-english",
+    "passed": true,
+    "detail": "Select Grid Difficulty",
+    "errors": []
+  }
+]

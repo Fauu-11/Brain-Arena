@@ -1,0 +1,47 @@
+[
+  {
+    "file": "src/games/Game300.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "d57488ea095a5ed24c2ef643bccaed6eb115c222aaee1e83db95a9094b772f0c"
+  },
+  {
+    "file": "src/games/GamePrime.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "36f219ddcbdb378b7bfe4375f03f5af087d4c8617fc85e0de41944de389633bc"
+  },
+  {
+    "file": "src/games/GamePixel.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "e76383d9a6812607bfa9c47a1098bb9c34d141f6c8ed8c1e45a5c048ceeccf2b"
+  },
+  {
+    "file": "src/games/GameMnM.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "8ab846f6c5d64856d07c33138ad2066960fee4828bb05bbeefabb16b900cbd2b"
+  },
+  {
+    "file": "src/games/GameCube.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "0984dc68bc1ac2ff6582bcfa1525802ef1f5fd723f7758a3225f04e052198640"
+  },
+  {
+    "file": "src/games/GameSudoku.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "8387aeeab3ecbab00bd36bb1f0b4a718ac1dc4ef3c786c7aed0f59f599de5fdc"
+  },
+  {
+    "file": "src/pages/Home.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "e4b0a5452d6117ef546ce968001d6f8a9962a30162bc49551b622e74ecc60c3c"
+  },
+  {
+    "file": "src/arena.css",
+    "unchangedFrom": "1.1.0",
+    "sha256": "965ad5f753a69e71b2384c39015281732f288879fe824d6393b44ca169255473"
+  },
+  {
+    "file": "src/components/Layout.jsx",
+    "unchangedFrom": "1.1.0",
+    "sha256": "aaf7765cfa359db6f6be0ba4fa1c4b04a9c889859c39a521059c33cbff221534"
+  }
+]

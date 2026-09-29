@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: Catalog identifiers and canonical slugs are unique
+ok 1 - Catalog identifiers and canonical slugs are unique
+  ---
+  duration_ms: 0.83325
+  type: 'test'
+  ...
+# Subtest: Routes and guides: 300
+ok 2 - Routes and guides: 300
+  ---
+  duration_ms: 0.573637
+  type: 'test'
+  ...
+# Subtest: Routes and guides: prime
+ok 3 - Routes and guides: prime
+  ---
+  duration_ms: 0.113342
+  type: 'test'
+  ...
+# Subtest: Routes and guides: pixel
+ok 4 - Routes and guides: pixel
+  ---
+  duration_ms: 0.15911
+  type: 'test'
+  ...
+# Subtest: Routes and guides: mnm
+ok 5 - Routes and guides: mnm
+  ---
+  duration_ms: 0.161324
+  type: 'test'
+  ...
+# Subtest: Routes and guides: cube
+ok 6 - Routes and guides: cube
+  ---
+  duration_ms: 0.121964
+  type: 'test'
+  ...
+# Subtest: Routes and guides: rps
+ok 7 - Routes and guides: rps
+  ---
+  duration_ms: 0.178089
+  type: 'test'
+  ...
+# Subtest: Routes and guides: sudoku
+ok 8 - Routes and guides: sudoku
+  ---
+  duration_ms: 0.081213
+  type: 'test'
+  ...
+# Subtest: Pages and aliases
+ok 9 - Pages and aliases
+  ---
+  duration_ms: 0.321146
+  type: 'test'
+  ...
+# Subtest: Malformed, unknown and prototype-property routes are rejected
+ok 10 - Malformed, unknown and prototype-property routes are rejected
+  ---
+  duration_ms: 0.478033
+  type: 'test'
+  ...
+# Subtest: Sudoku 4x4: 500 generated boards satisfy every constraint
+ok 11 - Sudoku 4x4: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 13.891455
+  type: 'test'
+  ...
+# Subtest: Sudoku 6x6: 500 generated boards satisfy every constraint
+ok 12 - Sudoku 6x6: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 14.765852
+  type: 'test'
+  ...
+# Subtest: Sudoku 9x9: 500 generated boards satisfy every constraint
+ok 13 - Sudoku 9x9: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 18.64351
+  type: 'test'
+  ...
+# Subtest: Invalid Sudoku dimensions fail explicitly
+ok 14 - Invalid Sudoku dimensions fail explicitly
+  ---
+  duration_ms: 0.516862
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109.114995
