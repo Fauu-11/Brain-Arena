@@ -1,14 +1,22 @@
-# Brain Arena v1.4 — Maze Escape + Memory Matrix
+# Brain Arena v1.5 — Complete Game Guides
 
-Brain Arena v1.4 menambahkan **dua game sekaligus** tanpa mengganti identitas UI:
-**Maze Escape** dan **Memory Matrix**. Total sekarang **10 game**. Keduanya tetap
-menggunakan hero gelap, kartu putih, aksen ungu, sidebar, bahasa ID/EN, favorit,
-riwayat lokal, panduan, mode fokus, dan kontrol responsif seperti game Brain Arena lain.
+Brain Arena v1.5 memperbarui **Panduan Bermain** untuk seluruh **10 game** agar lebih
+informatif, terstruktur, dan mudah dipakai sebelum maupun saat belajar strategi.
+Gameplay game tidak diubah pada versi ini.
 
-> Proyek ini menggunakan **React + Vite**. `vite.config.js` memakai
-> `@vitejs/plugin-react`.
+## Isi panduan baru
 
-## Game yang tersedia
+Setiap game sekarang mempunyai empat bagian utama:
+
+1. **Ringkasan** — tujuan permainan, cara menang, kontrol, fakta cepat, dan perubahan tiap tingkat.
+2. **Tutorial langkah** — tutorial dari awal sampai siap bermain dengan checklist interaktif.
+3. **Cara memecahkan** — metode keputusan langkah demi langkah, contoh pemecahan, dan kesalahan umum.
+4. **Strategi & trik** — strategi lanjutan, rumus/pola, filter SD–Universitas, dan pencarian tips.
+
+Panduan tersedia dalam **Bahasa Indonesia dan English** mengikuti pengaturan bahasa
+Brain Arena.
+
+## Game yang memiliki panduan lengkap
 
 1. Blitz Aritmatika
 2. Perburuan Prima
@@ -18,74 +26,36 @@ riwayat lokal, panduan, mode fokus, dan kontrol responsif seperti game Brain Are
 6. Duel Dadu
 7. Sudoku Buta
 8. Minesweeper
-9. **Maze Escape**
-10. **Memory Matrix**
+9. Maze Escape
+10. Memory Matrix
 
-Game baru ditempatkan pada **Musim 3**. Filter musim di beranda sekarang dibangun
-otomatis dari katalog sehingga Musim 3 langsung muncul.
+Panduan Maze Escape dan Memory Matrix juga menjelaskan sub-level Universitas
+**Hard, Very Hard, dan Extreme**.
 
-## Maze Escape
+## Tampilan Panduan
 
-Route: `#/maze-escape`
+Halaman `#/panduan` sekarang memiliki Learning Hub baru dengan:
 
-| Jenjang | Ukuran |
-| --- | ---: |
-| SD | 7 × 7 |
-| SMP | 10 × 10 |
-| SMA | 14 × 14 |
-| Universitas — Hard | 18 × 18 |
-| Universitas — Very Hard | 24 × 24 |
-| Universitas — Extreme | 32 × 32 |
+- learning path empat tahap;
+- indikator kategori dan musim;
+- penanda bahwa tiap panduan berisi Tutorial, Pemecahan, dan Strategi;
+- kartu responsive yang tetap mengikuti UI Brain Arena.
 
-Fitur:
-
-- generator **perfect maze**: setiap papan pasti dapat diselesaikan;
-- posisi mulai kiri atas dan pintu keluar kanan bawah;
-- keyboard **Arrow Keys / WASD**;
-- D-pad untuk layar sentuh;
-- timer, jumlah langkah, pause, restart, dan efisiensi rute;
-- rekor waktu terbaik per jenjang dan per sub-level Universitas;
-- papan Very Hard/Extreme memakai scroll lokal sehingga halaman tidak melebar di HP.
-
-## Memory Matrix
-
-Route: `#/memory-matrix`
-
-| Jenjang | Matriks | Ronde | Pola awal |
-| --- | ---: | ---: | ---: |
-| SD | 3 × 3 | 5 | 3 petak |
-| SMP | 4 × 4 | 6 | 4 petak |
-| SMA | 5 × 5 | 7 | 5 petak |
-| Universitas — Hard | 6 × 6 | 7 | 7 petak |
-| Universitas — Very Hard | 7 × 7 | 8 | 9 petak |
-| Universitas — Extreme | 8 × 8 | 9 | 12 petak |
-
-Fitur:
-
-- fase **menghafal → mengingat kembali** pada setiap ronde;
-- jumlah target bertambah seiring ronde;
-- tiga nyawa untuk satu tantangan;
-- petak benar +100 poin, kesalahan mengurangi nyawa dan 50 poin;
-- mode Extreme menambah 2 target per ronde;
-- skor tertinggi tersimpan per jenjang / sub-level Universitas;
-- layout matriks responsif sampai viewport 320 px.
-
-## Tingkat khusus Universitas
-
-Kedua game baru memiliki selector tambahan saat **Universitas** dipilih:
+Halaman detail, contoh:
 
 ```text
-Hard
-Very Hard
-Extreme
+#/tips-minesweeper
+#/tips-maze
+#/tips-matrix
+#/tips-rps
 ```
 
-Selector ini hanya muncul pada mode Universitas. SD, SMP, dan SMA tetap memakai
-konfigurasi masing-masing tanpa sub-level tambahan.
+memiliki selector 10 game, tab panduan, checklist tutorial, worked example, daftar
+kesalahan, pencarian strategi, dan tombol langsung kembali bermain.
 
 ## Menjalankan source
 
-Gunakan Node.js yang memenuhi `engines` di `package.json`.
+Gunakan Node.js sesuai `engines` di `package.json`.
 
 ```bash
 npm ci
@@ -101,69 +71,59 @@ npm run preview
 
 ## Build portable yang disertakan
 
-Build ESM portable sudah disertakan untuk preview lokal:
+Versi ZIP menyertakan build ESM portable untuk preview lokal:
 
 ```bash
 node scripts/serve.mjs
 ```
 
-Buka salah satu:
+Lalu buka:
 
 ```text
-http://localhost:4173/#/maze-escape
-http://localhost:4173/#/memory-matrix
+http://localhost:4173/#/panduan
 ```
 
 Pada Windows dapat memakai `JALANKAN-WINDOWS.bat`.
 
 ## GitHub Pages
 
-Workflow otomatis ada di:
+Workflow otomatis tetap berada di:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-Workflow menjalankan `npm ci` dan `npm run build`, lalu menerbitkan folder `dist/`.
-Pada repository GitHub pilih **Settings → Pages → Source → GitHub Actions**.
+Di GitHub pilih **Settings → Pages → Source → GitHub Actions**.
 
-Setelah perubahan di Zed:
+Untuk mengunggah pembaruan dari Zed:
 
 ```bash
 git add .
-git commit -m "Add Maze Escape and Memory Matrix"
+git commit -m "Upgrade complete game guides"
 git push origin main
 ```
+
+## Berkas utama pembaruan v1.5
+
+| Berkas | Fungsi |
+| --- | --- |
+| `src/pages/Guides.jsx` | Learning Hub / daftar seluruh panduan |
+| `src/pages/TipsPage.jsx` | UI detail panduan, tab, checklist, pencarian strategi |
+| `src/data/guideDetails.js` | Tutorial lengkap, metode pemecahan, kontrol, tingkat, kesalahan |
+| `src/arena.css` | Tampilan responsive panduan baru |
+| `tests/guides.test.mjs` | Validasi kelengkapan panduan untuk semua game |
 
 ## Pengujian
 
 ```bash
 npm test
 npm run build:portable
-python tests/browser/newgames.py
 ```
 
-Untuk pemeriksaan HTTP, jalankan server preview terlebih dahulu lalu:
+QA browser juga memeriksa halaman panduan pada 1440 px dan 390 px, interaksi tab,
+checklist tutorial, perpindahan antar-game, dan halaman Learning Hub.
 
-```bash
-python tests/http.test.py
-```
+Detail ada di `TEST_REPORT.md`.
 
-Rincian hasil ada di `TEST_REPORT.md`.
-
-## Berkas utama game baru
-
-| Berkas | Fungsi |
-| --- | --- |
-| `src/games/GameMaze.jsx` | Gameplay Maze Escape |
-| `src/utils/maze.js` | Generator, movement, shortest path |
-| `src/games/GameMemoryMatrix.jsx` | Fase hafalan, recall, score, nyawa, ronde |
-| `src/utils/memoryMatrix.js` | Sampling pola dan target ronde |
-| `src/components/GameShell.jsx` | Selector Hard / Very Hard / Extreme Universitas |
-| `src/game-theme.css` | UI responsive kedua game |
-| `tests/maze.test.mjs` | Unit test Maze Escape |
-| `tests/memoryMatrix.test.mjs` | Unit test Memory Matrix |
-| `tests/browser/newgames.py` | QA browser desktop/mobile kedua game |
-
-Favorit, riwayat, rekor, bahasa, dan mute tetap disimpan di `localStorage`; belum
-ada backend atau akun online.
+Favorit, riwayat, rekor, bahasa, dan mute tetap tersimpan di browser (`localStorage`).
+Belum ada backend atau akun online.

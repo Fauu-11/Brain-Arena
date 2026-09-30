@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { GAMES, CATEGORIES, gameById } from '../data/games.js';
+import { GUIDE_DETAILS, pickGuideText } from '../data/guideDetails.js';
+import Icon from '../components/Icon.jsx';
 
-export default function TipsPage({ gameId = '300', onBack }) {
+export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
   const { lang } = useLanguage();
 
   // Normalize gameId (removes "tips-" prefix if routed as "tips-prime", "tips-pixel", etc.)
@@ -9,19 +12,10 @@ export default function TipsPage({ gameId = '300', onBack }) {
   const [selectedGame, setSelectedGame] = useState(normalizedInitialId);
   const [levelFilter, setLevelFilter] = useState('all'); // 'all', 'sd', 'smp', 'sma', 'univ'
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [completedSteps, setCompletedSteps] = useState({});
 
-  const GAME_LIST = [
-    { id: '300', icon: '⚡', nameEn: 'Arithmetic Blitz', nameId: 'Blitz Aritmatika' },
-    { id: 'prime', icon: '🔢', nameEn: 'Prime Hunter', nameId: 'Perburuan Prima' },
-    { id: 'pixel', icon: '🧩', nameEn: 'Pixel Digits', nameId: 'Digit Piksel' },
-    { id: 'sudoku', icon: '🧠', nameEn: 'Blind Sudoku', nameId: 'Sudoku Buta' },
-    { id: 'mnm', icon: '🔄', nameEn: 'Match & Mix', nameId: 'Match & Mix' },
-    { id: 'cube', icon: '🧊', nameEn: 'Cube Count', nameId: 'Hitung Kubus' },
-    { id: 'rps', icon: '🎲', nameEn: 'Dice Duel 3D', nameId: 'Duel Dadu 3D' },
-    { id: 'minesweeper', icon: '💣', nameEn: 'Minesweeper', nameId: 'Minesweeper' },
-    { id: 'maze', icon: '🧭', nameEn: 'Maze Escape', nameId: 'Maze Escape' },
-    { id: 'matrix', icon: '🟪', nameEn: 'Memory Matrix', nameId: 'Memory Matrix' }
-  ];
+  const GAME_LIST = GAMES;
 
   const TIPS_DATABASE = {
     '300': {
@@ -531,269 +525,83 @@ export default function TipsPage({ gameId = '300', onBack }) {
       .filter(Boolean);
   }, [activeData, levelFilter, searchQuery]);
 
+  const game = gameById(selectedGame) || GAMES[0];
+  const detail = GUIDE_DETAILS[selectedGame] || GUIDE_DETAILS['300'];
+  const text = (value) => pickGuideText(value, lang);
+  const copy = (id, en) => lang === 'en' ? en : id;
+  const tabs = [
+    { id: 'overview', icon: 'book', label: copy('Ringkasan', 'Overview') },
+    { id: 'tutorial', icon: 'play', label: copy('Tutorial langkah', 'Step tutorial') },
+    { id: 'solve', icon: 'brain', label: copy('Cara memecahkan', 'How to solve') },
+    { id: 'strategy', icon: 'trophy', label: copy('Strategi & trik', 'Strategy & tips') },
+  ];
+  const doneCount = detail.tutorial.reduce((count, _, index) => count + (completedSteps[`${selectedGame}-${index}`] ? 1 : 0), 0);
+  const toggleStep = (index) => setCompletedSteps((prev) => ({ ...prev, [`${selectedGame}-${index}`]: !prev[`${selectedGame}-${index}`] }));
+
   return (
-    <div style={{ maxWidth: '880px', margin: '0 auto', paddingBottom: 'var(--uw-space-6)' }}>
-      {/* Top Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '16px',
-        backgroundColor: 'var(--uw-surface)',
-        padding: '16px 20px',
-        borderRadius: 'var(--uw-radius-lg)',
-        border: '1px solid var(--uw-border)',
-        boxShadow: 'var(--uw-shadow-sm)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '1.8rem' }}>💡</span>
-          <div>
-            <h1 style={{
-              fontSize: '1.8rem',
-              fontFamily: 'Arial, sans-serif',
-              letterSpacing: '0.04em',
-              margin: 0,
-              color: 'var(--uw-secondary)'
-            }}>
-              {lang === 'en' ? 'Strategy & Shortcut Manual' : 'Buku Panduan Strategi & Rumus Cepat'}
-            </h1>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--uw-text-muted)' }}>
-              {lang === 'en'
-                ? 'Master mental calculation techniques, visual memory heuristics, and game mechanics'
-                : 'Kuasai teknik hitung cepat, cara memori visual, dan rahasia mekanik game'}
-            </p>
-          </div>
-        </div>
-
-        <button className="uw-btn uw-btn-neutral" onClick={onBack} style={{ padding: '8px 18px', fontWeight: 600 }}>
-          {lang === 'en' ? '← Back to Game' : '← Kembali ke Game'}
-        </button>
+    <section className={`manual-page color-${game.color}`}>
+      <div className="manual-page-actions">
+        <button className="manual-back" onClick={() => onNavigate?.('guides')}><Icon name="chevron" size={14}/>{copy('Semua panduan', 'All guides')}</button>
+        <span>{copy('PUSAT BELAJAR BRAIN ARENA', 'BRAIN ARENA LEARNING HUB')}</span>
+        <button className="ba-button primary manual-play" onClick={() => onNavigate ? onNavigate(selectedGame) : onBack?.()}><Icon name="play" size={15}/>{copy('Mainkan sekarang', 'Play now')}</button>
       </div>
 
-      {/* Game Selector Chips */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '8px',
-        marginBottom: '16px',
-        scrollbarWidth: 'thin'
-      }}>
-        {GAME_LIST.map((g) => {
-          const isSelected = selectedGame === g.id;
-          return (
-            <button
-              key={g.id}
-              onClick={() => {
-                setSelectedGame(g.id);
-                setSearchQuery('');
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '24px',
-                border: isSelected ? '2px solid var(--uw-primary)' : '1px solid var(--uw-border)',
-                backgroundColor: isSelected ? 'var(--uw-primary)' : 'var(--uw-surface-strong)',
-                color: isSelected ? '#ffffff' : 'var(--uw-text)',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '0.88rem',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.12s ease',
-                boxShadow: isSelected ? '0 2px 8px rgba(14,165,233,0.3)' : 'none'
-              }}
-            >
-              <span>{g.icon}</span>
-              <span>{lang === 'en' ? g.nameEn : g.nameId}</span>
-            </button>
-          );
-        })}
+      <header className="manual-hero">
+        <div className="manual-hero-icon"><Icon name={game.icon} size={38}/></div>
+        <div className="manual-hero-copy">
+          <div className="manual-eyebrow"><span>{copy('PANDUAN LENGKAP', 'COMPLETE GUIDE')}</span><i/>{CATEGORIES[game.category][lang]}</div>
+          <h1>{game.title[lang]}</h1>
+          <p>{text(detail.objective)}</p>
+          <div className="manual-facts-inline">{detail.facts.map((entry, index) => <span key={index}><small>{text(entry.label)}</small><strong>{text(entry.value)}</strong></span>)}</div>
+        </div>
+        <div className="manual-hero-note"><Icon name="trophy" size={21}/><span><small>{copy('CARA MENANG', 'HOW TO WIN')}</small>{text(detail.victory)}</span></div>
+      </header>
+
+      <div className="manual-game-picker" aria-label={copy('Pilih panduan permainan', 'Choose a game guide')}>
+        {GAME_LIST.map((entry) => <button key={entry.id} className={selectedGame === entry.id ? 'active' : ''} onClick={() => { setSelectedGame(entry.id); setSearchQuery(''); setLevelFilter('all'); setActiveTab('overview'); }} aria-pressed={selectedGame === entry.id}>
+          <span className={`mini-game-icon color-${entry.color}`}><Icon name={entry.icon} size={16}/></span><span>{entry.title[lang]}</span>
+        </button>)}
       </div>
 
-      {/* Control Bar: Tier Filter + Live Search */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '12px',
-        marginBottom: '20px',
-        backgroundColor: 'var(--uw-surface-alt)',
-        padding: '12px 16px',
-        borderRadius: 'var(--uw-radius-md)',
-        border: '1px solid var(--uw-border)'
-      }}>
-        {/* Tier filter buttons */}
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--uw-text-muted)', marginRight: '4px' }}>
-            {lang === 'en' ? 'LEVEL:' : 'TINGKAT:'}
-          </span>
-          {[
-            { id: 'all', label: lang === 'en' ? 'All' : 'Semua' },
-            { id: 'sd', label: 'SD' },
-            { id: 'smp', label: 'SMP' },
-            { id: 'sma', label: 'SMA' },
-            { id: 'univ', label: lang === 'en' ? 'Univ' : 'Univ' }
-          ].map(tier => (
-            <button
-              key={tier.id}
-              onClick={() => setLevelFilter(tier.id)}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '16px',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                border: '1px solid',
-                borderColor: levelFilter === tier.id ? 'var(--uw-secondary)' : 'var(--uw-border)',
-                backgroundColor: levelFilter === tier.id ? 'var(--uw-secondary)' : 'transparent',
-                color: levelFilter === tier.id ? '#ffffff' : 'var(--uw-text-muted)',
-                cursor: 'pointer',
-                transition: 'all 0.1s'
-              }}
-            >
-              {tier.label}
-            </button>
-          ))}
+      <nav className="manual-tabs" aria-label={copy('Bagian panduan', 'Guide sections')}>
+        {tabs.map((tab) => <button key={tab.id} className={activeTab === tab.id ? 'active' : ''} onClick={() => setActiveTab(tab.id)} aria-current={activeTab === tab.id ? 'page' : undefined}><Icon name={tab.icon} size={16}/><span>{tab.label}</span>{tab.id === 'tutorial' && <small>{doneCount}/{detail.tutorial.length}</small>}</button>)}
+      </nav>
+
+      {activeTab === 'overview' && <div className="manual-section manual-overview">
+        <div className="manual-section-heading"><span>01</span><div><p className="eyebrow">{copy('MULAI DI SINI', 'START HERE')}</p><h2>{copy('Pahami permainan dalam 2 menit', 'Understand the game in 2 minutes')}</h2><p>{copy('Tujuan, kontrol, tingkat kesulitan, dan hal penting sebelum menekan tombol mulai.', 'Goal, controls, difficulty levels, and the essentials before you press start.')}</p></div></div>
+        <div className="manual-overview-grid">
+          <article className="manual-card manual-controls"><div className="manual-card-title"><Icon name="gamepad" size={19}/><div><small>{copy('KONTROL', 'CONTROLS')}</small><h3>{copy('Cara berinteraksi', 'How to interact')}</h3></div></div><ol>{detail.controls.map((control, index) => <li key={index}><span>{index + 1}</span><p>{text(control)}</p></li>)}</ol></article>
+          <article className="manual-card manual-level-card"><div className="manual-card-title"><Icon name="layers" size={19}/><div><small>{copy('TINGKAT KESULITAN', 'DIFFICULTY')}</small><h3>{copy('Apa yang berubah?', 'What changes?')}</h3></div></div><div className="manual-level-list">{detail.levels.map((entry, index) => <div key={`${entry.name}-${index}`}><strong>{entry.name}</strong><p>{text(entry.detail)}</p></div>)}</div></article>
         </div>
+        <article className="manual-callout"><span className="manual-callout-icon"><Icon name="brain" size={22}/></span><div><small>{copy('PRINSIP UTAMA', 'CORE PRINCIPLE')}</small><strong>{text(detail.solve.title)}</strong><p>{text(detail.solve.intro)}</p></div><button onClick={() => setActiveTab('solve')}>{copy('Pelajari metode', 'Learn the method')}<Icon name="arrow" size={15}/></button></article>
+      </div>}
 
-        {/* Search input */}
-        <div style={{ position: 'relative', minWidth: '220px', flex: '1', maxWidth: '320px' }}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={lang === 'en' ? '🔍 Search tips, rules, formulas...' : '🔍 Cari rumus, tips, aturan...'}
-            style={{
-              width: '100%',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              border: '1px solid var(--uw-border)',
-              backgroundColor: 'var(--uw-surface-strong)',
-              color: 'var(--uw-text)',
-              fontSize: '0.85rem',
-              outline: 'none'
-            }}
-          />
+      {activeTab === 'tutorial' && <div className="manual-section">
+        <div className="manual-section-heading"><span>02</span><div><p className="eyebrow">{copy('TUTORIAL LENGKAP', 'COMPLETE TUTORIAL')}</p><h2>{copy('Ikuti dari langkah pertama sampai siap bermain', 'Follow it from the first step until you are ready to play')}</h2><p>{copy('Centang langkah yang sudah dipahami. Status checklist hanya berlaku selama halaman ini terbuka.', 'Check off steps you understand. Checklist state lasts only while this page is open.')}</p></div><div className="manual-progress"><strong>{Math.round((doneCount / detail.tutorial.length) * 100)}%</strong><span><i style={{ width: `${(doneCount / detail.tutorial.length) * 100}%` }}/></span></div></div>
+        <div className="manual-tutorial-list">{detail.tutorial.map((step, index) => {
+          const checked = Boolean(completedSteps[`${selectedGame}-${index}`]);
+          return <article className={`manual-tutorial-step ${checked ? 'done' : ''}`} key={index}><button className="manual-step-check" onClick={() => toggleStep(index)} aria-pressed={checked} aria-label={`${copy('Tandai langkah', 'Mark step')} ${index + 1}`}><span>{checked ? <Icon name="check" size={16}/> : String(index + 1).padStart(2, '0')}</span></button><div><small>{copy('LANGKAH', 'STEP')} {String(index + 1).padStart(2, '0')}</small><h3>{text(step.title)}</h3><p>{text(step.text)}</p>{step.note && <div className="manual-step-note"><Icon name="help" size={14}/>{text(step.note)}</div>}</div></article>;
+        })}</div>
+        <div className="manual-next"><div><strong>{doneCount === detail.tutorial.length ? copy('Tutorial selesai.', 'Tutorial complete.') : copy('Sudah paham alurnya?', 'Understand the flow?')}</strong><p>{copy('Lanjut ke cara memecahkan untuk mempelajari pola keputusan yang bisa dipakai saat benar-benar terjebak.', 'Continue to How to Solve for a decision process you can use when you are actually stuck.')}</p></div><button className="ba-button primary" onClick={() => setActiveTab('solve')}>{copy('Cara memecahkan', 'How to solve')}<Icon name="arrow" size={15}/></button></div>
+      </div>}
+
+      {activeTab === 'solve' && <div className="manual-section">
+        <div className="manual-section-heading"><span>03</span><div><p className="eyebrow">{copy('CARA MEMECAHKAN', 'HOW TO SOLVE')}</p><h2>{text(detail.solve.title)}</h2><p>{text(detail.solve.intro)}</p></div></div>
+        <div className="manual-solve-flow">{detail.solve.steps.map((step, index) => <React.Fragment key={index}><article><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{text(step.title)}</h3><p>{text(step.text)}</p></div></article>{index < detail.solve.steps.length - 1 && <Icon className="manual-flow-arrow" name="arrow" size={18}/>}</React.Fragment>)}</div>
+        <article className="manual-example"><div className="manual-example-label"><Icon name="bolt" size={18}/><span>{copy('CONTOH PEMECAHAN', 'WORKED EXAMPLE')}</span></div><p>{text(detail.solve.example)}</p></article>
+        <div className="manual-mistakes"><div><p className="eyebrow">{copy('HINDARI INI', 'AVOID THESE')}</p><h3>{copy('Kesalahan yang paling sering membuang waktu', 'Common mistakes that waste time')}</h3></div><div>{detail.mistakes.map((mistake, index) => <article key={index}><span>!</span><p>{text(mistake)}</p></article>)}</div></div>
+      </div>}
+
+      {activeTab === 'strategy' && <div className="manual-section">
+        <div className="manual-section-heading"><span>04</span><div><p className="eyebrow">{copy('STRATEGI LANJUTAN', 'ADVANCED STRATEGY')}</p><h2>{copy('Trik, pola, dan rumus yang bisa langsung dipakai', 'Practical tricks, patterns, and formulas')}</h2><p>{copy('Gunakan filter tingkat dan pencarian untuk menemukan teknik yang kamu butuhkan.', 'Use the level filter and search to find the technique you need.')}</p></div></div>
+        <div className="manual-filterbar">
+          <div className="manual-tier-filter"><span>{copy('TINGKAT', 'LEVEL')}</span>{[{id:'all',label:copy('Semua','All')},{id:'sd',label:'SD'},{id:'smp',label:'SMP'},{id:'sma',label:'SMA'},{id:'univ',label:copy('Universitas','University')}].map((tier) => <button key={tier.id} className={levelFilter === tier.id ? 'active' : ''} onClick={() => setLevelFilter(tier.id)}>{tier.label}</button>)}</div>
+          <label className="manual-search"><Icon name="search" size={15}/><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder={copy('Cari pola, rumus, strategi...', 'Search patterns, formulas, strategies...')}/></label>
         </div>
-      </div>
+        {filteredSections.length === 0 ? <div className="manual-empty"><Icon name="search" size={28}/><strong>{copy('Tidak ada strategi yang cocok.', 'No matching strategy found.')}</strong><p>{copy('Coba hapus kata pencarian atau pilih tingkat lain.', 'Clear the search or choose another level.')}</p></div> : <div className="manual-strategy-sections">{filteredSections.map((sec, sectionIndex) => <section key={sectionIndex}><header><div><span>{sec.tier === 'all' ? copy('SEMUA TINGKAT', 'ALL LEVELS') : sec.tier.toUpperCase()}</span><h3>{lang === 'en' ? sec.headingEn : sec.headingId}</h3></div><strong>{sec.tips.length} {copy('teknik', 'tips')}</strong></header><div className="manual-strategy-grid">{sec.tips.map((tip, tipIndex) => <article key={tipIndex}><span className="manual-strategy-number">{String(tipIndex + 1).padStart(2, '0')}</span><div><h4>{lang === 'en' ? tip.titleEn : tip.titleId}</h4><p>{lang === 'en' ? tip.textEn : tip.textId}</p>{tip.formula && <code>{tip.formula}</code>}</div></article>)}</div></section>)}</div>}
+      </div>}
 
-      {/* Tips Content Stream */}
-      {filteredSections.length === 0 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          backgroundColor: 'var(--uw-surface)',
-          borderRadius: 'var(--uw-radius-md)',
-          border: '1px dashed var(--uw-border)',
-          color: 'var(--uw-text-muted)'
-        }}>
-          <span style={{ fontSize: '2rem' }}>🔎</span>
-          <p style={{ marginTop: '8px', fontWeight: 600 }}>
-            {lang === 'en' ? 'No tips match your filter criteria.' : 'Tidak ada tips yang cocok dengan kriteria pencarian.'}
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {filteredSections.map((sec, sIdx) => (
-            <div
-              key={sIdx}
-              style={{
-                backgroundColor: 'var(--uw-surface)',
-                borderRadius: 'var(--uw-radius-lg)',
-                border: '1px solid var(--uw-border)',
-                padding: '20px',
-                boxShadow: 'var(--uw-shadow-sm)'
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderBottom: '2px solid var(--uw-border-strong)',
-                paddingBottom: '8px',
-                marginBottom: '16px'
-              }}>
-                <h2 style={{
-                  fontSize: '1.35rem',
-                  fontFamily: 'Arial, sans-serif',
-                  letterSpacing: '0.04em',
-                  color: 'var(--uw-secondary)',
-                  margin: 0
-                }}>
-                  {lang === 'en' ? sec.headingEn : sec.headingId}
-                </h2>
-                {sec.tier !== 'all' && (
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    padding: '2px 8px',
-                    borderRadius: '6px',
-                    backgroundColor: 'rgba(14, 165, 233, 0.12)',
-                    color: 'var(--uw-primary)',
-                    textTransform: 'uppercase'
-                  }}>
-                    {sec.tier}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {sec.tips.map((tip, tIdx) => (
-                  <div
-                    key={tIdx}
-                    style={{
-                      backgroundColor: 'var(--uw-surface-strong)',
-                      border: '1px solid var(--uw-border)',
-                      borderRadius: '8px',
-                      padding: '14px 16px',
-                      transition: 'transform 0.1s'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      marginBottom: '6px'
-                    }}>
-                      <span style={{ color: 'var(--uw-primary)', fontWeight: 800 }}>✦</span>
-                      <strong style={{ fontSize: '1rem', color: 'var(--uw-text)' }}>
-                        {lang === 'en' ? tip.titleEn : tip.titleId}
-                      </strong>
-                    </div>
-
-                    <p style={{
-                      margin: '0 0 8px 0',
-                      fontSize: '0.92rem',
-                      lineHeight: '1.55',
-                      color: 'var(--uw-text-muted)'
-                    }}>
-                      {lang === 'en' ? tip.textEn : tip.textId}
-                    </p>
-
-                    {tip.formula && (
-                      <div style={{
-                        marginTop: '8px',
-                        padding: '6px 12px',
-                        backgroundColor: '#0f172a',
-                        color: '#38bdf8',
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        fontFamily: 'ui-monospace, monospace',
-                        fontWeight: 600,
-                        display: 'inline-block'
-                      }}>
-                        ⚡ {tip.formula}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <footer className="manual-footer-cta"><div><span className={`mini-game-icon color-${game.color}`}><Icon name={game.icon} size={20}/></span><div><small>{copy('SIAP MENCOBA?', 'READY TO TRY?')}</small><strong>{game.title[lang]}</strong></div></div><p>{copy('Mulai dari tingkat yang nyaman, lalu naikkan kesulitan setelah strateginya terasa otomatis.', 'Start at a comfortable level, then raise the difficulty once the strategy feels automatic.')}</p><button className="ba-button primary" onClick={() => onNavigate ? onNavigate(selectedGame) : onBack?.()}>{copy('Mainkan game', 'Play game')}<Icon name="arrow" size={15}/></button></footer>
+    </section>
   );
 }

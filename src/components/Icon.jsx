@@ -32,6 +32,7 @@ const paths = {
   muted: <><path d="m11 4-6 5H2v6h3l6 5Zm5 5 5 6m0-6-5 6"/></>,
   help: <><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/></>,
   keyboard: <><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 15h10"/></>,
+  gamepad: <><path d="M7 8h10a4 4 0 0 1 3.8 5.2l-1.2 4a2.5 2.5 0 0 1-4.2 1l-1.6-1.7H10l-1.6 1.7a2.5 2.5 0 0 1-4.2-1l-1.2-4A4 4 0 0 1 7 8Z"/><path d="M8 11v4M6 13h4M16.5 12h.01M18.5 14h.01"/></>,
   shuffle: <><path d="m16 3 4 4-4 4m0 2 4 4-4 4M4 7h2c5 0 7 10 12 10h2M4 17h2c2 0 3-2 5-5m2-3c1-1 3-2 5-2h2"/></>,
   clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
   play: <path d="m8 4 12 8-12 8Z"/>,

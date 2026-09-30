@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 — Complete Game Guides
+
+- Mendesain ulang halaman **Panduan Bermain** menjadi Brain Arena Learning Hub.
+- Menambahkan empat bagian pada setiap panduan: Ringkasan, Tutorial langkah, Cara memecahkan, dan Strategi & trik.
+- Menambahkan tutorial lengkap untuk seluruh 10 game dalam Bahasa Indonesia dan English.
+- Menambahkan penjelasan tujuan, cara menang, kontrol, perbedaan tingkat, dan fakta cepat tiap game.
+- Menambahkan metode pemecahan langkah demi langkah dan worked example untuk semua game.
+- Menambahkan daftar kesalahan umum yang perlu dihindari.
+- Menambahkan checklist tutorial interaktif dan indikator progres selama halaman terbuka.
+- Mempertahankan strategi/rangkuman rumus lama dan mengemasnya dalam tab dengan filter tingkat serta pencarian.
+- Menambahkan selector antar-panduan dan tombol langsung kembali bermain.
+- Menambahkan test kelengkapan konten panduan untuk seluruh katalog.
+- Gameplay 10 game tidak diubah.
+
 ## 1.4.0 — Maze Escape + Memory Matrix
 
 - Menambahkan Maze Escape dan Memory Matrix sebagai game ke-9 dan ke-10.
