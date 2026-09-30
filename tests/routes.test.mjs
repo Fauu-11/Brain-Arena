@@ -4,9 +4,9 @@ import { GAMES, resolveRoute, routeHash } from '../src/data/games.js';
 import { generateSudokuMatrix } from '../src/utils/sudoku.js';
 
 test('Catalog identifiers and canonical slugs are unique', () => {
-  assert.equal(GAMES.length, 7);
-  assert.equal(new Set(GAMES.map(g => g.id)).size, 7);
-  assert.equal(new Set(GAMES.map(g => g.slug)).size, 7);
+  assert.equal(GAMES.length, 8);
+  assert.equal(new Set(GAMES.map(g => g.id)).size, 8);
+  assert.equal(new Set(GAMES.map(g => g.slug)).size, 8);
 });
 for (const game of GAMES) {
   test(`Routes and guides: ${game.id}`, () => {

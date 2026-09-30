@@ -17,7 +17,8 @@ export default function TipsPage({ gameId = '300', onBack }) {
     { id: 'sudoku', icon: '🧠', nameEn: 'Blind Sudoku', nameId: 'Sudoku Buta' },
     { id: 'mnm', icon: '🔄', nameEn: 'Match & Mix', nameId: 'Match & Mix' },
     { id: 'cube', icon: '🧊', nameEn: 'Cube Count', nameId: 'Hitung Kubus' },
-    { id: 'rps', icon: '🎲', nameEn: 'Dice Duel 3D', nameId: 'Duel Dadu 3D' }
+    { id: 'rps', icon: '🎲', nameEn: 'Dice Duel 3D', nameId: 'Duel Dadu 3D' },
+    { id: 'minesweeper', icon: '💣', nameEn: 'Minesweeper', nameId: 'Minesweeper' }
   ];
 
   const TIPS_DATABASE = {
@@ -328,6 +329,50 @@ export default function TipsPage({ gameId = '300', onBack }) {
               titleId: 'Mendeteksi Menara Tertutup (SMA & Universitas)',
               textEn: 'If tower (X, Y) has height 4 and is directly in front of tower (X, Y-1) which has height 2, the rear tower is 100% invisible from the front perspective, but its 2 cubes MUST still be tallied!',
               textId: 'Jika menara di depan bertinggi 4 dan menara di belakangnya bertinggi 2, menara belakang tidak terlihat dari depan, namun 2 kubusnya TETAP WAJIB dihitung ke total!'
+            }
+          ]
+        }
+      ]
+    },
+    'minesweeper': {
+      titleEn: 'Minesweeper',
+      titleId: 'Minesweeper',
+      sections: [
+        {
+          tier: 'all',
+          headingEn: 'Safe deduction before guessing',
+          headingId: 'Utamakan deduksi sebelum menebak',
+          tips: [
+            {
+              titleEn: 'Read number groups, not single cells',
+              titleId: 'Baca kelompok angka, bukan satu petak',
+              textEn: 'A number tells you exactly how many mines touch its eight neighboring cells. Compare overlapping groups of neighboring cells to identify forced safe cells and forced mines.',
+              textId: 'Setiap angka menunjukkan tepat berapa ranjau yang menyentuh delapan petak di sekelilingnya. Bandingkan kelompok petak yang saling bertumpuk untuk menemukan petak yang pasti aman dan ranjau yang pasti.'
+            },
+            {
+              titleEn: 'Use flags as working memory',
+              titleId: 'Gunakan bendera sebagai memori kerja',
+              textEn: 'Flag cells only when the clue is certain. Once a revealed number already has the required adjacent flags, opening the other neighboring cells becomes safe.',
+              textId: 'Pasang bendera hanya saat petunjuknya pasti. Jika sebuah angka sudah memiliki jumlah bendera yang sesuai, petak tetangga lainnya dapat dibuka dengan aman.'
+            },
+            {
+              titleEn: 'Open blank regions early',
+              titleId: 'Buka area kosong lebih awal',
+              textEn: 'Blank cells reveal connected empty regions automatically. Large openings create more number clues and reduce the amount of guessing later.',
+              textId: 'Petak kosong membuka area kosong yang saling terhubung secara otomatis. Bukaan besar memberi lebih banyak petunjuk angka dan mengurangi kebutuhan menebak.'
+            }
+          ]
+        },
+        {
+          tier: 'univ',
+          headingEn: 'Expert-board discipline',
+          headingId: 'Disiplin papan ahli',
+          tips: [
+            {
+              titleEn: 'Work one frontier at a time',
+              titleId: 'Selesaikan satu garis batas per giliran',
+              textEn: 'On the 30×16 board, avoid jumping between distant clue clusters. Finish one active frontier before scrolling to the next so your flag assumptions stay consistent.',
+              textId: 'Pada papan 30×16, hindari berpindah-pindah antar kelompok petunjuk yang jauh. Selesaikan satu garis batas aktif sebelum menggulir ke area berikutnya agar asumsi bendera tetap konsisten.'
             }
           ]
         }

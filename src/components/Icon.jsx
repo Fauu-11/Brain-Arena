@@ -15,6 +15,8 @@ const paths = {
   layers: <><path d="m12 3 10 5-10 5L2 8Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></>,
   cube: <><path d="m12 2 9 5v10l-9 5-9-5V7Zm0 10 9-5M12 12 3 7m9 5v10M3 7l9-5"/></>,
   dice: <><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 7h.01M17 7h.01M12 12h.01M7 17h.01M17 17h.01" strokeWidth="3"/></>,
+  mine: <><circle cx="12" cy="13" r="6"/><path d="M12 3v4m0 12v2M4.2 5.2l2.8 2.8m10 10 2.8 2.8M3 13h3m12 0h3M4.2 20.8 7 18m10-10 2.8-2.8"/><path d="M10 10.5c1-1.2 3.4-1.1 4.2.7"/></>,
+  flag: <><path d="M6 21V4"/><path d="M7 5h10l-2.2 3L17 11H7Z"/><path d="M3 21h7"/></>,
   brain: <><path d="M12 4c-4-5-9 1-6 4-5 0-5 8-1 8-1 6 6 7 7 3V4c4-5 9 1 6 4 5 0 5 8 1 8 1 6-6 7-7 3"/><path d="M7 10c3 0 3 4 0 4m10-4c-3 0-3 4 0 4"/></>,
   search: <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
   arrow: <path d="M4 12h16m-6-6 6 6-6 6"/>,

@@ -50,5 +50,14 @@ export default function Artwork({ id, compact = false }) {
       <g transform="translate(111 13) rotate(-7 61 62)"><rect y="5" width="122" height="125" rx="12" fill="#b09cdb"/><rect width="122" height="125" rx="12" fill="#fbf8ff"/>{Array.from({length:16},(_,i)=><g key={i}><rect x={10+i%4*27} y={10+Math.floor(i/4)*27} width="23" height="23" rx="4" fill={i%3===0 ? '#9a7bce' : '#ede5f7'}/><text x={21+i%4*27} y={27+Math.floor(i/4)*27} fontSize="15" fontWeight="600" textAnchor="middle" fill={i%3===0 ? 'white' : '#88729f'}>{i%5===0 ? '?' : [1,3,4,2][(i+Math.floor(i/4))%4]}</text></g>)}</g>
       <circle cx="73" cy="83" r="19" fill="none" stroke="#c8b6e3" strokeDasharray="4 4"/><path d="m267 39 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#bfa9dd"/>
     </>}
+    {id === 'minesweeper' && <>
+      <g transform="translate(92 22) rotate(-5 76 57)">
+        <rect x="-8" y="-8" width="168" height="130" rx="15" fill="#9bcdbf" opacity=".5"/>
+        <rect width="152" height="114" rx="13" fill="#f8fffc" stroke="#b8dcd1"/>
+        {Array.from({length:24},(_,i)=>{ const open=[1,2,6,7,8,12,13,14,18,19].includes(i); const n={1:1,2:1,6:1,7:2,8:2,12:0,13:1,14:2,18:0,19:1}[i]; return <g key={i} transform={`translate(${9+(i%6)*23} ${9+Math.floor(i/6)*24})`}><rect width="19" height="19" rx="4" fill={open?'#ffffff':'#dceee8'} stroke="#c8e2da"/><text x="9.5" y="14" textAnchor="middle" fontSize="11" fontWeight="750" fill={n===2?'#3f8d73':'#5e7fb2'}>{n || ''}</text></g>;})}
+      </g>
+      <g transform="translate(236 87)"><circle cx="0" cy="0" r="22" fill="#2f7362"/><circle cx="-7" cy="-7" r="4" fill="#f3fbf8" opacity=".65"/><path d="M0-34v10M0 24v10M-34 0h10M24 0h10M-24-24l7 7M17 17l7 7M-24 24l7-7M17-17l7-7" stroke="#2f7362" strokeWidth="5" strokeLinecap="round"/></g>
+      <path d="M63 46h18m179-10 5 8 9 2-7 6 1 9-8-4-8 4 1-9-7-6 9-2Z" fill="none" stroke="#78b9a7" strokeWidth="2"/>
+    </>}
   </svg>;
 }

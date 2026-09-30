@@ -7,6 +7,7 @@ export const GAMES = [
   { id: 'cube', slug: 'kubus-3d', season: 1, category: 'logic', difficulty: 'medium', icon: 'cube', color: 'yellow', mode: 'solo', title: { id: 'Hitung Kubus', en: 'Cube Count' }, description: { id: 'Lihat lebih dari satu sisi. Hitung semua kubus, termasuk yang tersembunyi.', en: 'See beyond the surface. Count every cube, including the ones you cannot see.' } },
   { id: 'rps', slug: 'suwit', season: 1, category: 'strategy', difficulty: 'hard', icon: 'dice', color: 'pink', mode: 'duel', title: { id: 'Duel Dadu', en: 'Dice Duel' }, description: { id: 'Rencanakan langkah dan gulingkan dadu. Kuasai arena gunting, batu, kertas.', en: 'Plan your moves and roll the dice. Master a rock-paper-scissors battle board.' } },
   { id: 'sudoku', slug: 'sudoku', season: 2, category: 'memory', difficulty: 'expert', icon: 'brain', color: 'lavender', mode: 'solo', title: { id: 'Sudoku Buta', en: 'Blind Sudoku' }, description: { id: 'Hafalkan angkanya sebelum menghilang. Selesaikan Sudoku dari ingatan.', en: 'Memorize the numbers before they disappear. Solve Sudoku from memory.' } },
+  { id: 'minesweeper', slug: 'minesweeper', season: 2, category: 'logic', difficulty: 'hard', icon: 'mine', color: 'mint', mode: 'solo', title: { id: 'Minesweeper', en: 'Minesweeper' }, description: { id: 'Baca petunjuk angka, tandai ranjau, dan bersihkan semua petak aman.', en: 'Read the number clues, flag the mines, and clear every safe cell.' } },
 ];
 export const CATEGORIES = {
   all: { id: 'Semua kategori', en: 'All categories' },

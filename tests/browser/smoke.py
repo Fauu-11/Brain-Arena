@@ -3,7 +3,7 @@ import sys, json
 from playwright.sync_api import sync_playwright
 from harness import mount, ROOT, browser_options
 OUT=ROOT/'qa-results/browser'; OUT.mkdir(parents=True, exist_ok=True)
-GAMES=['300','prime','pixel','mnm','cube','rps','sudoku']
+GAMES=['300','prime','pixel','mnm','cube','rps','sudoku','minesweeper']
 
 def overflow(page):
  return page.evaluate('''()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,body:document.body.scrollWidth,offenders:[...document.querySelectorAll('.arena-game *')].filter(e=>{const r=e.getBoundingClientRect();const s=getComputedStyle(e);return r.width>0 && (r.right>innerWidth+1 || r.left < -1) && s.position!=='absolute' && s.visibility!=='hidden' && !e.closest('.play-hero-art');}).slice(0,10).map(e=>({tag:e.tagName,cls:e.className?.baseVal??e.className,rect: {width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right},text:e.textContent.slice(0,60)}))})''')

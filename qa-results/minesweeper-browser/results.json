@@ -1,0 +1,29 @@
+[
+  {
+    "width": 1440,
+    "firstClickSafe": true,
+    "flagMode": true,
+    "pause": true,
+    "documentWidth": 1440,
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "width": 390,
+    "firstClickSafe": true,
+    "flagMode": true,
+    "pause": true,
+    "documentWidth": 390,
+    "passed": true,
+    "jsErrors": []
+  },
+  {
+    "width": 320,
+    "firstClickSafe": true,
+    "flagMode": true,
+    "pause": true,
+    "documentWidth": 320,
+    "passed": true,
+    "jsErrors": []
+  }
+]

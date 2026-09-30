@@ -62,6 +62,14 @@ const GUIDES = {
     tip: { id: 'Bagi papan menjadi blok kecil saat menghafal. Angka yang tetap terlihat bisa menjadi petunjuk.', en: 'Memorize the board in small blocks. The remaining clues help you reconstruct it.' },
     input: { id: 'Pilih sel, lalu ketik angka atau gunakan keypad. Backspace untuk menghapus.', en: 'Select a cell, then type a number or use the keypad. Backspace clears it.' },
   },
+  minesweeper: {
+    steps: {
+      id: ['Pilih ukuran papan dan jumlah ranjau sesuai jenjang.', 'Buka petak aman dan baca angka petunjuk di sekitarnya.', 'Tandai dugaan ranjau lalu bersihkan semua petak aman.'],
+      en: ['Choose a board size and mine count for your level.', 'Open safe cells and read the surrounding number clues.', 'Flag suspected mines, then clear every safe cell.'],
+    },
+    tip: { id: 'Mulai dari petak kosong yang membuka area besar. Jangan menebak jika pola angka masih bisa disimpulkan.', en: 'Start from blank regions that reveal more of the board. Avoid guessing while the clues still allow deduction.' },
+    input: { id: 'Klik/ketuk untuk membuka. Klik kanan atau tekan lama untuk bendera; Mode Bendera tersedia di mobile.', en: 'Click/tap to open. Right-click or long-press to flag; Flag Mode is available on mobile.' },
+  },
 };
 
 export default function GameScreen({ gameId, lang = 'id', state = 'setup', level, onBack, onNavigate, onRules, stats, children }) {

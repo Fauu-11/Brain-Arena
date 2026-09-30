@@ -1,274 +1,314 @@
+
+> universitywar@1.3.0 test
+> node --test tests/*.test.mjs
+
 TAP version 13
 # Subtest: The center of the net becomes the TOP; the tail becomes BOTTOM
 ok 1 - The center of the net becomes the TOP; the tail becomes BOTTOM
   ---
-  duration_ms: 1.392927
+  duration_ms: 1.93749
   type: 'test'
   ...
 # Subtest: Four up rolls restore every face AND icon rotation
 ok 2 - Four up rolls restore every face AND icon rotation
   ---
-  duration_ms: 2.011483
+  duration_ms: 2.624268
   type: 'test'
   ...
 # Subtest: up and its inverse restore the physical die
 ok 3 - up and its inverse restore the physical die
   ---
-  duration_ms: 0.223472
+  duration_ms: 0.31176
   type: 'test'
   ...
 # Subtest: Four left rolls restore every face AND icon rotation
 ok 4 - Four left rolls restore every face AND icon rotation
   ---
-  duration_ms: 0.284097
+  duration_ms: 0.617358
   type: 'test'
   ...
 # Subtest: left and its inverse restore the physical die
 ok 5 - left and its inverse restore the physical die
   ---
-  duration_ms: 3.802311
+  duration_ms: 3.385465
   type: 'test'
   ...
 # Subtest: Four right rolls restore every face AND icon rotation
 ok 6 - Four right rolls restore every face AND icon rotation
   ---
-  duration_ms: 1.678394
+  duration_ms: 0.524949
   type: 'test'
   ...
 # Subtest: right and its inverse restore the physical die
 ok 7 - right and its inverse restore the physical die
   ---
-  duration_ms: 0.424549
+  duration_ms: 0.358495
   type: 'test'
   ...
 # Subtest: Four down rolls restore every face AND icon rotation
 ok 8 - Four down rolls restore every face AND icon rotation
   ---
-  duration_ms: 0.281722
+  duration_ms: 0.233957
   type: 'test'
   ...
 # Subtest: down and its inverse restore the physical die
 ok 9 - down and its inverse restore the physical die
   ---
-  duration_ms: 2.875575
+  duration_ms: 0.503257
   type: 'test'
   ...
 # Subtest: Rotation does not mutate the source cube
 ok 10 - Rotation does not mutate the source cube
   ---
-  duration_ms: 0.753123
+  duration_ms: 1.620769
   type: 'test'
   ...
 # Subtest: 10,000 random rolls preserve six unique faces and valid artwork rotations
 ok 11 - 10,000 random rolls preserve six unique faces and valid artwork rotations
   ---
-  duration_ms: 241.9291
+  duration_ms: 121.786303
   type: 'test'
   ...
 # Subtest: Every one of the nine rock-paper-scissors matchups is correct
 ok 12 - Every one of the nine rock-paper-scissors matchups is correct
   ---
-  duration_ms: 0.879799
+  duration_ms: 0.440746
   type: 'test'
   ...
 # Subtest: START accepts only the first downward step
 ok 13 - START accepts only the first downward step
   ---
-  duration_ms: 0.241486
+  duration_ms: 0.401977
   type: 'test'
   ...
 # Subtest: No immediate reverse, off-board moves, or return to START
 ok 14 - No immediate reverse, off-board moves, or return to START
   ---
-  duration_ms: 0.236631
+  duration_ms: 0.317955
   type: 'test'
   ...
 # Subtest: Route projection respects arena coordinates
 ok 15 - Route projection respects arena coordinates
   ---
-  duration_ms: 0.25871
+  duration_ms: 0.750261
   type: 'test'
   ...
 # Subtest: Generated games contain 49 tiles and two of each die symbol
 ok 16 - Generated games contain 49 tiles and two of each die symbol
   ---
-  duration_ms: 7.683531
+  duration_ms: 6.90383
   type: 'test'
   ...
 # Subtest: Random steps include both limits and SMA uses 20 seconds
 ok 17 - Random steps include both limits and SMA uses 20 seconds
   ---
-  duration_ms: 0.19462
+  duration_ms: 0.184284
   type: 'test'
   ...
 # Subtest: Invalid rule inputs fail explicitly
 ok 18 - Invalid rule inputs fail explicitly
   ---
-  duration_ms: 0.473043
+  duration_ms: 0.283333
   type: 'test'
   ...
 # Subtest: Setup, memory and folding do not spend timer time
 ok 19 - Setup, memory and folding do not spend timer time
   ---
-  duration_ms: 0.369795
+  duration_ms: 0.316269
   type: 'test'
   ...
 # Subtest: Planning cannot exceed the required count and ROLL requires a full route
 ok 20 - Planning cannot exceed the required count and ROLL requires a full route
   ---
-  duration_ms: 0.169094
+  duration_ms: 0.224268
   type: 'test'
   ...
 # Subtest: Undo and Clear change only the plan, not the die
 ok 21 - Undo and Clear change only the plan, not the die
   ---
-  duration_ms: 0.136489
+  duration_ms: 0.141388
   type: 'test'
   ...
 # Subtest: Rolling locks input and timer; repeated animation callbacks are ignored
 ok 22 - Rolling locks input and timer; repeated animation callbacks are ignored
   ---
-  duration_ms: 0.316807
+  duration_ms: 0.294219
   type: 'test'
   ...
 # Subtest: All three visible video turns reproduce loss, win and draw with persistent orientation
 ok 23 - All three visible video turns reproduce loss, win and draw with persistent orientation
   ---
-  duration_ms: 1.175274
+  duration_ms: 0.456444
   type: 'test'
   ...
 # Subtest: Only the final bottom face matters, not top or intermediate tiles
 ok 24 - Only the final bottom face matters, not top or intermediate tiles
   ---
-  duration_ms: 0.246779
+  duration_ms: 0.228638
   type: 'test'
   ...
 # Subtest: Result confirmation applies a score once and preserves position and faces
 ok 25 - Result confirmation applies a score once and preserves position and faces
   ---
-  duration_ms: 0.336313
+  duration_ms: 0.306036
   type: 'test'
   ...
 # Subtest: Pause stops timer and planning, resume restores both
 ok 26 - Pause stops timer and planning, resume restores both
   ---
-  duration_ms: 0.453675
+  duration_ms: 0.120187
   type: 'test'
   ...
 # Subtest: Timeout penalizes once, leaves position unchanged, then changes turn
 ok 27 - Timeout penalizes once, leaves position unchanged, then changes turn
   ---
-  duration_ms: 0.346452
+  duration_ms: 0.15088
   type: 'test'
   ...
 # Subtest: Stale timer and roll callbacks do not affect the next turn
 ok 28 - Stale timer and roll callbacks do not affect the next turn
   ---
-  duration_ms: 0.250346
+  duration_ms: 0.100036
   type: 'test'
   ...
 # Subtest: Reaching four points ends the match, blocks extra scoring, and supports reset
 ok 29 - Reaching four points ends the match, blocks extra scoring, and supports reset
   ---
-  duration_ms: 0.140683
+  duration_ms: 0.116891
   type: 'test'
   ...
 # Subtest: Reducer never mutates its input state while planning or rolling
 ok 30 - Reducer never mutates its input state while planning or rolling
   ---
-  duration_ms: 0.226315
+  duration_ms: 0.202328
+  type: 'test'
+  ...
+# Subtest: minefield has exact mines and a safe first-click neighborhood
+ok 31 - minefield has exact mines and a safe first-click neighborhood
+  ---
+  duration_ms: 4.214476
+  type: 'test'
+  ...
+# Subtest: adjacent counts match surrounding mines
+ok 32 - adjacent counts match surrounding mines
+  ---
+  duration_ms: 1.024787
+  type: 'test'
+  ...
+# Subtest: zero reveal expands through connected safe cells
+ok 33 - zero reveal expands through connected safe cells
+  ---
+  duration_ms: 0.623248
+  type: 'test'
+  ...
+# Subtest: flags block reveal and chord opens neighbors only when flag count matches
+ok 34 - flags block reveal and chord opens neighbors only when flag count matches
+  ---
+  duration_ms: 0.812671
+  type: 'test'
+  ...
+# Subtest: time formatting is stable
+ok 35 - time formatting is stable
+  ---
+  duration_ms: 0.635176
   type: 'test'
   ...
 # Subtest: Catalog identifiers and canonical slugs are unique
-ok 31 - Catalog identifiers and canonical slugs are unique
+ok 36 - Catalog identifiers and canonical slugs are unique
   ---
-  duration_ms: 2.597996
+  duration_ms: 1.641895
   type: 'test'
   ...
 # Subtest: Routes and guides: 300
-ok 32 - Routes and guides: 300
+ok 37 - Routes and guides: 300
   ---
-  duration_ms: 1.336183
+  duration_ms: 0.521924
   type: 'test'
   ...
 # Subtest: Routes and guides: prime
-ok 33 - Routes and guides: prime
+ok 38 - Routes and guides: prime
   ---
-  duration_ms: 1.252182
+  duration_ms: 0.142284
   type: 'test'
   ...
 # Subtest: Routes and guides: pixel
-ok 34 - Routes and guides: pixel
+ok 39 - Routes and guides: pixel
   ---
-  duration_ms: 0.254084
+  duration_ms: 0.232036
   type: 'test'
   ...
 # Subtest: Routes and guides: mnm
-ok 35 - Routes and guides: mnm
+ok 40 - Routes and guides: mnm
   ---
-  duration_ms: 0.165178
+  duration_ms: 0.153742
   type: 'test'
   ...
 # Subtest: Routes and guides: cube
-ok 36 - Routes and guides: cube
+ok 41 - Routes and guides: cube
   ---
-  duration_ms: 0.104397
+  duration_ms: 0.103344
   type: 'test'
   ...
 # Subtest: Routes and guides: rps
-ok 37 - Routes and guides: rps
+ok 42 - Routes and guides: rps
   ---
-  duration_ms: 0.188767
+  duration_ms: 0.308023
   type: 'test'
   ...
 # Subtest: Routes and guides: sudoku
-ok 38 - Routes and guides: sudoku
+ok 43 - Routes and guides: sudoku
   ---
-  duration_ms: 0.229441
+  duration_ms: 0.146942
+  type: 'test'
+  ...
+# Subtest: Routes and guides: minesweeper
+ok 44 - Routes and guides: minesweeper
+  ---
+  duration_ms: 0.309647
   type: 'test'
   ...
 # Subtest: Pages and aliases
-ok 39 - Pages and aliases
+ok 45 - Pages and aliases
   ---
-  duration_ms: 1.038319
+  duration_ms: 0.57099
   type: 'test'
   ...
 # Subtest: Malformed, unknown and prototype-property routes are rejected
-ok 40 - Malformed, unknown and prototype-property routes are rejected
+ok 46 - Malformed, unknown and prototype-property routes are rejected
   ---
-  duration_ms: 0.433992
+  duration_ms: 0.276927
   type: 'test'
   ...
 # Subtest: Sudoku 4x4: 500 generated boards satisfy every constraint
-ok 41 - Sudoku 4x4: 500 generated boards satisfy every constraint
+ok 47 - Sudoku 4x4: 500 generated boards satisfy every constraint
   ---
-  duration_ms: 40.354788
+  duration_ms: 24.235437
   type: 'test'
   ...
 # Subtest: Sudoku 6x6: 500 generated boards satisfy every constraint
-ok 42 - Sudoku 6x6: 500 generated boards satisfy every constraint
+ok 48 - Sudoku 6x6: 500 generated boards satisfy every constraint
   ---
-  duration_ms: 34.154415
+  duration_ms: 36.892014
   type: 'test'
   ...
 # Subtest: Sudoku 9x9: 500 generated boards satisfy every constraint
-ok 43 - Sudoku 9x9: 500 generated boards satisfy every constraint
+ok 49 - Sudoku 9x9: 500 generated boards satisfy every constraint
   ---
-  duration_ms: 52.169843
+  duration_ms: 27.201684
   type: 'test'
   ...
 # Subtest: Invalid Sudoku dimensions fail explicitly
-ok 44 - Invalid Sudoku dimensions fail explicitly
+ok 50 - Invalid Sudoku dimensions fail explicitly
   ---
-  duration_ms: 0.726444
+  duration_ms: 1.071238
   type: 'test'
   ...
-1..44
-# tests 44
+1..50
+# tests 50
 # suites 0
-# pass 44
+# pass 50
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 503.320068
+# duration_ms 261.487258
