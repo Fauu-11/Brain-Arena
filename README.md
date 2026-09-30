@@ -1,11 +1,11 @@
-# Brain Arena v1.3 — Minesweeper
+# Brain Arena v1.4 — Maze Escape + Memory Matrix
 
-Brain Arena v1.3 menambahkan **Minesweeper** sebagai game ke-8 tanpa mengubah
-identitas UI yang sudah dipakai game lain. Proyek tetap menggunakan **React + Vite**,
-sidebar Brain Arena, kartu putih, hero gelap, aksen ungu, bahasa ID/EN, favorit,
-riwayat lokal, panduan, mode fokus, dan suara global.
+Brain Arena v1.4 menambahkan **dua game sekaligus** tanpa mengganti identitas UI:
+**Maze Escape** dan **Memory Matrix**. Total sekarang **10 game**. Keduanya tetap
+menggunakan hero gelap, kartu putih, aksen ungu, sidebar, bahasa ID/EN, favorit,
+riwayat lokal, panduan, mode fokus, dan kontrol responsif seperti game Brain Arena lain.
 
-> Catatan penting: proyek ini React, bukan Vue. `vite.config.js` yang benar memakai
+> Proyek ini menggunakan **React + Vite**. `vite.config.js` memakai
 > `@vitejs/plugin-react`.
 
 ## Game yang tersedia
@@ -17,33 +17,73 @@ riwayat lokal, panduan, mode fokus, dan suara global.
 5. Hitung Kubus
 6. Duel Dadu
 7. Sudoku Buta
-8. **Minesweeper**
+8. Minesweeper
+9. **Maze Escape**
+10. **Memory Matrix**
 
-## Minesweeper
+Game baru ditempatkan pada **Musim 3**. Filter musim di beranda sekarang dibangun
+otomatis dari katalog sehingga Musim 3 langsung muncul.
 
-Route: `#/minesweeper`
+## Maze Escape
 
-| Jenjang | Papan | Ranjau |
-| --- | ---: | ---: |
-| SD | 9 × 9 | 10 |
-| SMP | 12 × 12 | 20 |
-| SMA | 16 × 16 | 40 |
-| Universitas | 30 × 16 | 99 |
+Route: `#/maze-escape`
 
-Fitur utama:
+| Jenjang | Ukuran |
+| --- | ---: |
+| SD | 7 × 7 |
+| SMP | 10 × 10 |
+| SMA | 14 × 14 |
+| Universitas — Hard | 18 × 18 |
+| Universitas — Very Hard | 24 × 24 |
+| Universitas — Extreme | 32 × 32 |
 
-- klik/tap untuk membuka petak;
-- klik kanan untuk bendera di desktop;
-- tekan lama untuk bendera di layar sentuh;
-- tombol **Mode Bendera** sebagai kontrol mobile alternatif;
-- klik pertama selalu aman dan area 3×3 di sekitarnya diprioritaskan aman;
-- pembukaan otomatis area kosong;
-- chord: ketuk angka terbuka lagi jika jumlah bendera tetangganya sudah tepat;
-- jeda, mulai ulang, aturan, dan panduan;
-- waktu permainan dan rekor terbaik per jenjang tersimpan di browser;
-- papan Universitas memakai scroll internal sehingga halaman tidak melebar di HP.
+Fitur:
 
-## Menjalankan source untuk development
+- generator **perfect maze**: setiap papan pasti dapat diselesaikan;
+- posisi mulai kiri atas dan pintu keluar kanan bawah;
+- keyboard **Arrow Keys / WASD**;
+- D-pad untuk layar sentuh;
+- timer, jumlah langkah, pause, restart, dan efisiensi rute;
+- rekor waktu terbaik per jenjang dan per sub-level Universitas;
+- papan Very Hard/Extreme memakai scroll lokal sehingga halaman tidak melebar di HP.
+
+## Memory Matrix
+
+Route: `#/memory-matrix`
+
+| Jenjang | Matriks | Ronde | Pola awal |
+| --- | ---: | ---: | ---: |
+| SD | 3 × 3 | 5 | 3 petak |
+| SMP | 4 × 4 | 6 | 4 petak |
+| SMA | 5 × 5 | 7 | 5 petak |
+| Universitas — Hard | 6 × 6 | 7 | 7 petak |
+| Universitas — Very Hard | 7 × 7 | 8 | 9 petak |
+| Universitas — Extreme | 8 × 8 | 9 | 12 petak |
+
+Fitur:
+
+- fase **menghafal → mengingat kembali** pada setiap ronde;
+- jumlah target bertambah seiring ronde;
+- tiga nyawa untuk satu tantangan;
+- petak benar +100 poin, kesalahan mengurangi nyawa dan 50 poin;
+- mode Extreme menambah 2 target per ronde;
+- skor tertinggi tersimpan per jenjang / sub-level Universitas;
+- layout matriks responsif sampai viewport 320 px.
+
+## Tingkat khusus Universitas
+
+Kedua game baru memiliki selector tambahan saat **Universitas** dipilih:
+
+```text
+Hard
+Very Hard
+Extreme
+```
+
+Selector ini hanya muncul pada mode Universitas. SD, SMP, dan SMA tetap memakai
+konfigurasi masing-masing tanpa sub-level tambahan.
+
+## Menjalankan source
 
 Gunakan Node.js yang memenuhi `engines` di `package.json`.
 
@@ -59,112 +99,71 @@ npm run build
 npm run preview
 ```
 
-Hasil build Vite berada di folder `dist/`.
+## Build portable yang disertakan
 
-## Menjalankan build portable yang disertakan
-
-Paket ini juga menyertakan build ESM portable. Tidak perlu `npm install` untuk
-sekadar mencoba build tersebut:
+Build ESM portable sudah disertakan untuk preview lokal:
 
 ```bash
 node scripts/serve.mjs
 ```
 
-Buka:
+Buka salah satu:
 
 ```text
-http://localhost:4173/#/minesweeper
+http://localhost:4173/#/maze-escape
+http://localhost:4173/#/memory-matrix
 ```
 
-Pada Windows Anda juga dapat menjalankan `JALANKAN-WINDOWS.bat`.
+Pada Windows dapat memakai `JALANKAN-WINDOWS.bat`.
 
 ## GitHub Pages
 
-Workflow otomatis sudah disertakan di:
+Workflow otomatis ada di:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-Workflow akan menjalankan:
+Workflow menjalankan `npm ci` dan `npm run build`, lalu menerbitkan folder `dist/`.
+Pada repository GitHub pilih **Settings → Pages → Source → GitHub Actions**.
 
-```text
-npm ci
-npm run build
-```
-
-lalu mengunggah `dist/` ke GitHub Pages setiap ada push ke branch `main`.
-
-Untuk repository `Fauu-11/Brain-Arena`:
-
-1. Push project ke branch `main`.
-2. Buka **Settings → Pages**.
-3. Pada **Source**, pilih **GitHub Actions**.
-4. Buka tab **Actions** dan tunggu workflow `Deploy Brain Arena to GitHub Pages`
-   selesai hijau.
-5. Site tersedia di `https://fauu-11.github.io/Brain-Arena/`.
-
-`vite.config.js` memakai `base: './'`, sehingga asset hasil build tetap relatif dan
-aman ketika Brain Arena dipasang di subfolder GitHub Pages.
-
-## Update project ke GitHub
-
-Setelah Anda mengubah source di Zed:
+Setelah perubahan di Zed:
 
 ```bash
 git add .
-git commit -m "Update Brain Arena"
+git commit -m "Add Maze Escape and Memory Matrix"
 git push origin main
 ```
 
-GitHub Actions akan membangun dan menerbitkan versi terbaru secara otomatis.
-
 ## Pengujian
-
-Uji logika:
 
 ```bash
 npm test
+npm run build:portable
+python tests/browser/newgames.py
 ```
 
-Uji Minesweeper browser dengan harness QA:
+Untuk pemeriksaan HTTP, jalankan server preview terlebih dahulu lalu:
 
 ```bash
-python tests/browser/minesweeper.py
-```
-
-Uji HTTP build portable:
-
-```bash
-node scripts/serve.mjs
 python tests/http.test.py
 ```
 
-Rincian pengujian ada di `TEST_REPORT.md`.
+Rincian hasil ada di `TEST_REPORT.md`.
 
-## Berkas Minesweeper utama
+## Berkas utama game baru
 
 | Berkas | Fungsi |
 | --- | --- |
-| `src/games/GameMinesweeper.jsx` | Gameplay, timer, input, bendera, pause, hasil |
-| `src/utils/minesweeper.js` | Generator ranjau, angka tetangga, flood reveal, chord |
-| `src/game-theme.css` | Tampilan responsif Minesweeper |
-| `src/components/Artwork.jsx` | Ilustrasi kartu/hero Minesweeper |
-| `src/components/Icon.jsx` | Ikon SVG ranjau dan bendera |
-| `src/data/games.js` | Katalog, route, kategori, metadata game |
-| `tests/minesweeper.test.mjs` | Unit test logika Minesweeper |
-| `tests/browser/minesweeper.py` | Smoke/interaksi desktop dan mobile |
+| `src/games/GameMaze.jsx` | Gameplay Maze Escape |
+| `src/utils/maze.js` | Generator, movement, shortest path |
+| `src/games/GameMemoryMatrix.jsx` | Fase hafalan, recall, score, nyawa, ronde |
+| `src/utils/memoryMatrix.js` | Sampling pola dan target ronde |
+| `src/components/GameShell.jsx` | Selector Hard / Very Hard / Extreme Universitas |
+| `src/game-theme.css` | UI responsive kedua game |
+| `tests/maze.test.mjs` | Unit test Maze Escape |
+| `tests/memoryMatrix.test.mjs` | Unit test Memory Matrix |
+| `tests/browser/newgames.py` | QA browser desktop/mobile kedua game |
 
-## Penyimpanan lokal
-
-Favorit, riwayat, mute, dan rekor tersimpan di `localStorage`. Rekor Minesweeper
-menggunakan key:
-
-```text
-minesweeper_best_sd
-minesweeper_best_smp
-minesweeper_best_sma
-minesweeper_best_universitas
-```
-
-Tidak ada backend, database, akun, atau multiplayer online pada versi ini.
+Favorit, riwayat, rekor, bahasa, dan mute tetap disimpan di `localStorage`; belum
+ada backend atau akun online.

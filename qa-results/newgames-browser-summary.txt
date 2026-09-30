@@ -1,0 +1,6 @@
+{"route": "maze", "width": 1440, "extremeCells": 1024, "movement": true, "pause": true, "documentWidth": 1440, "passed": true, "jsErrors": []}
+{"route": "maze", "width": 390, "extremeCells": 1024, "movement": true, "pause": true, "documentWidth": 390, "passed": true, "jsErrors": []}
+{"route": "maze", "width": 320, "extremeCells": 1024, "movement": true, "pause": true, "documentWidth": 320, "passed": true, "jsErrors": []}
+{"route": "memory-matrix", "width": 1440, "extremeCells": 64, "roundAdvance": true, "documentWidth": 1440, "passed": true, "jsErrors": []}
+{"route": "memory-matrix", "width": 390, "extremeCells": 64, "roundAdvance": true, "documentWidth": 390, "passed": true, "jsErrors": []}
+{"route": "memory-matrix", "width": 320, "extremeCells": 64, "roundAdvance": true, "documentWidth": 320, "passed": true, "jsErrors": []}

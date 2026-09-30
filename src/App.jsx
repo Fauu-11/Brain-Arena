@@ -14,10 +14,12 @@ const GameCube = lazy(() => import('./games/GameCube.jsx'));
 const GameRPS = lazy(() => import('./games/GameRPS.jsx'));
 const GameSudoku = lazy(() => import('./games/GameSudoku.jsx'));
 const GameMinesweeper = lazy(() => import('./games/GameMinesweeper.jsx'));
+const GameMaze = lazy(() => import('./games/GameMaze.jsx'));
+const GameMemoryMatrix = lazy(() => import('./games/GameMemoryMatrix.jsx'));
 const TipsPage = lazy(() => import('./pages/TipsPage.jsx'));
 const Activity = lazy(() => import('./pages/Activity.jsx'));
 const Guides = lazy(() => import('./pages/Guides.jsx'));
-const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper };
+const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix };
 function AppContent() {
   const { lang } = useLanguage(); const { recordVisit } = useArena();
   const [view, setView] = useState(() => resolveRoute(window.location.hash)); const previous = useRef(null);

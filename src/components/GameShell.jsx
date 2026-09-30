@@ -31,6 +31,20 @@ export function TipsButton({ onClick, lang, label }) {
   return <button className="uw-btn uw-btn-neutral play-tips-button" onClick={onClick}><Icon name="spark" size={16}/>{label ?? (lang === 'en' ? 'Tips & tricks' : 'Tips & trik')}</button>;
 }
 
+export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
+  const levels = [
+    { id:'hard', label:'Hard', note:{ id:'Sulit', en:'Hard' } },
+    { id:'very-hard', label:'Very Hard', note:{ id:'Sangat sulit', en:'Very hard' } },
+    { id:'extreme', label:'Extreme', note:{ id:'Ekstrem', en:'Extreme' } },
+  ];
+  return <div className="play-university-block">
+    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University challenge' : 'Tantangan Universitas'}</span><small>{lang === 'en' ? 'Choose an advanced difficulty' : 'Pilih tingkat lanjutan'}</small></div>
+    <div className="play-university-difficulty" role="group" aria-label={lang === 'en' ? 'University difficulty' : 'Tingkat kesulitan Universitas'}>
+      {levels.map((item,index)=><button type="button" key={item.id} className={value===item.id?'selected':''} aria-pressed={value===item.id} onClick={()=>onChange(item.id)}><span>{item.label}</span><small>{item.note[lang]}</small><i aria-hidden="true" style={{ width:`${34 + index*22}%` }}/></button>)}
+    </div>
+  </div>;
+}
+
 export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, children, badge, bestRecord = null }) {
   return <div className="play-setup-card">
     <div className="play-setup-heading"><span className="play-kicker">{lang === 'en' ? 'YOUR CHALLENGE, YOUR PACE' : 'TANTANGANMU, RITMEMU'}</span>{badge && <span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang === 'en' ? 'Choose the level that suits you. Start small, go further.' : 'Pilih jenjang yang sesuai. Mulai ringan, tingkatkan perlahan.'}</p></div>

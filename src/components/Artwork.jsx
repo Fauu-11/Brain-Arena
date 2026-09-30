@@ -59,5 +59,23 @@ export default function Artwork({ id, compact = false }) {
       <g transform="translate(236 87)"><circle cx="0" cy="0" r="22" fill="#2f7362"/><circle cx="-7" cy="-7" r="4" fill="#f3fbf8" opacity=".65"/><path d="M0-34v10M0 24v10M-34 0h10M24 0h10M-24-24l7 7M17 17l7 7M-24 24l7-7M17-17l7-7" stroke="#2f7362" strokeWidth="5" strokeLinecap="round"/></g>
       <path d="M63 46h18m179-10 5 8 9 2-7 6 1 9-8-4-8 4 1-9-7-6 9-2Z" fill="none" stroke="#78b9a7" strokeWidth="2"/>
     </>}
+    {id === 'maze' && <>
+      <g transform="translate(80 15) rotate(-4 92 62)">
+        <rect x="-7" y="-7" width="198" height="139" rx="16" fill="#c8d9f2" opacity=".52"/>
+        <rect width="184" height="125" rx="13" fill="#fbfdff" stroke="#c8d8ed"/>
+        <path d="M14 14h58v20H36v23h46v-17h38v38H91v30H54V78H14Zm106 0h49v42h-24v24h24v29h-52V91h17V68h-31V34h17Z" fill="none" stroke="#6f8fbf" strokeWidth="8" strokeLinecap="square" strokeLinejoin="miter"/>
+        <circle cx="25" cy="24" r="8" fill="#7b5ac2"/><path d="m151 95 7 7 13-15" fill="none" stroke="#6da06a" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+      </g>
+      <path d="M55 112h22m191-80 4 7 8 2-6 6 1 8-7-4-7 4 1-8-6-6 8-2Z" fill="none" stroke="#8ea9cf" strokeWidth="2"/>
+    </>}
+    {id === 'matrix' && <>
+      <g transform="translate(96 20) rotate(-6 72 58)">
+        <rect x="-8" y="-8" width="160" height="132" rx="17" fill="#cfbfe9" opacity=".45"/>
+        <rect width="144" height="116" rx="14" fill="#fbf9ff" stroke="#d9ccec"/>
+        {Array.from({length:20},(_,i)=>{ const active=[1,4,6,8,12,13,17].includes(i); return <rect key={i} x={12+(i%5)*24} y={10+Math.floor(i/5)*24} width="18" height="18" rx="5" fill={active?'#8d69c7':'#ece5f5'} stroke={active?'#7a59b2':'#ddd3e9'}/>; })}
+      </g>
+      <g transform="translate(236 46)"><circle r="31" fill="#f3eef9" stroke="#d4c4e7"/><path d="M-12 1h24M0-11v24" stroke="#9b7cc1" strokeWidth="4" strokeLinecap="round"/><circle cx="0" cy="0" r="5" fill="#7f5ab3"/></g>
+      <path d="m64 49 3 7 7 3-7 3-3 7-3-7-7-3 7-3Zm219 64 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#b29acb"/>
+    </>}
   </svg>;
 }

@@ -70,6 +70,22 @@ const GUIDES = {
     tip: { id: 'Mulai dari petak kosong yang membuka area besar. Jangan menebak jika pola angka masih bisa disimpulkan.', en: 'Start from blank regions that reveal more of the board. Avoid guessing while the clues still allow deduction.' },
     input: { id: 'Klik/ketuk untuk membuka. Klik kanan atau tekan lama untuk bendera; Mode Bendera tersedia di mobile.', en: 'Click/tap to open. Right-click or long-press to flag; Flag Mode is available on mobile.' },
   },
+  maze: {
+    steps: {
+      id: ['Pilih jenjang; mode Universitas memiliki Hard, Very Hard, dan Extreme.', 'Gerakkan penanda dari START sambil membaca dinding dan jalan buntu.', 'Capai bendera di pojok kanan bawah dengan waktu dan langkah sesedikit mungkin.'],
+      en: ['Choose a level; University adds Hard, Very Hard, and Extreme.', 'Move from START while reading walls and dead ends.', 'Reach the flag in the bottom-right with as little time and movement as possible.'],
+    },
+    tip: { id: 'Saat menemui percabangan, ingat titik terakhir agar tidak mengulang jalur yang sama.', en: 'At a junction, remember your last decision so you do not repeat the same dead end.' },
+    input: { id: 'Desktop: tombol panah atau WASD. Mobile: gunakan D-pad di bawah labirin.', en: 'Desktop: Arrow Keys or WASD. Mobile: use the D-pad below the maze.' },
+  },
+  matrix: {
+    steps: {
+      id: ['Pilih jenjang; mode Universitas memiliki Hard, Very Hard, dan Extreme.', 'Hafalkan semua petak yang menyala sebelum waktu tampil habis.', 'Pilih kembali petak yang sama; selesaikan semua ronde sebelum tiga nyawa habis.'],
+      en: ['Choose a level; University adds Hard, Very Hard, and Extreme.', 'Memorize every highlighted cell before the preview ends.', 'Select the same cells again and clear every round before losing all three lives.'],
+    },
+    tip: { id: 'Kelompokkan pola menjadi bagian kecil: sudut, baris, atau bentuk sederhana. Ini lebih mudah daripada mengingat petak satu per satu.', en: 'Chunk the pattern into corners, rows, or simple shapes instead of memorizing cells one by one.' },
+    input: { id: 'Klik atau ketuk petak yang kamu ingat. Petak benar akan terkunci; petak salah mengurangi nyawa.', en: 'Click or tap remembered cells. Correct cells lock in; mistakes cost a life.' },
+  },
 };
 
 export default function GameScreen({ gameId, lang = 'id', state = 'setup', level, onBack, onNavigate, onRules, stats, children }) {

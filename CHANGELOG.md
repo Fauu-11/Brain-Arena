@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.0 — Maze Escape + Memory Matrix
+
+- Menambahkan Maze Escape dan Memory Matrix sebagai game ke-9 dan ke-10.
+- Menambahkan Musim 3 dan membuat filter musim beranda dinamis dari katalog.
+- Maze Escape: perfect-maze generator, Arrow/WASD, D-pad mobile, timer, langkah, pause, efisiensi, dan rekor waktu.
+- Memory Matrix: fase menghafal/recall, ronde progresif, tiga nyawa, skor, dan rekor skor lokal.
+- Mode Universitas pada kedua game memiliki **Hard, Very Hard, dan Extreme**.
+- Maze Universitas: 18×18, 24×24, dan 32×32.
+- Memory Matrix Universitas: 6×6, 7×7, dan 8×8 dengan preview makin singkat.
+- Menambahkan ikon SVG, artwork, panduan singkat, tips, pencarian, favorit, riwayat, dan record activity untuk dua game baru.
+- Menambahkan unit test generator maze dan pola Memory Matrix serta QA browser desktop/mobile.
+- Total katalog menjadi 10 game.
+
 ## 1.3.0 — Minesweeper
 
 - Menambahkan Minesweeper sebagai game ke-8 Brain Arena.

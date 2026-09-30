@@ -18,7 +18,9 @@ export default function TipsPage({ gameId = '300', onBack }) {
     { id: 'mnm', icon: '🔄', nameEn: 'Match & Mix', nameId: 'Match & Mix' },
     { id: 'cube', icon: '🧊', nameEn: 'Cube Count', nameId: 'Hitung Kubus' },
     { id: 'rps', icon: '🎲', nameEn: 'Dice Duel 3D', nameId: 'Duel Dadu 3D' },
-    { id: 'minesweeper', icon: '💣', nameEn: 'Minesweeper', nameId: 'Minesweeper' }
+    { id: 'minesweeper', icon: '💣', nameEn: 'Minesweeper', nameId: 'Minesweeper' },
+    { id: 'maze', icon: '🧭', nameEn: 'Maze Escape', nameId: 'Maze Escape' },
+    { id: 'matrix', icon: '🟪', nameEn: 'Memory Matrix', nameId: 'Memory Matrix' }
   ];
 
   const TIPS_DATABASE = {
@@ -373,6 +375,82 @@ export default function TipsPage({ gameId = '300', onBack }) {
               titleId: 'Selesaikan satu garis batas per giliran',
               textEn: 'On the 30×16 board, avoid jumping between distant clue clusters. Finish one active frontier before scrolling to the next so your flag assumptions stay consistent.',
               textId: 'Pada papan 30×16, hindari berpindah-pindah antar kelompok petunjuk yang jauh. Selesaikan satu garis batas aktif sebelum menggulir ke area berikutnya agar asumsi bendera tetap konsisten.'
+            }
+          ]
+        }
+      ]
+    },
+    'maze': {
+      titleEn: 'Maze Escape',
+      titleId: 'Maze Escape',
+      sections: [
+        {
+          tier: 'all',
+          headingEn: 'Navigate without repeating dead ends',
+          headingId: 'Navigasi tanpa mengulang jalan buntu',
+          tips: [
+            {
+              titleEn: 'Remember the last junction',
+              titleId: 'Ingat percabangan terakhir',
+              textEn: 'When a branch ends in a dead end, mentally mark the last junction and return there. This prevents you from exploring the same failed branch twice.',
+              textId: 'Saat sebuah cabang berakhir buntu, tandai dalam ingatan percabangan terakhir dan kembali ke sana. Cara ini mencegah kamu menjelajahi cabang gagal yang sama dua kali.'
+            },
+            {
+              titleEn: 'Use wall-following only as a fallback',
+              titleId: 'Gunakan teknik mengikuti dinding sebagai cadangan',
+              textEn: 'Following one wall can eventually solve many perfect mazes, but it is rarely the fastest route. Use it when you lose orientation, then switch back to direct route planning.',
+              textId: 'Mengikuti satu sisi dinding dapat menyelesaikan banyak perfect maze, tetapi jarang menjadi rute tercepat. Gunakan saat kehilangan orientasi, lalu kembali ke perencanaan jalur langsung.'
+            }
+          ]
+        },
+        {
+          tier: 'univ',
+          headingEn: 'University: large-maze discipline',
+          headingId: 'Universitas: disiplin labirin besar',
+          tips: [
+            {
+              titleEn: 'Chunk the maze into zones',
+              titleId: 'Bagi labirin menjadi beberapa zona',
+              textEn: 'Hard, Very Hard, and Extreme boards are easier to track if you remember progress by regions rather than by individual cells.',
+              textId: 'Papan Hard, Very Hard, dan Extreme lebih mudah diikuti jika kamu mengingat progres per wilayah, bukan per petak satu per satu.'
+            }
+          ]
+        }
+      ]
+    },
+    'matrix': {
+      titleEn: 'Memory Matrix',
+      titleId: 'Memory Matrix',
+      sections: [
+        {
+          tier: 'all',
+          headingEn: 'Turn cells into memorable shapes',
+          headingId: 'Ubah petak menjadi bentuk yang mudah diingat',
+          tips: [
+            {
+              titleEn: 'Chunk the pattern',
+              titleId: 'Kelompokkan pola',
+              textEn: 'Do not memorize isolated cells one by one. Group nearby highlights into lines, corners, L-shapes, blocks, or diagonals.',
+              textId: 'Jangan menghafal petak satu per satu. Kelompokkan sorotan yang berdekatan menjadi garis, sudut, bentuk L, blok, atau diagonal.'
+            },
+            {
+              titleEn: 'Scan in a fixed order',
+              titleId: 'Pindai dengan urutan tetap',
+              textEn: 'Use the same scan order every round, such as top-left to bottom-right. A stable routine reduces missed cells when the preview gets shorter.',
+              textId: 'Gunakan urutan pindai yang sama setiap ronde, misalnya kiri atas ke kanan bawah. Rutinitas tetap mengurangi petak yang terlewat saat waktu tampil semakin singkat.'
+            }
+          ]
+        },
+        {
+          tier: 'univ',
+          headingEn: 'University: high-density recall',
+          headingId: 'Universitas: mengingat pola padat',
+          tips: [
+            {
+              titleEn: 'Anchor the extremes first',
+              titleId: 'Jadikan sisi terluar sebagai jangkar',
+              textEn: 'On 6×6 to 8×8 matrices, remember corner and edge cells first, then fill the interior clusters. Extreme mode rewards spatial chunking more than raw repetition.',
+              textId: 'Pada matriks 6×6 hingga 8×8, ingat petak sudut dan tepi terlebih dahulu, lalu isi kelompok bagian dalam. Mode Extreme lebih mengandalkan pengelompokan spasial daripada pengulangan mentah.'
             }
           ]
         }
