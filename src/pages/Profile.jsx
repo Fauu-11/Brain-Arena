@@ -41,6 +41,8 @@ export default function Profile({ onNavigate }) {
       <button onClick={()=>onNavigate('statistics')}><span><Icon name="activity" size={20}/></span><div><small>{copy('STATISTIK','STATISTICS')}</small><strong>{copy('Lihat tren dan performa','View trends and performance')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('season')}><span><Icon name="spark" size={20}/></span><div><small>SEASON</small><strong>{copy('Progress dan reward musiman','Season progress and rewards')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('mastery')}><span><Icon name="trophy" size={20}/></span><div><small>GAME MASTERY</small><strong>{copy('Kuasai setiap permainan','Master every game')}</strong></div><Icon name="chevron" size={14}/></button>
+      <button onClick={()=>onNavigate('profiles')}><span><Icon name="users" size={20}/></span><div><small>{copy('PROFIL LOKAL','LOCAL PROFILES')}</small><strong>{copy('Ganti atau tambah pemain','Switch or add players')}</strong></div><Icon name="chevron" size={14}/></button>
+      <button onClick={()=>onNavigate('showcase')}><span><Icon name="medal" size={20}/></span><div><small>PLAYER SHOWCASE</small><strong>{copy('Sorot pencapaian terbaik','Feature your best progress')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('settings')}><span><Icon name="sliders" size={20}/></span><div><small>{copy('PENGATURAN & DATA','SETTINGS & DATA')}</small><strong>{copy('Aksesibilitas dan backup','Accessibility and backup')}</strong></div><Icon name="chevron" size={14}/></button>
     </section>
 

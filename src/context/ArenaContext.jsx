@@ -13,6 +13,9 @@ import { adaptiveRecommendation } from '../utils/adaptive.js';
 import { bestKey, createChallengeCode, activateSeededRandom, restoreNativeRandom, validateChallengeCode, normalizeChallengeCode, performanceForRun, rankedDeltaFor, levelCompletionKey, nativeShuffle, runPreset } from '../utils/competitive.js';
 import { coachTip } from '../data/coachTips.js';
 import { buildNotificationFeed } from '../utils/notifications.js';
+import { automaticBackupDue, createAutomaticBackup, deleteAutomaticBackup, listAutomaticBackups, restoreAutomaticBackup } from '../utils/autoBackup.js';
+import { createSessionIntegrity } from '../utils/integrity.js';
+import { ARENA_CUP_KEY, applyArenaCupResult, createArenaCup } from '../utils/arenaCup.js';
 
 const ArenaContext = createContext(null);
 const favoriteKey = 'ba_favorites_v2';
@@ -33,6 +36,8 @@ const arenaRunKey = 'ba_arena_run_v1';
 const selectedReplayKey = 'ba_selected_replay_v1';
 const recoverySessionKey = 'ba_recovery_session_v2';
 const notificationKey = 'ba_notifications_v1';
+const pinnedGamesKey = 'ba_pinned_games_v2';
+const practiceLabKey = 'ba_practice_lab_active_v1';
 
 const emptyProfile = () => ({ name:'', xp:0, rankedPoints:0, completions:0, playDates:[], perGame:{}, xpEvents:[], completionEvents:[] });
 const emptyDaily = () => ({ completedByDate:{} });
@@ -47,6 +52,10 @@ const emptyNotificationState = () => ({ read:{} });
 const loadFavorites = () => {
   const data = readJSON(favoriteKey, []);
   return Array.isArray(data) ? [...new Set(data.filter(id => gameById(id)))] : [];
+};
+const loadPinnedGames = () => {
+  const data = readJSON(pinnedGamesKey, []);
+  return Array.isArray(data) ? [...new Set(data.filter(id => gameById(id)))].slice(0,6) : [];
 };
 const loadHistory = () => {
   const data = readJSON(historyKey, []);
@@ -131,6 +140,11 @@ const loadArenaRun = () => {
   if (!raw || !Array.isArray(raw.stages)) return null;
   return raw;
 };
+const loadArenaCup = () => {
+  const raw=readJSON(ARENA_CUP_KEY,null);
+  if (!raw || !Array.isArray(raw.stages)) return null;
+  return raw;
+};
 
 const loadRecoverySession = () => {
   const raw=readJSON(recoverySessionKey,null);
@@ -150,6 +164,7 @@ const loadNotificationState = () => {
 
 export function ArenaProvider({ children }) {
   const [favorites,setFavorites] = useState(loadFavorites);
+  const [pinnedGames,setPinnedGames] = useState(loadPinnedGames);
   const [history,setHistory] = useState(loadHistory);
   const [muted,setMuted] = useState(() => readText('ba_muted') === 'true');
   const [storageOk,setStorageOk] = useState(storageAvailable);
@@ -166,11 +181,13 @@ export function ArenaProvider({ children }) {
   const [personalBests,setPersonalBests] = useState(loadPersonalBests);
   const [completionMap,setCompletionMap] = useState(loadCompletionMap);
   const [arenaRun,setArenaRun] = useState(loadArenaRun);
+  const [arenaCup,setArenaCup] = useState(loadArenaCup);
   const [currentSession,setCurrentSession] = useState(null);
   const [recoverySession,setRecoverySession] = useState(loadRecoverySession);
   const [resumeRequestedId,setResumeRequestedId] = useState(null);
   const [notificationState,setNotificationState] = useState(loadNotificationState);
   const [selectedReplayId,setSelectedReplayId] = useState(() => readText(selectedReplayKey,''));
+  const [automaticBackups,setAutomaticBackups] = useState(() => { try { return listAutomaticBackups(); } catch { return []; } });
   const profileRef = useRef(profile);
   const dailyRef = useRef(daily);
   const achievementRef = useRef(achievements);
@@ -182,6 +199,7 @@ export function ArenaProvider({ children }) {
   const personalBestsRef = useRef(personalBests);
   const completionMapRef = useRef(completionMap);
   const arenaRunRef = useRef(arenaRun);
+  const arenaCupRef = useRef(arenaCup);
   const sessionRef = useRef(currentSession);
   const recoveryRef = useRef(recoverySession);
 
@@ -195,6 +213,7 @@ export function ArenaProvider({ children }) {
   useEffect(() => { personalBestsRef.current = personalBests; }, [personalBests]);
   useEffect(() => { completionMapRef.current = completionMap; }, [completionMap]);
   useEffect(() => { arenaRunRef.current = arenaRun; }, [arenaRun]);
+  useEffect(() => { arenaCupRef.current = arenaCup; }, [arenaCup]);
   useEffect(() => { sessionRef.current = currentSession; }, [currentSession]);
   useEffect(() => { recoveryRef.current = recoverySession; }, [recoverySession]);
 
@@ -205,6 +224,7 @@ export function ArenaProvider({ children }) {
   const savePersonalBests = useCallback(next => { personalBestsRef.current=next; setPersonalBests(next); writeJSON(personalBestKey,next); }, []);
   const saveCompletionMap = useCallback(next => { completionMapRef.current=next; setCompletionMap(next); writeJSON(completionMapKey,next); }, []);
   const saveArenaRun = useCallback(next => { arenaRunRef.current=next; setArenaRun(next); if (next) writeJSON(arenaRunKey,next); else { try { localStorage.removeItem(arenaRunKey); } catch {} } }, []);
+  const saveArenaCup = useCallback(next => { arenaCupRef.current=next; setArenaCup(next); if (next) writeJSON(ARENA_CUP_KEY,next); else { try { localStorage.removeItem(ARENA_CUP_KEY); } catch {} } }, []);
   const persistRecovery = useCallback(session => {
     if (!session?.gameId || !gameById(session.gameId)) return null;
     const now=Date.now();
@@ -279,7 +299,7 @@ export function ArenaProvider({ children }) {
       const code=saved.challengeCode;
       const check=validateChallengeCode(code,gameId);
       if (check.valid) activateSeededRandom(code);
-      const resumed={...saved,active:true,startedAt:Date.now()-Math.max(0,Number(saved.elapsedMs)||0),resumedAt:Date.now(),seed:check.seed??saved.seed};
+      const resumed={...saved,active:true,startedAt:Date.now()-Math.max(0,Number(saved.elapsedMs)||0),resumedAt:Date.now(),seed:check.seed??saved.seed,integrity:{...createSessionIntegrity(saved.mode),...(saved.integrity||{}),recoveryCount:(Number(saved.integrity?.recoveryCount)||0)+1}};
       setResumeRequestedId(null);
       updateSession(resumed);
       return resumed;
@@ -288,15 +308,20 @@ export function ArenaProvider({ children }) {
     let code=setup.challengeCodes?.[gameId] || ensureCompetitionSetup(gameId);
     const activeRun=arenaRunRef.current;
     const stage=activeRun?.status==='active' ? activeRun.stages?.[activeRun.index] : null;
+    const activeCup=arenaCupRef.current;
+    const cupStage=activeCup?.status==='active' ? activeCup.stages?.[activeCup.index] : null;
     let mode=setup.mode;
     if (stage?.gameId===gameId) { code=stage.challengeCode; mode=activeRun.mode || mode; }
+    if (cupStage?.gameId===gameId) { code=cupStage.challengeCode; mode=activeCup.mode || mode; }
     let check=validateChallengeCode(code,gameId);
     if (!check.valid) { code=createChallengeCode(gameId); setChallengeCode(gameId,code); check=validateChallengeCode(code,gameId); }
     activateSeededRandom(code);
     const level=setup.schoolLevels?.[gameId] || 'sd';
     const universityDifficulty=setup.universityDifficulties?.[gameId] || 'hard';
     const key=bestKey(gameId,level,universityDifficulty);
-    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:stage?.gameId===gameId?activeRun.id:null };
+    const lab=readJSON(practiceLabKey,null);
+    const activeLab=lab?.gameId===gameId && Date.now()-Number(lab.startedAt||0)<60*60*1000 ? lab : null;
+    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:stage?.gameId===gameId?activeRun.id:null,arenaCupId:cupStage?.gameId===gameId?activeCup.id:null,practiceLabId:activeLab?.drillId||null,integrity:createSessionIntegrity(mode) };
     updateSession(next);
     return next;
   },[ensureCompetitionSetup,setChallengeCode,updateSession,resumeRequestedId]);
@@ -308,7 +333,7 @@ export function ArenaProvider({ children }) {
     const setup=competitionSetupRef.current;
     const level=setup.schoolLevels?.[gameId]||'sd';
     const universityDifficulty=setup.universityDifficulties?.[gameId]||'hard';
-    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode:setup.mode,challengeCode:code,seed:validateChallengeCode(code,gameId).seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[bestKey(gameId,level,universityDifficulty)])||0,arenaRunId:null };
+    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode:setup.mode,challengeCode:code,seed:validateChallengeCode(code,gameId).seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[bestKey(gameId,level,universityDifficulty)])||0,arenaRunId:null,integrity:createSessionIntegrity(setup.mode) };
     updateSession(next); return next;
   },[setChallengeCode,updateSession]);
   const leaveGameSession = useCallback(() => {
@@ -381,10 +406,54 @@ export function ArenaProvider({ children }) {
     return run.stages?.[run.index]?.gameId || 'arena-run';
   },[]);
 
+  const startArenaCup = useCallback((mode='ranked') => {
+    const next=createArenaCup({mode}); saveArenaCup(next);
+    const current=competitionSetupRef.current;
+    saveCompetitionSetup({...current,mode:next.mode,challengeCodes:{...current.challengeCodes,...Object.fromEntries(next.stages.map(stage=>[stage.gameId,stage.challengeCode]))}});
+    return next;
+  },[saveArenaCup,saveCompetitionSetup]);
+  const cancelArenaCup = useCallback(() => saveArenaCup(null),[saveArenaCup]);
+  const continueArenaCup = useCallback(() => {
+    const cup=arenaCupRef.current;
+    if(!cup || cup.status!=='active') return 'arena-cup';
+    return cup.stages?.[cup.index]?.gameId || 'arena-cup';
+  },[]);
+  const startPracticeDrill = useCallback((gameId,drill={}) => {
+    if(!gameById(gameId)) return null;
+    const level=['sd','smp','sma','universitas'].includes(drill.level)?drill.level:'universitas';
+    const difficulty=['hard','very-hard','impossible'].includes(drill.difficulty)?drill.difficulty:'hard';
+    const code=createChallengeCode(gameId,`lab-${drill.id||'focus'}-${Date.now().toString(36)}`);
+    const current=competitionSetupRef.current;
+    saveCompetitionSetup({...current,mode:'practice',challengeCodes:{...current.challengeCodes,[gameId]:code},schoolLevels:{...current.schoolLevels,[gameId]:level},universityDifficulties:{...current.universityDifficulties,[gameId]:difficulty}});
+    writeJSON(practiceLabKey,{gameId,drillId:drill.id||'focus',startedAt:Date.now()});
+    return {gameId,code,level,difficulty,drillId:drill.id||'focus'};
+  },[saveCompetitionSetup]);
+
   const toggleFavorite = useCallback(id => {
     if (!gameById(id)) return;
     setFavorites(prev => { const next = prev.includes(id) ? prev.filter(value => value !== id) : [...prev,id]; writeJSON(favoriteKey,next); return next; });
   }, []);
+  const togglePinnedGame = useCallback(id => {
+    if (!gameById(id)) return false;
+    let pinned=false;
+    setPinnedGames(previous => {
+      const exists=previous.includes(id);
+      const next=exists?previous.filter(value=>value!==id):[...previous,id].slice(0,6);
+      pinned=!exists;
+      writeJSON(pinnedGamesKey,next);
+      return next;
+    });
+    return pinned;
+  },[]);
+  const movePinnedGame = useCallback((id,direction) => {
+    setPinnedGames(previous => {
+      const index=previous.indexOf(id); if(index<0) return previous;
+      const target=Math.max(0,Math.min(previous.length-1,index+(direction<0?-1:1)));
+      if(target===index) return previous;
+      const next=[...previous]; [next[index],next[target]]=[next[target],next[index]];
+      writeJSON(pinnedGamesKey,next); return next;
+    });
+  },[]);
   const recordVisit = useCallback(id => {
     if (!gameById(id)) return;
     setHistory(prev => {
@@ -482,7 +551,7 @@ export function ArenaProvider({ children }) {
       saveCompletionMap({ ...completionMapRef.current,[id]:{...gameMap,[completionKey]:gameMap[completionKey]||now} });
     }
 
-    const match={ id:`match-${now}-${id}`,gameId:id,time:now,dateKey,mode,outcome,schoolLevel:level,universityDifficulty:level==='universitas'?universityDifficulty:null,challengeCode,durationMs,performance:performance.score,grade:performance.grade,hintsUsed,rankedDelta,xp:amount,isPersonalBest:newBest,previousBestMs,replay:Array.isArray(session?.actions)?session.actions:[],arenaRunId:session?.arenaRunId||null };
+    const match={ id:`match-${now}-${id}`,gameId:id,time:now,dateKey,mode,outcome,schoolLevel:level,universityDifficulty:level==='universitas'?universityDifficulty:null,challengeCode,durationMs,performance:performance.score,grade:performance.grade,hintsUsed,rankedDelta,xp:amount,isPersonalBest:newBest,previousBestMs,replay:Array.isArray(session?.actions)?session.actions:[],arenaRunId:session?.arenaRunId||null,arenaCupId:session?.arenaCupId||null,practiceLabId:session?.practiceLabId||null,integrity:{...createSessionIntegrity(mode),...(session?.integrity||{})} };
     saveMatches([match,...matchesRef.current.filter(item=>item.id!==match.id)].slice(0,300));
     selectReplay(match.id);
 
@@ -492,6 +561,12 @@ export function ArenaProvider({ children }) {
       const finished=activeRun.index>=activeRun.stages.length-1;
       saveArenaRun({ ...activeRun,results,index:finished?activeRun.index:activeRun.index+1,status:finished?'complete':'active',completedAt:finished?now:null });
     }
+
+    const activeCup=arenaCupRef.current;
+    if (activeCup?.status==='active' && activeCup.stages?.[activeCup.index]?.gameId===id) {
+      saveArenaCup(applyArenaCupResult(activeCup,match));
+    }
+    if (session?.practiceLabId) { try { localStorage.removeItem(practiceLabKey); } catch {} }
 
     const reward = {
       ...event,
@@ -513,7 +588,7 @@ export function ArenaProvider({ children }) {
     restoreNativeRandom();
     lastRewardRef.current = reward; writeJSON(lastCompletionKey,reward); setNotice(`+${amount} XP${rankedDelta?` · ${rankedDelta>0?'+':''}${rankedDelta} RP`:''}`);
     return reward;
-  }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,selectReplay,updateSession,clearRecovery]);
+  }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,saveArenaCup,selectReplay,updateSession,clearRecovery]);
 
   const selectBadge = useCallback(id => {
     if (id !== null && (!achievementById(id) || !achievementRef.current.unlocked[id])) return false;
@@ -550,6 +625,17 @@ export function ArenaProvider({ children }) {
     });
     return true;
   }, []);
+
+  const refreshAutomaticBackups = useCallback(() => {
+    try { const next=listAutomaticBackups(); setAutomaticBackups(next); return next; } catch { return []; }
+  },[]);
+  const createRestorePoint = useCallback((reason='manual') => {
+    try { const entry=createAutomaticBackup(reason); refreshAutomaticBackups(); setNotice(reason==='auto'?'Progress dibackup otomatis':'Restore point dibuat'); return entry; } catch { setStorageOk(false); return null; }
+  },[refreshAutomaticBackups]);
+  const restoreRestorePoint = useCallback(id => {
+    try { const count=restoreAutomaticBackup(id); setNotice(`Restore point dipulihkan · ${count} data`); return count; } catch { return 0; }
+  },[]);
+  const deleteRestorePoint = useCallback(id => { try { const next=deleteAutomaticBackup(id); setAutomaticBackups(next); return true; } catch { return false; } },[]);
 
   const todayKey = localDateKey();
   const levelInfo = useMemo(() => getLevelInfo(profile.xp), [profile.xp]);
@@ -641,9 +727,27 @@ export function ArenaProvider({ children }) {
   },[appendSessionAction]);
 
   useEffect(() => {
+    const onVisibility=()=>{
+      const current=sessionRef.current;
+      if(!current?.active || current.mode!=='ranked') return;
+      const integrity={...createSessionIntegrity('ranked'),...(current.integrity||{}),visibilityChanges:(Number(current.integrity?.visibilityChanges)||0)+1,focusLosses:(Number(current.integrity?.focusLosses)||0)+(document.hidden?1:0)};
+      updateSession({...current,integrity,actions:[...(current.actions||[]),{t:Math.max(0,Date.now()-current.startedAt),type:'system',label:document.hidden?'Tab hidden':'Tab visible'}].slice(-240)});
+    };
+    document.addEventListener('visibilitychange',onVisibility);
+    return()=>document.removeEventListener('visibilitychange',onVisibility);
+  },[updateSession]);
+
+  useEffect(() => {
     const timer=setInterval(()=>{ if (sessionRef.current?.active) persistRecovery(sessionRef.current); },8000);
     return()=>clearInterval(timer);
   },[persistRecovery]);
+
+  useEffect(() => {
+    const run=()=>{ try { if(automaticBackupDue()) createRestorePoint('auto'); } catch {} };
+    const timer=setTimeout(run,1200);
+    const interval=setInterval(run,15*60*1000);
+    return()=>{clearTimeout(timer);clearInterval(interval);};
+  },[createRestorePoint]);
 
   useEffect(() => {
     writeText('ba_muted',muted); window.__BA_MUTED__ = muted;
@@ -663,6 +767,8 @@ export function ArenaProvider({ children }) {
   useEffect(() => {
     const sync = e => {
       if (!e.key || e.key === favoriteKey) setFavorites(loadFavorites());
+      if (!e.key || e.key === pinnedGamesKey) setPinnedGames(loadPinnedGames());
+      if (!e.key || e.key === 'ba_auto_backups_v1') refreshAutomaticBackups();
       if (!e.key || e.key === historyKey) setHistory(loadHistory());
       if (!e.key || e.key === 'ba_muted') setMuted(readText('ba_muted') === 'true');
       if (!e.key || e.key === profileKey) setProfile(loadProfile());
@@ -677,6 +783,7 @@ export function ArenaProvider({ children }) {
       if (!e.key || e.key === personalBestKey) setPersonalBests(loadPersonalBests());
       if (!e.key || e.key === completionMapKey) setCompletionMap(loadCompletionMap());
       if (!e.key || e.key === arenaRunKey) setArenaRun(loadArenaRun());
+      if (!e.key || e.key === ARENA_CUP_KEY) setArenaCup(loadArenaCup());
       if (!e.key || e.key === recoverySessionKey) setRecoverySession(loadRecoverySession());
       if (!e.key || e.key === notificationKey) setNotificationState(loadNotificationState());
     };
@@ -687,7 +794,7 @@ export function ArenaProvider({ children }) {
   useEffect(() => { if (!notice) return; const timer=setTimeout(()=>setNotice(''),3000); return()=>clearTimeout(timer); }, [notice]);
 
   return <ArenaContext.Provider value={{
-    favorites,toggleFavorite,history,recordVisit,clearHistory,muted,toggleSound,storageOk,notice,setNotice,
+    favorites,toggleFavorite,pinnedGames,togglePinnedGame,movePinnedGame,history,recordVisit,clearHistory,muted,toggleSound,storageOk,notice,setNotice,
     profile,levelInfo,updatePlayerName,recordGameCompletion,grantXp,
     todayChallenge,dailyCompleted,daily,currentStreak,bestStreak,
     achievements,achievementList:ACHIEVEMENTS,selectedBadge,selectBadge,
@@ -698,9 +805,11 @@ export function ArenaProvider({ children }) {
     competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,leaveGameSession,currentSession,personalBests,personalBestFor,
     matches,selectReplay,selectedReplayId,requestCoachHint,completionMap,
     arenaRun,startArenaRun,startCustomArenaRun,cancelArenaRun,continueArenaRun,
+    arenaCup,startArenaCup,cancelArenaCup,continueArenaCup,startPracticeDrill,
     recoverySession,resumeRequestedId,resumeRecovery,discardRecovery,
     notifications,unreadNotifications,markNotificationRead,markAllNotificationsRead,
     accessibility,updateAccessibility,
+    automaticBackups,createRestorePoint,restoreRestorePoint,deleteRestorePoint,refreshAutomaticBackups,
   }}>{children}</ArenaContext.Provider>;
 }
 export function useArena() { return useContext(ArenaContext); }

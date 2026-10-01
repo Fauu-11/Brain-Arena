@@ -1,6 +1,47 @@
-# Brain Arena v1.15 - Sharing, Stability & Onboarding
+# Brain Arena v1.17 - Player Experience & Release Hardening
 
-Brain Arena v1.15 melanjutkan v1.14 dengan fokus pada berbagi challenge, turnamen custom, onboarding, keamanan data lokal, arsip Daily Challenge, accessibility, offline content, diagnostics feedback, dan target personal. Seluruh 12 game, tema merah, Smart Sidebar, Ranked/Practice, Arena Run, XP, Rank, Season, Mission, Achievement, Mastery, autosave/recovery, PWA, dan competitive system tetap dipertahankan.
+Brain Arena v1.17 melanjutkan v1.16 dengan fokus pada **multi-player lokal, showcase, hasil yang bisa dibagikan, tournament bracket, practice drill, pengelolaan backup/storage, diagnostics, controller, dan release safety**. Seluruh 12 game, tema merah, sidebar full/compact, Ranked, Arena Run, Replay v2, Brain Coach v2, analytics, PWA, progression, challenge sharing, dan sistem local-first tetap dipertahankan.
+
+## Fitur utama v1.17
+
+- **Multi Local Profile**: maksimal 6 pemain lokal. Progress aktif disimpan ke slot terpisah saat berpindah profil dan disinkronkan saat halaman ditutup.
+- **Player Showcase**: halaman showcase untuk rank, streak, mastery, badge, game unggulan, dan hasil pertandingan pilihan.
+- **Shareable Result Card**: membuat kartu hasil 16:9 langsung di browser dan mengekspor PNG / Web Share tanpa backend.
+- **Arena Cup / Tournament Bracket**: 7-stage bracket dari Quarterfinal ke Final dengan Challenge Code, Practice/Ranked, dan status Champion/Eliminated.
+- **Practice Lab**: 12 drill fokus, satu untuk tiap game, selalu berjalan dalam Practice Mode sehingga tidak mengurangi Arena RP.
+- **Save Slot & Backup Manager**: maksimal 10 checkpoint manual bernama dengan restore, overwrite, rename, delete, dan export JSON.
+- **Storage Optimization Center**: mengukur ukuran data lokal dan membersihkan replay, history, backup, recovery session, atau cache PWA secara selektif.
+- **System Diagnostics v3**: memeriksa app/schema version, local storage, service worker, PWA state, cache, viewport, last crash, dan release rollback; laporan bisa disalin.
+- **Keyboard & Controller Support**: Gamepad D-Pad/stick dipetakan ke Arrow Keys dan tombol A ke Enter untuk game yang sudah mendukung keyboard.
+- **Release Safety & Rollback**: sebelum migrasi schema besar, Brain Arena membuat restore snapshot; kegagalan migrasi mencoba rollback otomatis.
+- **Data Schema v17** tanpa mereset XP, Rank, Match History, Mastery, Achievement, atau profile yang sudah ada.
+
+## Catatan implementasi
+
+Brain Arena tetap aplikasi **local-first**. Multi Local Profile tidak membuat akun online dan tidak menyinkronkan antarperangkat. Arena Cup adalah bracket lokal single-player, bukan multiplayer real-time. Controller bridge mengikuti kontrol keyboard yang tersedia pada masing-masing game.
+
+Lihat `RELEASE_NOTES_v1.17.md` untuk detail dan `TEST_REPORT.md` untuk hasil QA.
+
+---
+
+# Brain Arena v1.16 - Competitive Polish & Reliability
+
+Brain Arena v1.16 melanjutkan v1.15.1 dengan **Automatic Backup & Restore Point, Replay v2, Arena Run v2, Brain Coach v2, Advanced Performance Analytics, Streak & Activity Calendar, Pinned Games v2, Search / Filter v2, Ranked Session Integrity, serta UI/UX polish**. Seluruh 12 game, tema merah, Smart Sidebar, Challenge Link, Arena Builder, Goals, Accessibility 2.0, PWA, XP, Rank, Season, Mission, Achievement, dan Mastery tetap dipertahankan.
+
+## Fitur utama v1.16
+
+- Automatic Backup: 5 restore point lokal, auto snapshot berkala, restore/delete dari Settings.
+- Replay v2: timeline scrubber, skip 5 detik, 0.5x/1x/2x/4x, marker event.
+- Arena Run v2: total score, run grade, perfect stage, best stage, average performance.
+- Brain Coach v2: post-game review dan fokus latihan per game.
+- Advanced Analytics: 7/30/Season/All Time dan per-game competitive metrics.
+- Activity Calendar: heatmap 91 hari, streak dan Daily marker.
+- Pinned Games v2: pin terpisah dari favorite, reorder, sinkron dengan sidebar.
+- Search/Filter v2: difficulty/status filter dan command query University Hard/Very Hard/Impossible.
+- Ranked Integrity: recovery/focus markers pada History dan Replay.
+- UI polish: micro interaction konsisten dan responsive refinement.
+
+Lihat `RELEASE_NOTES_v1.16.md` untuk detail lengkap.
 
 ## Fitur baru v1.15
 

@@ -32,6 +32,7 @@ const paths = {
   back: <path d="M20 12H4m6-6-6 6 6 6"/>,
   chevron: <path d="m9 5 7 7-7 7"/>,
   down: <path d="m6 9 6 6 6-6"/>,
+  up: <path d="m6 15 6-6 6 6"/>,
   close: <path d="m6 6 12 12M6 18 18 6"/>,
   menu: <path d="M4 6h16M4 12h16M4 18h16"/>,
   sidebar: <><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M12 9h6M12 13h6"/></>,

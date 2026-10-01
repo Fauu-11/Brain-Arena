@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.17.0 - Player Experience & Release Hardening
+
+- Added Multi Local Profile with isolated local progress slots and profile switching.
+- Added Player Showcase with featured game, result, rank, streak, mastery, and badge display.
+- Added Shareable Result Card with browser-generated PNG and Web Share support.
+- Added Arena Cup, a seven-stage local tournament bracket from Quarterfinal to Final.
+- Added Practice Lab drills for all 12 games, always launched in Practice mode.
+- Added named Save Slots with create, overwrite, rename, restore, delete, and export actions.
+- Added Storage Optimization Center for replay/history/backups/recovery/PWA-cache cleanup.
+- Added System Diagnostics v3 and persisted last-crash reports.
+- Added Gamepad bridge for D-Pad/stick and primary action keyboard mapping.
+- Added release migration safety snapshot and rollback support.
+- Migrated local data schema to v17 and updated PWA cache to `brain-arena-v1.17.0`.
+
+## v1.16.0 - Competitive Polish & Reliability
+
+- Added Automatic Backup & Restore Point with up to 5 local snapshots.
+- Added Replay v2 timeline scrubber, 5-second jumps, 0.5x/1x/2x/4x playback and event markers.
+- Upgraded Arena Run with scorecard, run grade, best stage and perfect-stage counters.
+- Added Brain Coach v2 post-game reviews and game-specific next-focus guidance.
+- Added Advanced Performance Analytics filters and competitive per-game metrics.
+- Added 91-day Streak & Activity Calendar.
+- Added Favorites & Pinned Games v2 with separate pin state and reorder controls.
+- Added catalog Search / Filter v2 and University difficulty parsing in Command Palette.
+- Added local Ranked Session Integrity markers for recovery and visibility changes.
+- Added responsive UI polish and micro interactions.
+- Migrated local data schema to v16 without resetting existing progression.
+- Updated app version and PWA cache to `1.16.0`.
+
 ## v1.15.1 - Sharing, Stability & Onboarding
 
 - Added Challenge Link & QR route for seeded challenges.

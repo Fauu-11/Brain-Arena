@@ -5,7 +5,10 @@ import './arena.css';
 import './game-theme.css';
 import App from './App.jsx';
 import { migrateProgressData } from './utils/migration.js';
+import { ensureLocalProfiles, saveActiveLocalProfile } from './utils/localProfiles.js';
 migrateProgressData();
+try { ensureLocalProfiles(); } catch {}
+window.addEventListener('pagehide',()=>{ try { saveActiveLocalProfile(); } catch {} });
 createRoot(document.getElementById('root')).render(<StrictMode><App/></StrictMode>);
 
 

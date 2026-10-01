@@ -2,8 +2,11 @@ const SAFE_PREFIXES = ['ba_','maze_best_','minesweeper_','sudoku_','matrix_','me
 const SAFE_EXACT = new Set(['arena_lang','language']);
 const MAX_KEYS = 300;
 const MAX_VALUE = 500000;
+const EXCLUDED_KEYS = new Set(['ba_auto_backups_v1','ba_local_profiles_v1','ba_active_local_profile_v1','ba_named_save_slots_v1','ba_release_rollback_v1']);
+const EXCLUDED_PREFIXES = ['ba_local_profile_slot_'];
 
-const allowedKey = key => SAFE_EXACT.has(key) || SAFE_PREFIXES.some(prefix=>String(key).startsWith(prefix));
+const allowedKey = key => { const value=String(key); return !EXCLUDED_KEYS.has(value) && !EXCLUDED_PREFIXES.some(prefix=>value.startsWith(prefix)) && (SAFE_EXACT.has(value) || SAFE_PREFIXES.some(prefix=>value.startsWith(prefix))); };
+export const isBackupKeyAllowed = allowedKey;
 
 export function createProgressBackup(storage = window.localStorage) {
   const data = {};
@@ -13,7 +16,7 @@ export function createProgressBackup(storage = window.localStorage) {
     const value = storage.getItem(key);
     if (typeof value === 'string' && value.length <= MAX_VALUE) data[key] = value;
   }
-  return { format:'brain-arena-backup',version:1,appVersion:'1.11.0',exportedAt:new Date().toISOString(),data };
+  return { format:'brain-arena-backup',version:1,appVersion:'1.17.0',exportedAt:new Date().toISOString(),data };
 }
 
 export function validateProgressBackup(raw) {

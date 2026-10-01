@@ -1,4 +1,4 @@
-export function buildDiagnostics({gameId='general',session=null,version='1.15.0'}={}){const actions=(session?.actions||[]).slice(-20).map(x=>`${Math.round((x.t||0)/1000)}s:${x.type||'action'}:${x.label||''}`).join(' | ');return [
+export function buildDiagnostics({gameId='general',session=null,version='1.17.0'}={}){const actions=(session?.actions||[]).slice(-20).map(x=>`${Math.round((x.t||0)/1000)}s:${x.type||'action'}:${x.label||''}`).join(' | ');return [
  `Brain Arena v${version}`,
  `Route: ${globalThis.location?.hash||'-'}`,
  `Game: ${gameId}`,

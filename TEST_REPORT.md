@@ -1,25 +1,43 @@
-# Laporan Pengujian Brain Arena v1.15.1
+# Brain Arena v1.17 Test Report
 
-## Ringkasan
+## Automated unit / utility tests
 
-| Pemeriksaan | Hasil |
-| --- | --- |
-| Node unit/integration tests | **112/112 lulus** |
-| Portable ESM build | **92 modules, berhasil** |
-| HTTP verification | **111 checks lulus** |
-| Browser QA desktop 1440 px | **Challenge Share + Arena Builder lulus** |
-| Browser QA mobile 390 px | **Accessibility Settings lulus** |
-| Runtime page errors pada QA v1.15 | **0** |
+- **124 / 124 passed** using Node's built-in test runner.
+- Added v1.17 coverage for Multi Local Profile isolation, named Save Slots, Arena Cup progression, storage compaction, schema v17 migration/rollback snapshot, and new routes.
 
-## Cakupan v1.15
+## Portable build
 
-- Challenge dynamic route `#/challenge/<code>` dan round-trip challenge link.
-- Personal Goal session progress.
-- Data Health mendeteksi/memperbaiki JSON `ba_*` rusak tanpa menyentuh key non-Brain-Arena.
-- Data migration v14 -> v15 dan Accessibility 2.0 defaults.
-- 12-game catalog tetap utuh.
-- Browser QA untuk halaman Challenge Share, Arena Builder, dan Settings Accessibility.
+- Portable ESM production build completed successfully.
+- **114 JavaScript modules** transpiled with TypeScript 5.8.3.
+- Build version: **1.17.0**.
 
-## Build
+## Browser QA
 
-`npm run build:portable` berhasil. Build portable bukan pengganti verifikasi `vite build` standar; pada GitHub Actions tetap disarankan menjalankan `npm ci` lalu `npm run build`.
+Playwright smoke tests passed for:
+
+- Multi Local Profile
+- Player Showcase
+- Shareable Result Card
+- Arena Cup
+- Practice Lab
+- Save Slots
+- Storage Optimization Center
+- System Diagnostics v3
+- Keyboard & Controller page
+- Settings v1.17 tools
+- Replay v2
+- Advanced Analytics
+- Automatic Backup UI
+- Activity Calendar
+- Setup-page smoke checks for all **12 / 12 games**
+
+No JavaScript page errors were observed in the successful v1.17 browser QA runs.
+
+## HTTP verification
+
+- **133 HTTP checks passed** against the generated `dist/` served by the included local preview server.
+- Includes byte-for-byte asset checks, MIME checks, gzip verification, 404, method rejection, and traversal rejection.
+
+## Build note
+
+The included hosting package is the project's portable ESM production build. Standard Vite deployment should continue to use `npm ci` followed by `npm run build` in GitHub Actions / the developer environment.
