@@ -58,3 +58,12 @@ test('Progression feature routes resolve in English and Indonesian', () => {
   assert.equal(resolveRoute('#/leaderboard'), 'leaderboard');
   assert.equal(resolveRoute('#/peringkat'), 'leaderboard');
 });
+
+test('Rank, customization and statistics routes resolve in English and Indonesian', () => {
+  assert.equal(resolveRoute('#/rank'), 'rank');
+  assert.equal(resolveRoute('#/ranking'), 'rank');
+  assert.equal(resolveRoute('#/customize'), 'customize');
+  assert.equal(resolveRoute('#/kustomisasi'), 'customize');
+  assert.equal(resolveRoute('#/statistics'), 'statistics');
+  assert.equal(resolveRoute('#/statistik'), 'statistics');
+});

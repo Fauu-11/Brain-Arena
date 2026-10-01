@@ -85,6 +85,21 @@ const GUIDES = {
     },
     tip: { id: 'Kelompokkan pola menjadi bagian kecil: sudut, baris, atau bentuk sederhana. Ini lebih mudah daripada mengingat petak satu per satu.', en: 'Chunk the pattern into corners, rows, or simple shapes instead of memorizing cells one by one.' },
     input: { id: 'Klik atau ketuk petak yang kamu ingat. Petak benar akan terkunci; petak salah mengurangi nyawa.', en: 'Click or tap remembered cells. Correct cells lock in; mistakes cost a life.' },
+  },  nonogram: {
+    steps: {
+      id: ['Baca clue angka pada setiap baris dan kolom.', 'Isi petak yang pasti dan tandai X pada petak kosong.', 'Silangkan informasi sampai semua kelompok cocok.'],
+      en: ['Read the number clues for each row and column.', 'Fill proven cells and mark empty cells with X.', 'Cross-check both directions until every group matches.'],
+    },
+    tip: { id: 'Mulai dari baris dengan ruang sisa paling sedikit. Clue besar biasanya memberi petak pasti lebih cepat.', en: 'Start with lines that have the least spare space. Large clues often reveal forced cells faster.' },
+    input: { id: 'Klik/ketuk untuk mode aktif. Klik kanan untuk X; di mobile pilih mode Isi atau Kosong.', en: 'Click/tap for the active mode. Right-click for X; on mobile choose Fill or Empty mode.' },
+  },
+  game2048: {
+    steps: {
+      id: ['Geser semua ubin ke satu arah.', 'Gabungkan angka yang sama menjadi nilai dua kali lipat.', 'Jaga ubin terbesar di sudut sampai mencapai target.'],
+      en: ['Slide every tile in one direction.', 'Merge equal values into a doubled tile.', 'Keep the largest tile anchored in a corner until you reach the target.'],
+    },
+    tip: { id: 'Pilih satu sudut utama dan hindari gerakan yang menarik ubin terbesar keluar dari sudut itu.', en: 'Choose one main corner and avoid moves that pull your largest tile away from it.' },
+    input: { id: 'Panah/WASD di desktop. Swipe atau D-pad pada perangkat sentuh.', en: 'Arrow keys/WASD on desktop. Swipe or use the D-pad on touch devices.' },
   },
 };
 

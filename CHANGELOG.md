@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.9.0 - Season, Events, Mastery, Accessibility & 12 Games
+- Added Season System with the Mind Explorer season, Season XP, season levels, six reward milestones, and one-time account-XP claims.
+- Added weekly Event System rotating Logic, Memory, Mathematics, and Strategy categories with +50% base-session XP for eligible games.
+- Added per-game Mastery XP, mastery levels, six mastery tiers, and a dedicated 12-game Mastery dashboard.
+- Added Adaptive Difficulty recommendations based on completions and per-game mastery while preserving player choice.
+- Added Settings & Data with System/Light/Dark themes, reduced motion, high contrast, larger text, and local persistence.
+- Added safe Export/Import Progress using a versioned JSON backup with an allowlist of Brain Arena storage keys.
+- Upgraded every shared Solo/Multi result card to Result Screen v2 with account XP breakdown, Event bonus, Mastery XP, Season XP, and level-up feedback.
+- Added Nonogram with 5×5 through 20×20 puzzles, row/column clues, Fill/X modes, desktop right-click, mobile controls, and clue-consistent solution validation.
+- Added 2048 with standard 4×4 merging, Arrow/WASD/swipe/D-pad controls, score/moves, and targets from 128 through University Extreme 4096.
+- Expanded the catalog, guides, tips, home filters, navigation, achievements exploration target, profile counters, and statistics from 10 to 12 games.
+- Updated PWA cache to `brain-arena-v1.9.0` and refreshed app shortcuts.
+- Improved mobile Season filter sizing and large Nonogram boards with local horizontal scrolling to prevent page-level overflow.
+- Added v1.9 unit and browser QA coverage.
+
+## v1.8.0 - Arena Rank, Profile Customization & Advanced Statistics
+- Preserved v1.7 Achievement & Badge, Daily/Weekly Missions, Leaderboard, and PWA without duplicating those systems.
+- Added Arena Rating with 17 tiers from Bronze III through Grandmaster.
+- Added transparent Arena Rating breakdown from XP, completions, badges, best Daily Streak, and explored games.
+- Added Profile Customization with 8 avatars, 6 frames, 6 player titles, and 4 banner styles.
+- Added progression-based customization unlock rules for levels, ranks, badges, streaks, sessions, exploration, and selected game milestones.
+- Integrated the selected avatar/frame into Profile, Home, sidebar, top bar, and local Leaderboard player rendering.
+- Added Advanced Statistics with 7-day session/XP charts, 28-day activity heatmap, category distribution, exploration, activity streak, and per-game performance.
+- Added routes and Indonesian aliases for Rank, Customization, and Statistics.
+- Updated the PWA cache to `brain-arena-v1.8.0` and added a Player Statistics shortcut.
+- Added unit tests and responsive browser QA for all v1.8 progression pages.
+
 ## v1.7.0 - Achievements, Missions, Leaderboard & PWA
 - Added 12 automatic achievements with equippable profile badges and one-time XP rewards.
 - Added Daily and Weekly Mission / Quest pages with progress tracking and claim-once XP rewards.

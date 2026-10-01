@@ -261,7 +261,60 @@ export const GUIDE_DETAILS = {
     },
     mistakes: [bi('Menghafal sel satu per satu tanpa chunking.', 'Memorizing isolated cells without chunking.'), bi('Mengubah arah scanning setiap ronde.', 'Changing your scan direction every round.'), bi('Klik cepat saat ragu karena penalti salah berlaku untuk seluruh run.', 'Clicking while uncertain even though mistakes cost lives for the entire run.')],
     levels: [level('SD', '3×3 · 5 ronde · mulai 3 target · preview 2,6 dtk.'), level('SMP', '4×4 · 6 ronde · mulai 4 target · preview 2,35 dtk.'), level('SMA', '5×5 · 7 ronde · mulai 5 target · preview 2,1 dtk.'), level('Univ · Hard', '6×6 · 7 ronde · mulai 7 target · preview 1,9 dtk.'), level('Univ · Very Hard', '7×7 · 8 ronde · mulai 9 target · preview 1,65 dtk.'), level('Univ · Extreme', '8×8 · 9 ronde · mulai 12 target · +2 target/ronde · preview 1,4 dtk.')]
+  },
+  nonogram: {
+    objective: bi('Isi petak berdasarkan petunjuk angka pada baris dan kolom sampai gambar tersembunyi terbentuk.', 'Fill cells from row and column number clues until the hidden picture is revealed.'),
+    victory: bi('Semua petak yang seharusnya terisi harus tepat, tanpa petak ekstra. Tanda X boleh digunakan untuk menandai petak yang sudah pasti kosong.', 'Every required filled cell must be correct with no extra filled cells. X marks can identify cells proven empty.'),
+    facts: [fact('Papan', 'Board', '5×5 hingga 20×20', '5×5 to 20×20'), fact('Clue', 'Clues', 'Kelompok berurutan', 'Consecutive groups'), fact('Mode Univ', 'University', 'Hard / Very Hard / Extreme')],
+    controls: [bi('Klik/ketuk sesuai mode aktif untuk mengisi atau memberi X.', 'Click/tap using the active mode to fill or mark X.'), bi('Klik kanan di desktop untuk memasang atau melepas X.', 'Right-click on desktop to toggle an X.'), bi('Gunakan tombol Isi/Kosong di mobile sebelum mengetuk petak.', 'Use Fill/Empty mode buttons on mobile before tapping cells.')],
+    tutorial: [
+      item('Baca semua clue', 'Read every clue', 'Angka menunjukkan panjang kelompok petak terisi dari kiri ke kanan atau atas ke bawah.', 'Numbers show the lengths of filled groups from left to right or top to bottom.'),
+      item('Mulai dari clue besar', 'Start with large clues', 'Baris yang hampir penuh biasanya langsung memberi petak pasti.', 'Nearly full lines usually reveal forced cells immediately.'),
+      item('Tandai petak kosong', 'Mark empty cells', 'Setelah sebuah kelompok selesai, beri X di sisi yang tidak boleh terisi.', 'Once a group is complete, mark the cells beside it that cannot be filled.'),
+      item('Silangkan baris dan kolom', 'Cross-check rows and columns', 'Setiap petak yang pasti di satu arah menjadi informasi baru untuk arah lainnya.', 'Every forced cell in one direction becomes new information for the other.'),
+      item('Ulangi sampai konsisten', 'Repeat until consistent', 'Kerjakan garis dengan informasi terbanyak, lalu kembali ke garis yang sebelumnya belum pasti.', 'Work the most constrained lines, then revisit lines that were previously uncertain.')
+    ],
+    solve: {
+      title: bi('Metode overlap dan sisa ruang', 'Overlap and remaining-space method'),
+      intro: bi('Bandingkan panjang clue dengan panjang baris untuk menemukan petak yang pasti terisi tanpa menebak.', 'Compare clue lengths with line length to find guaranteed filled cells without guessing.'),
+      steps: [
+        item('Hitung kebutuhan minimum', 'Calculate minimum space', 'Jumlahkan semua clue lalu tambahkan minimal satu spasi antar-kelompok.', 'Add all clues plus at least one gap between groups.'),
+        item('Cari overlap', 'Find overlap', 'Bayangkan kelompok ditempatkan paling kiri lalu paling kanan. Bagian yang selalu tumpang tindih pasti terisi.', 'Place a group as far left and as far right as possible. Cells that overlap in both placements are forced.'),
+        item('Tutup kelompok selesai', 'Close completed groups', 'Jika panjang kelompok sudah cocok dengan clue, tandai petak di kedua sisinya sebagai kosong.', 'When a group matches its clue length, mark the cells immediately beside it empty.'),
+        item('Propagasi silang', 'Propagate across', 'Gunakan setiap petak baru untuk mempersempit baris atau kolom yang berpotongan.', 'Use every new certainty to constrain intersecting rows or columns.')
+      ],
+      example: bi('Pada baris 5 petak dengan clue 4, penempatan 11110 dan 01111 selalu bertumpuk di tiga petak tengah. Tiga petak itu pasti terisi.', 'In a 5-cell line with clue 4, placements 11110 and 01111 always overlap in the middle three cells. Those three are guaranteed filled.')
+    },
+    mistakes: [bi('Menganggap semua clue harus menempel tanpa jarak.', 'Assuming all clue groups touch with no gaps.'), bi('Mengisi berdasarkan bentuk gambar yang dibayangkan, bukan berdasarkan clue.', 'Filling based on an imagined picture instead of the clues.'), bi('Tidak memberi X pada petak kosong yang sudah pasti sehingga informasi silang terbuang.', 'Failing to mark proven empty cells and losing useful cross-information.')],
+    levels: [level('SD', '5×5 · dasar overlap.'), level('SMP', '8×8 · beberapa kelompok per garis.'), level('SMA', '10×10 · deduksi silang lebih panjang.'), level('Univ · Hard', '12×12.'), level('Univ · Very Hard', '15×15.'), level('Univ · Extreme', '20×20 · perlu disiplin propagasi dan pencatatan X.')]
+  },
+  game2048: {
+    objective: bi('Gabungkan ubin bernilai sama untuk membangun ubin target tanpa memenuhi papan.', 'Merge equal tiles to build the target tile without filling the board.'),
+    victory: bi('Capai target sesuai tingkat: 128, 256, 512, 1024, 2048, atau 4096.', 'Reach the target for your level: 128, 256, 512, 1024, 2048, or 4096.'),
+    facts: [fact('Papan', 'Board', '4×4'), fact('Spawn', 'Spawn', '2 atau 4', '2 or 4'), fact('Universitas', 'University', '1024 / 2048 / 4096')],
+    controls: [bi('Gunakan panah atau WASD di desktop.', 'Use Arrow keys or WASD on desktop.'), bi('Swipe pada papan di perangkat sentuh.', 'Swipe the board on touch devices.'), bi('D-pad di bawah papan menjadi alternatif tanpa gesture.', 'The D-pad below the board is a non-gesture alternative.')],
+    tutorial: [
+      item('Pilih sudut utama', 'Choose a main corner', 'Pertahankan ubin terbesar di satu sudut, misalnya kanan bawah.', 'Keep the largest tile in one corner, such as bottom-right.'),
+      item('Bangun rantai menurun', 'Build a descending chain', 'Susun nilai besar ke kecil sepanjang tepi dekat sudut utama.', 'Arrange large-to-small values along the edge beside your main corner.'),
+      item('Batasi arah berbahaya', 'Avoid dangerous directions', 'Jangan sering memakai arah yang menarik ubin terbesar keluar dari sudut.', 'Avoid directions that pull the largest tile away from its anchor corner.'),
+      item('Gabung dari nilai kecil', 'Merge small values first', 'Sediakan ruang dengan menggabungkan 2 dan 4 sebelum papan terlalu padat.', 'Create room by merging 2s and 4s before the board gets crowded.'),
+      item('Rencanakan spawn', 'Plan around spawns', 'Setiap gerak valid memunculkan ubin baru, jadi sisakan jalur untuk menyerapnya.', 'Every valid move spawns a new tile, so preserve a lane to absorb it.')
+    ],
+    solve: {
+      title: bi('Strategi sudut dan snake chain', 'Corner and snake-chain strategy'),
+      intro: bi('Tujuannya bukan mengejar gabungan tercepat, tetapi mempertahankan urutan nilai agar papan tetap terkendali.', 'The goal is not the fastest merge; it is preserving value order so the board stays controllable.'),
+      steps: [
+        item('Kunci nilai terbesar', 'Anchor the largest tile', 'Pilih sudut dan jangan pindahkan ubin terbesar dari sana.', 'Pick a corner and keep the largest tile anchored there.'),
+        item('Buat rantai', 'Build a chain', 'Susun ubin berikutnya secara menurun di sepanjang tepi lalu berbelok seperti ular.', 'Arrange the next values in descending order along the edge, then turn like a snake.'),
+        item('Isi dari sisi jauh', 'Feed from the far side', 'Gabungkan ubin kecil di sisi berlawanan dan dorong hasilnya menuju rantai besar.', 'Merge small tiles on the far side and feed the results toward the large chain.'),
+        item('Hindari papan checkerboard', 'Avoid checkerboards', 'Pola nilai selang-seling tanpa pasangan cepat membuat papan macet.', 'Alternating values with no adjacent matches quickly create a locked board.')
+      ],
+      example: bi('Jika sudut kanan bawah menyimpan 512, usahakan 256 berada di sebelahnya, lalu 128, 64, dan seterusnya. Rantai ini membuat merger besar lebih terprediksi.', 'If bottom-right holds 512, keep 256 beside it, then 128, 64, and so on. This chain makes large merges more predictable.')
+    },
+    mistakes: [bi('Menggerakkan semua arah secara acak.', 'Swiping randomly in every direction.'), bi('Mengejar satu merger besar tetapi membiarkan banyak ubin kecil terisolasi.', 'Chasing one big merge while leaving many isolated small tiles.'), bi('Memindahkan ubin terbesar dari sudut utama tanpa jalur untuk mengembalikannya.', 'Pulling the largest tile out of the anchor corner without a way to restore it.')],
+    levels: [level('SD', 'Target 128.'), level('SMP', 'Target 256.'), level('SMA', 'Target 512.'), level('Univ · Hard', 'Target 1024.'), level('Univ · Very Hard', 'Target 2048.'), level('Univ · Extreme', 'Target 4096.')]
   }
+
 };
 
 export function pickGuideText(value, lang = 'id') {

@@ -1,0 +1,458 @@
+
+> universitywar@1.8.0 test
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: The center of the net becomes the TOP; the tail becomes BOTTOM
+ok 1 - The center of the net becomes the TOP; the tail becomes BOTTOM
+  ---
+  duration_ms: 1.645092
+  type: 'test'
+  ...
+# Subtest: Four up rolls restore every face AND icon rotation
+ok 2 - Four up rolls restore every face AND icon rotation
+  ---
+  duration_ms: 1.570788
+  type: 'test'
+  ...
+# Subtest: up and its inverse restore the physical die
+ok 3 - up and its inverse restore the physical die
+  ---
+  duration_ms: 0.413802
+  type: 'test'
+  ...
+# Subtest: Four left rolls restore every face AND icon rotation
+ok 4 - Four left rolls restore every face AND icon rotation
+  ---
+  duration_ms: 0.364566
+  type: 'test'
+  ...
+# Subtest: left and its inverse restore the physical die
+ok 5 - left and its inverse restore the physical die
+  ---
+  duration_ms: 0.173144
+  type: 'test'
+  ...
+# Subtest: Four right rolls restore every face AND icon rotation
+ok 6 - Four right rolls restore every face AND icon rotation
+  ---
+  duration_ms: 0.507245
+  type: 'test'
+  ...
+# Subtest: right and its inverse restore the physical die
+ok 7 - right and its inverse restore the physical die
+  ---
+  duration_ms: 0.227457
+  type: 'test'
+  ...
+# Subtest: Four down rolls restore every face AND icon rotation
+ok 8 - Four down rolls restore every face AND icon rotation
+  ---
+  duration_ms: 0.23925
+  type: 'test'
+  ...
+# Subtest: down and its inverse restore the physical die
+ok 9 - down and its inverse restore the physical die
+  ---
+  duration_ms: 0.327105
+  type: 'test'
+  ...
+# Subtest: Rotation does not mutate the source cube
+ok 10 - Rotation does not mutate the source cube
+  ---
+  duration_ms: 0.681734
+  type: 'test'
+  ...
+# Subtest: 10,000 random rolls preserve six unique faces and valid artwork rotations
+ok 11 - 10,000 random rolls preserve six unique faces and valid artwork rotations
+  ---
+  duration_ms: 152.898217
+  type: 'test'
+  ...
+# Subtest: Every one of the nine rock-paper-scissors matchups is correct
+ok 12 - Every one of the nine rock-paper-scissors matchups is correct
+  ---
+  duration_ms: 0.354394
+  type: 'test'
+  ...
+# Subtest: START accepts only the first downward step
+ok 13 - START accepts only the first downward step
+  ---
+  duration_ms: 0.317229
+  type: 'test'
+  ...
+# Subtest: No immediate reverse, off-board moves, or return to START
+ok 14 - No immediate reverse, off-board moves, or return to START
+  ---
+  duration_ms: 0.460058
+  type: 'test'
+  ...
+# Subtest: Route projection respects arena coordinates
+ok 15 - Route projection respects arena coordinates
+  ---
+  duration_ms: 0.225885
+  type: 'test'
+  ...
+# Subtest: Generated games contain 49 tiles and two of each die symbol
+ok 16 - Generated games contain 49 tiles and two of each die symbol
+  ---
+  duration_ms: 8.564028
+  type: 'test'
+  ...
+# Subtest: Random steps include both limits and SMA uses 20 seconds
+ok 17 - Random steps include both limits and SMA uses 20 seconds
+  ---
+  duration_ms: 0.226642
+  type: 'test'
+  ...
+# Subtest: Invalid rule inputs fail explicitly
+ok 18 - Invalid rule inputs fail explicitly
+  ---
+  duration_ms: 0.673913
+  type: 'test'
+  ...
+# Subtest: Setup, memory and folding do not spend timer time
+ok 19 - Setup, memory and folding do not spend timer time
+  ---
+  duration_ms: 0.507063
+  type: 'test'
+  ...
+# Subtest: Planning cannot exceed the required count and ROLL requires a full route
+ok 20 - Planning cannot exceed the required count and ROLL requires a full route
+  ---
+  duration_ms: 0.267437
+  type: 'test'
+  ...
+# Subtest: Undo and Clear change only the plan, not the die
+ok 21 - Undo and Clear change only the plan, not the die
+  ---
+  duration_ms: 0.306259
+  type: 'test'
+  ...
+# Subtest: Rolling locks input and timer; repeated animation callbacks are ignored
+ok 22 - Rolling locks input and timer; repeated animation callbacks are ignored
+  ---
+  duration_ms: 0.645215
+  type: 'test'
+  ...
+# Subtest: All three visible video turns reproduce loss, win and draw with persistent orientation
+ok 23 - All three visible video turns reproduce loss, win and draw with persistent orientation
+  ---
+  duration_ms: 0.709716
+  type: 'test'
+  ...
+# Subtest: Only the final bottom face matters, not top or intermediate tiles
+ok 24 - Only the final bottom face matters, not top or intermediate tiles
+  ---
+  duration_ms: 0.291697
+  type: 'test'
+  ...
+# Subtest: Result confirmation applies a score once and preserves position and faces
+ok 25 - Result confirmation applies a score once and preserves position and faces
+  ---
+  duration_ms: 0.834938
+  type: 'test'
+  ...
+# Subtest: Pause stops timer and planning, resume restores both
+ok 26 - Pause stops timer and planning, resume restores both
+  ---
+  duration_ms: 0.203746
+  type: 'test'
+  ...
+# Subtest: Timeout penalizes once, leaves position unchanged, then changes turn
+ok 27 - Timeout penalizes once, leaves position unchanged, then changes turn
+  ---
+  duration_ms: 0.260335
+  type: 'test'
+  ...
+# Subtest: Stale timer and roll callbacks do not affect the next turn
+ok 28 - Stale timer and roll callbacks do not affect the next turn
+  ---
+  duration_ms: 0.342568
+  type: 'test'
+  ...
+# Subtest: Reaching four points ends the match, blocks extra scoring, and supports reset
+ok 29 - Reaching four points ends the match, blocks extra scoring, and supports reset
+  ---
+  duration_ms: 0.242926
+  type: 'test'
+  ...
+# Subtest: Reducer never mutates its input state while planning or rolling
+ok 30 - Reducer never mutates its input state while planning or rolling
+  ---
+  duration_ms: 0.443523
+  type: 'test'
+  ...
+# Subtest: every catalog game has a complete learning guide
+ok 31 - every catalog game has a complete learning guide
+  ---
+  duration_ms: 1.990703
+  type: 'test'
+  ...
+# Subtest: all tutorial and solve copy is bilingual
+ok 32 - all tutorial and solve copy is bilingual
+  ---
+  duration_ms: 0.484639
+  type: 'test'
+  ...
+# Subtest: generated mazes are fully connected and have reciprocal walls
+ok 33 - generated mazes are fully connected and have reciprocal walls
+  ---
+  duration_ms: 17.088041
+  type: 'test'
+  ...
+# Subtest: every open maze edge can be traversed and closed walls block movement
+ok 34 - every open maze edge can be traversed and closed walls block movement
+  ---
+  duration_ms: 0.946442
+  type: 'test'
+  ...
+# Subtest: invalid maze dimensions fail explicitly
+ok 35 - invalid maze dimensions fail explicitly
+  ---
+  duration_ms: 2.296436
+  type: 'test'
+  ...
+# Subtest: memory patterns contain unique valid cell indexes
+ok 36 - memory patterns contain unique valid cell indexes
+  ---
+  duration_ms: 1.472453
+  type: 'test'
+  ...
+# Subtest: round target grows predictably and is capped to the matrix
+ok 37 - round target grows predictably and is capped to the matrix
+  ---
+  duration_ms: 0.184322
+  type: 'test'
+  ...
+# Subtest: invalid memory pattern requests fail explicitly
+ok 38 - invalid memory pattern requests fail explicitly
+  ---
+  duration_ms: 0.839844
+  type: 'test'
+  ...
+# Subtest: Achievement catalog is unique and progression is bounded
+ok 39 - Achievement catalog is unique and progression is bounded
+  ---
+  duration_ms: 1.590376
+  type: 'test'
+  ...
+# Subtest: Daily missions measure sessions and game variety for the requested date
+ok 40 - Daily missions measure sessions and game variety for the requested date
+  ---
+  duration_ms: 2.331453
+  type: 'test'
+  ...
+# Subtest: Weekly mission window starts Monday and claim keys reset on schedule
+ok 41 - Weekly mission window starts Monday and claim keys reset on schedule
+  ---
+  duration_ms: 0.609278
+  type: 'test'
+  ...
+# Subtest: minefield has exact mines and a safe first-click neighborhood
+ok 42 - minefield has exact mines and a safe first-click neighborhood
+  ---
+  duration_ms: 2.969636
+  type: 'test'
+  ...
+# Subtest: adjacent counts match surrounding mines
+ok 43 - adjacent counts match surrounding mines
+  ---
+  duration_ms: 1.179021
+  type: 'test'
+  ...
+# Subtest: zero reveal expands through connected safe cells
+ok 44 - zero reveal expands through connected safe cells
+  ---
+  duration_ms: 0.45111
+  type: 'test'
+  ...
+# Subtest: flags block reveal and chord opens neighbors only when flag count matches
+ok 45 - flags block reveal and chord opens neighbors only when flag count matches
+  ---
+  duration_ms: 0.500745
+  type: 'test'
+  ...
+# Subtest: time formatting is stable
+ok 46 - time formatting is stable
+  ---
+  duration_ms: 0.42081
+  type: 'test'
+  ...
+# Subtest: Daily challenge is deterministic for a date and points to a real game
+ok 47 - Daily challenge is deterministic for a date and points to a real game
+  ---
+  duration_ms: 2.953105
+  type: 'test'
+  ...
+# Subtest: Daily challenge varies across a useful date range
+ok 48 - Daily challenge varies across a useful date range
+  ---
+  duration_ms: 1.183225
+  type: 'test'
+  ...
+# Subtest: Level progression starts at level 1 and advances predictably
+ok 49 - Level progression starts at level 1 and advances predictably
+  ---
+  duration_ms: 0.398755
+  type: 'test'
+  ...
+# Subtest: Daily streak tolerates an unfinished current day but breaks after a missed full day
+ok 50 - Daily streak tolerates an unfinished current day but breaks after a missed full day
+  ---
+  duration_ms: 0.180937
+  type: 'test'
+  ...
+# Subtest: Date helpers and deterministic index are bounded
+ok 51 - Date helpers and deterministic index are bounded
+  ---
+  duration_ms: 1.061973
+  type: 'test'
+  ...
+# Subtest: Daily and profile routes resolve with Indonesian aliases
+ok 52 - Daily and profile routes resolve with Indonesian aliases
+  ---
+  duration_ms: 0.374741
+  type: 'test'
+  ...
+# Subtest: Progression feature routes resolve in English and Indonesian
+ok 53 - Progression feature routes resolve in English and Indonesian
+  ---
+  duration_ms: 0.140393
+  type: 'test'
+  ...
+# Subtest: Rank, customization and statistics routes resolve in English and Indonesian
+ok 54 - Rank, customization and statistics routes resolve in English and Indonesian
+  ---
+  duration_ms: 0.317598
+  type: 'test'
+  ...
+# Subtest: Catalog identifiers and canonical slugs are unique
+ok 55 - Catalog identifiers and canonical slugs are unique
+  ---
+  duration_ms: 1.100602
+  type: 'test'
+  ...
+# Subtest: Routes and guides: 300
+ok 56 - Routes and guides: 300
+  ---
+  duration_ms: 0.561919
+  type: 'test'
+  ...
+# Subtest: Routes and guides: prime
+ok 57 - Routes and guides: prime
+  ---
+  duration_ms: 0.130537
+  type: 'test'
+  ...
+# Subtest: Routes and guides: pixel
+ok 58 - Routes and guides: pixel
+  ---
+  duration_ms: 0.200673
+  type: 'test'
+  ...
+# Subtest: Routes and guides: mnm
+ok 59 - Routes and guides: mnm
+  ---
+  duration_ms: 0.307375
+  type: 'test'
+  ...
+# Subtest: Routes and guides: cube
+ok 60 - Routes and guides: cube
+  ---
+  duration_ms: 0.113154
+  type: 'test'
+  ...
+# Subtest: Routes and guides: rps
+ok 61 - Routes and guides: rps
+  ---
+  duration_ms: 0.291456
+  type: 'test'
+  ...
+# Subtest: Routes and guides: sudoku
+ok 62 - Routes and guides: sudoku
+  ---
+  duration_ms: 0.131444
+  type: 'test'
+  ...
+# Subtest: Routes and guides: minesweeper
+ok 63 - Routes and guides: minesweeper
+  ---
+  duration_ms: 0.351332
+  type: 'test'
+  ...
+# Subtest: Routes and guides: maze
+ok 64 - Routes and guides: maze
+  ---
+  duration_ms: 0.910101
+  type: 'test'
+  ...
+# Subtest: Routes and guides: matrix
+ok 65 - Routes and guides: matrix
+  ---
+  duration_ms: 0.17008
+  type: 'test'
+  ...
+# Subtest: Pages and aliases
+ok 66 - Pages and aliases
+  ---
+  duration_ms: 0.214617
+  type: 'test'
+  ...
+# Subtest: Malformed, unknown and prototype-property routes are rejected
+ok 67 - Malformed, unknown and prototype-property routes are rejected
+  ---
+  duration_ms: 0.13782
+  type: 'test'
+  ...
+# Subtest: Sudoku 4x4: 500 generated boards satisfy every constraint
+ok 68 - Sudoku 4x4: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 21.501499
+  type: 'test'
+  ...
+# Subtest: Sudoku 6x6: 500 generated boards satisfy every constraint
+ok 69 - Sudoku 6x6: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 30.6876
+  type: 'test'
+  ...
+# Subtest: Sudoku 9x9: 500 generated boards satisfy every constraint
+ok 70 - Sudoku 9x9: 500 generated boards satisfy every constraint
+  ---
+  duration_ms: 33.064064
+  type: 'test'
+  ...
+# Subtest: Invalid Sudoku dimensions fail explicitly
+ok 71 - Invalid Sudoku dimensions fail explicitly
+  ---
+  duration_ms: 0.573237
+  type: 'test'
+  ...
+# Subtest: Arena Rating is deterministic and rank ladder is strictly increasing
+ok 72 - Arena Rating is deterministic and rank ladder is strictly increasing
+  ---
+  duration_ms: 3.060559
+  type: 'test'
+  ...
+# Subtest: Rank group comparison and customization unlock rules work
+ok 73 - Rank group comparison and customization unlock rules work
+  ---
+  duration_ms: 0.529499
+  type: 'test'
+  ...
+# Subtest: Advanced statistics summarize sessions, XP, categories and 28-day activity
+ok 74 - Advanced statistics summarize sessions, XP, categories and 28-day activity
+  ---
+  duration_ms: 1.007824
+  type: 'test'
+  ...
+1..74
+# tests 74
+# suites 0
+# pass 74
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 490.408589

@@ -1,40 +1,185 @@
-# Brain Arena v1.7 — Achievements, Missions, Leaderboard & PWA
+# Brain Arena v1.9 — Season, Events, Mastery & New Games
 
-Brain Arena v1.7 melanjutkan 10 game, panduan lengkap, Daily Challenge, XP, Level, dan Profil Pemain dengan empat sistem baru: **Achievement & Badge**, **Mission / Quest**, **Leaderboard**, dan **PWA / Installable App**.
+Brain Arena v1.9 melanjutkan seluruh fitur v1.8 tanpa menghapus progres lama. Achievement, Daily/Weekly Mission, Leaderboard lokal, PWA, Arena Rank, Profile Customization, Advanced Statistics, Daily Challenge, XP/Level, panduan lengkap, dan 10 game sebelumnya tetap dipertahankan.
 
-Semua progres masih local-first sehingga project tetap dapat berjalan di GitHub Pages tanpa backend.
+Fokus v1.9:
 
-## Fitur v1.7
+1. **Season System**
+2. **Event System**
+3. **Game Mastery**
+4. **Adaptive Difficulty**
+5. **Export / Import Progress**
+6. **Accessibility Settings**
+7. **Result Screen v2**
+8. **Nonogram + 2048** sehingga katalog menjadi **12 game**
 
-### Achievement & Badge
-- 12 achievement otomatis dengan progres yang terlihat.
-- Badge untuk milestone sesi, level, XP, seluruh game, Daily Streak, Minesweeper, Maze Escape, dan Memory Matrix.
-- Reward XP diberikan satu kali saat achievement terbuka.
-- Badge yang sudah terbuka dapat dipasang atau dilepas dari profil pemain.
-- Halaman: `#/achievements` atau `#/pencapaian`.
+Semua sistem tetap local-first dan kompatibel dengan GitHub Pages tanpa backend.
 
-### Mission / Quest
-- 3 misi harian dan 3 misi mingguan.
-- Daily quest direset per tanggal lokal; weekly quest memakai minggu Senin–Minggu.
-- Progress berdasarkan sesi selesai, variasi game, kategori, dan Daily Challenge.
-- XP hanya dapat diklaim sekali untuk setiap periode quest.
-- Halaman: `#/missions` atau `#/misi`.
+## Season System
 
-### Leaderboard
-- Ranking Total XP dan XP per game.
-- Bekerja sepenuhnya offline untuk GitHub Pages.
-- Rival diberi label **simulasi latihan**, bukan pemain sungguhan.
-- Skor pemain berasal dari progres lokal pada browser.
-- Halaman: `#/leaderboard` atau `#/peringkat`.
+Halaman:
 
-### PWA / Installable App
-- `manifest.webmanifest` dengan icon 192 dan 512 px.
-- Service worker untuk cache shell dan asset yang sudah dibuka.
-- Offline fallback untuk navigasi Brain Arena setelah asset tersimpan.
-- Tombol **Install aplikasi** di sidebar / toolbar saat browser mendukung instalasi.
-- Shortcut PWA menuju Daily Challenge, Missions, dan Achievements.
+```text
+#/season
+#/musim
+```
 
-## Game
+Season pertama adalah **Mind Explorer**, aktif 1 Oktober–30 November 2026. Setiap sesi game yang selesai selama season memberi **+40 Season XP (SXP)**. Season XP memiliki level tersendiri dan terpisah dari XP akun, Arena Rating, serta Game Mastery.
+
+Reward Track memiliki enam milestone. Saat syarat SXP tercapai, pemain dapat mengklaim hadiah XP akun satu kali.
+
+## Event System
+
+Halaman:
+
+```text
+#/events
+#/event
+```
+
+Event berotasi mingguan antara kategori:
+
+```text
+Logic Week
+Memory Focus
+Math Sprint
+Strategy Week
+```
+
+Game yang sesuai kategori event mendapat bonus **+50% dari XP dasar sesi**. Bonus otomatis dihitung pada Result Screen v2 dan tidak membutuhkan klaim manual.
+
+## Game Mastery
+
+Halaman:
+
+```text
+#/mastery
+#/penguasaan
+```
+
+Setiap game sekarang memiliki progres mastery sendiri. Satu sesi yang selesai memberi **+50 Mastery XP (MXP)** kepada game tersebut.
+
+Tier mastery:
+
+```text
+Novice → Apprentice → Skilled → Expert → Master → Grandmaster
+```
+
+Mastery tidak menggantikan Level atau Arena Rank; ketiganya mengukur progres yang berbeda.
+
+## Adaptive Difficulty
+
+Setup setiap game dapat menampilkan rekomendasi jenjang berdasarkan jumlah sesi dan mastery pemain. Rekomendasi bergerak dari SD → SMP → SMA → Universitas dan tetap bersifat saran; pemain bebas memilih tingkat apa pun.
+
+Untuk pemain berprogres tinggi, sistem juga menghitung rekomendasi Universitas Hard / Very Hard / Extreme. Pilihan advanced tetap ditentukan pemain pada selector Universitas masing-masing game.
+
+## Export / Import Progress
+
+Halaman:
+
+```text
+#/settings
+#/pengaturan
+```
+
+Menu Settings & Data menyediakan:
+
+- **Export progress** menjadi file `brain-arena-backup-YYYY-MM-DD.json`;
+- **Import backup** dari file JSON Brain Arena;
+- pilihan merge atau replace data lokal saat import;
+- validasi format, jumlah key, key yang diizinkan, dan batas ukuran nilai.
+
+Backup hanya mengekspor key localStorage Brain Arena yang diizinkan, bukan seluruh localStorage browser.
+
+## Accessibility Settings
+
+Settings juga menyediakan:
+
+- Theme: **System / Light / Dark**;
+- **Reduce motion**;
+- **High contrast**;
+- **Larger text**.
+
+Pengaturan disimpan lokal dan diterapkan melalui kelas/data attribute pada root document.
+
+## Result Screen v2
+
+Layar hasil game sekarang merangkum progres dari beberapa sistem sekaligus:
+
+```text
+Account XP
+- Base XP
+- First Play bonus
+- Daily Challenge bonus
+- Event bonus
+
+Game Mastery
++ MXP dan mastery level-up
+
+Season
++ SXP dan season level-up
+
+Event
+Nama event dan bonus XP jika eligible
+```
+
+Feedback Level Up tetap dipertahankan.
+
+## Game baru: Nonogram
+
+Route:
+
+```text
+#/nonogram
+```
+
+Tingkat:
+
+| Jenjang | Papan |
+| --- | ---: |
+| SD | 5×5 |
+| SMP | 8×8 |
+| SMA | 10×10 |
+| Universitas Hard | 12×12 |
+| Universitas Very Hard | 15×15 |
+| Universitas Extreme | 20×20 |
+
+Fitur:
+- clue baris dan kolom;
+- mode Isi dan X/Kosong;
+- klik kanan untuk X di desktop;
+- kontrol mode khusus mobile;
+- timer dan penghitung langkah;
+- solusi diterima berdasarkan konsistensi clue, bukan hanya satu pola internal;
+- papan besar memakai scroll lokal pada mobile agar halaman tidak melebar.
+
+## Game baru: 2048
+
+Route:
+
+```text
+#/2048
+```
+
+Target:
+
+| Jenjang | Target |
+| --- | ---: |
+| SD | 128 |
+| SMP | 256 |
+| SMA | 512 |
+| Universitas Hard | 1024 |
+| Universitas Very Hard | 2048 |
+| Universitas Extreme | 4096 |
+
+Kontrol:
+- Arrow Keys / WASD;
+- swipe pada perangkat sentuh;
+- D-pad 4 arah;
+- skor, langkah, dan ubin terbesar;
+- merge dan spawn 2/4 mengikuti mekanik 2048.
+
+## Total 12 game
 
 1. Blitz Aritmatika
 2. Perburuan Prima
@@ -46,8 +191,14 @@ Semua progres masih local-first sehingga project tetap dapat berjalan di GitHub 
 8. Minesweeper
 9. Maze Escape
 10. Memory Matrix
+11. Nonogram
+12. 2048
 
-Maze Escape dan Memory Matrix tetap memiliki mode Universitas **Hard, Very Hard, dan Extreme**.
+Panduan lengkap dan tips juga sudah ditambahkan untuk Nonogram dan 2048.
+
+## Kompatibilitas progres v1.8
+
+Key progression v1.8 tetap digunakan. v1.9 menambahkan data Season dan Accessibility serta field `masteryXp` pada statistik per-game. Profile lama dinormalisasi saat dibaca, sehingga data lama tidak perlu di-reset.
 
 ## Menjalankan source
 
@@ -67,57 +218,65 @@ npm run preview
 
 ## Preview portable yang disertakan
 
-ZIP menyertakan build ESM portable:
+Project menyertakan portable ESM build:
 
 ```bash
 node scripts/serve.mjs
 ```
 
-Lalu buka:
+Buka:
 
 ```text
 http://localhost:4173
 ```
 
-Pada Windows juga tersedia `JALANKAN-WINDOWS.bat`.
+Pada Windows tersedia `JALANKAN-WINDOWS.bat`.
 
 ## GitHub Pages
 
-Workflow berada di:
+Workflow tetap tersedia di:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-Pada GitHub pilih **Settings → Pages → Source → GitHub Actions**.
+Pada GitHub:
 
-Kemudian update dari Zed:
+```text
+Settings → Pages → Source → GitHub Actions
+```
+
+Untuk update repository:
 
 ```bash
 git add .
-git commit -m "Add achievements missions leaderboard and PWA"
+git commit -m "Upgrade Brain Arena v1.9 season mastery accessibility and new games"
 git push origin main
 ```
 
-GitHub Actions menjalankan `npm ci` dan `npm run build`, lalu mengirim folder `dist` ke GitHub Pages.
+## PWA
 
-## Penyimpanan lokal
+PWA dari v1.7 tetap dipertahankan. Cache service worker sekarang:
 
-Data berikut tersimpan di browser:
-- favorit dan riwayat;
-- record game;
-- XP, level, profil, dan Daily Challenge;
-- achievement, badge aktif, dan claim misi;
-- completion events yang dipakai untuk menghitung quest.
+```text
+brain-arena-v1.9.0
+```
 
-Karena belum ada backend, progres tidak otomatis tersinkron ke browser/perangkat lain. Leaderboard v1.7 adalah **papan latihan offline** dengan rival simulasi yang diberi label secara eksplisit.
+Shortcut manifest diperbarui untuk Season, Live Events, Game Mastery, dan Player Statistics.
 
-## Pengujian
+## Pengujian v1.9
 
-- 70 unit test lulus.
-- Browser QA: Achievements, Missions, Leaderboard, dan Profile pada 1440 px dan 390 px.
-- Tidak ada horizontal overflow pada skenario QA tersebut.
-- Portable build berhasil: 48 module source.
-- HTTP asset check: 67 check lulus.
+- **83/83 unit test lulus**.
+- Portable build: **67 module source**.
+- HTTP verification: **86 checks lulus**.
+- Browser QA khusus v1.9 pada 1440 px dan 390 px untuk Season, Events, Mastery, Settings, Nonogram, dan 2048.
+- Interaksi Accessibility diuji pada mobile: reduced motion, high contrast, larger text, dan dark theme.
+- Result Screen v2 diuji melalui penyelesaian Hitung Kubus dan menghasilkan Account XP, +50 MXP, +40 SXP, serta bonus event yang sesuai.
+- Home dan Profile juga diverifikasi ulang pada desktop/mobile setelah penambahan fitur v1.9.
+- Tidak ditemukan uncaught JavaScript error pada skenario QA v1.9 yang dijalankan.
 
-Lihat `TEST_REPORT.md` untuk detail.
+Lihat `TEST_REPORT.md` untuk detail dan batas pengujian.
+
+## Catatan build
+
+Pada environment pengerjaan ini binary `vite` tidak tersedia di `node_modules`, sehingga `npm run build` standar tidak dapat diverifikasi di sini. `npm run build:portable` berhasil dan digunakan untuk QA browser/HTTP. GitHub Actions tetap menggunakan `npm ci` lalu `npm run build` dari dependency pada `package-lock.json`.

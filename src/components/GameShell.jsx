@@ -48,11 +48,16 @@ export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
 }
 
 export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, children, badge, bestRecord = null }) {
+  const { adaptiveForGame } = useArena();
+  const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
+  const recommendation = gameById(gameId) ? adaptiveForGame(gameId) : null;
+  const showRecommendation = recommendation && recommendation.level !== schoolLevel;
   return <div className="play-setup-card">
     <div className="play-setup-heading"><span className="play-kicker">{lang === 'en' ? 'YOUR CHALLENGE, YOUR PACE' : 'TANTANGANMU, RITMEMU'}</span>{badge && <span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang === 'en' ? 'Choose the level that suits you. Start small, go further.' : 'Pilih jenjang yang sesuai. Mulai ringan, tingkatkan perlahan.'}</p></div>
     <label className="play-field-label">{lang === 'en' ? 'Education level' : 'Jenjang pendidikan'}<span>{lang === 'en' ? '4 levels available' : '4 jenjang tersedia'}</span></label>
     <LevelSelector value={schoolLevel} onChange={onLevelChange} lang={lang}/>
     {desc && <div className="play-level-description"><span><Icon name="layers" size={18}/></span><div><strong>{lang === 'en' ? 'Your challenge' : 'Tantangan yang kamu pilih'}</strong><p>{desc}</p></div></div>}
+    {showRecommendation && <div className="adaptive-suggestion"><span><Icon name="brain" size={18}/></span><div><small>{lang==='en'?'ADAPTIVE SUGGESTION':'SARAN ADAPTIF'}</small><strong>{lang==='en'?`Try ${recommendation.label.en}`:`Coba ${recommendation.label.id}`}</strong><p>{recommendation.reason[lang]}</p></div><button type="button" onClick={()=>onLevelChange(recommendation.level)}>{lang==='en'?'Use':'Pilih'}</button></div>}
     {bestRecord !== null && <StatBadge label={lang === 'en' ? 'Best record' : 'Rekor terbaik'} value={bestRecord} color="var(--uw-secondary)"/>}
     {children && <div className="play-setup-actions">{children}</div>}
     <p className="play-setup-footnote"><Icon name="check" size={13}/>{lang === 'en' ? 'No sign-up. Ready when you are.' : 'Tanpa daftar. Mulai kapan saja.'}</p>
@@ -73,10 +78,11 @@ function useCompletionReward() {
 function XpRewardPanel({ reward, lang }) {
   if (!reward) return null;
   const leveledUp = reward.levelAfter > reward.levelBefore;
-  return <div className={`play-xp-reward ${reward.dailyCompleted ? 'daily' : ''}`} aria-live="polite">
-    <span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span>
-    <div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : (lang === 'en' ? 'SESSION REWARD' : 'HADIAH SESI')}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}`}</p></div>
-    {leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}
+  const masteryUp = reward.masteryLevelAfter > reward.masteryLevelBefore;
+  const seasonUp = reward.seasonLevelAfter > reward.seasonLevelBefore;
+  return <div className={`play-xp-reward result-v2 ${reward.dailyCompleted ? 'daily' : ''}`} aria-live="polite">
+    <div className="result-v2-head"><span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span><div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : (lang === 'en' ? 'RESULT SCREEN v2' : 'RESULT SCREEN v2')}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}`}</p></div>{leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}</div>
+    <div className="result-v2-grid"><div><span><Icon name="trophy" size={15}/>{lang==='en'?'Mastery':'Mastery'}</span><strong>+{reward.masteryXp || 0} MXP</strong>{masteryUp&&<small>{lang==='en'?'Mastery level up!':'Mastery naik level!'}</small>}</div><div><span><Icon name="spark" size={15}/>{lang==='en'?'Season':'Season'}</span><strong>+{reward.seasonXp || 0} SXP</strong>{seasonUp&&<small>{lang==='en'?'Season level up!':'Season naik level!'}</small>}</div><div><span><Icon name="bolt" size={15}/>{lang==='en'?'Event':'Event'}</span><strong>{reward.eventBonus ? `+${reward.eventBonus} XP` : '—'}</strong><small>{reward.eventBonus ? reward.event?.title?.[lang] : (lang==='en'?'No bonus this run':'Tidak ada bonus')}</small></div></div>
   </div>;
 }
 

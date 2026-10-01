@@ -450,6 +450,34 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
         }
       ]
     },
+    'nonogram': {
+      titleEn: 'Nonogram',
+      titleId: 'Nonogram',
+      sections: [
+        { tier:'all', headingEn:'Core deduction patterns', headingId:'Pola deduksi inti', tips:[
+          { titleEn:'Minimum-space rule', titleId:'Aturan ruang minimum', textEn:'Add all clue groups plus one mandatory gap between groups. The smaller the leftover space, the more overlap you can prove.', textId:'Jumlahkan semua kelompok clue lalu tambahkan satu jarak wajib di antara kelompok. Semakin kecil sisa ruang, semakin besar overlap yang bisa dipastikan.', formula:'minimum = sum(clues) + groups - 1' },
+          { titleEn:'Complete-group border', titleId:'Batas kelompok selesai', textEn:'Once a run exactly matches a clue, mark the cells immediately before and after it with X. That turns one solved group into new information for crossing lines.', textId:'Saat sebuah kelompok tepat sama dengan clue, tandai petak tepat sebelum dan sesudahnya dengan X. Kelompok selesai langsung menjadi informasi baru untuk garis silang.' },
+          { titleEn:'Overlap from both extremes', titleId:'Overlap dari dua ujung', textEn:'Place a large run as far left and as far right as possible. Any cells covered in both placements must be filled.', textId:'Bayangkan kelompok besar ditempatkan sejauh mungkin ke kiri lalu ke kanan. Petak yang tertutup pada kedua posisi pasti terisi.' }
+        ]},
+        { tier:'univ', headingEn:'University board discipline', headingId:'Disiplin papan Universitas', tips:[
+          { titleEn:'Work the frontier, not the whole board', titleId:'Kerjakan frontier, bukan seluruh papan', textEn:'On 15×15 and 20×20 boards, focus on a few lines that intersect known cells. Finish that local frontier before scanning the whole puzzle again.', textId:'Pada papan 15×15 dan 20×20, fokus pada beberapa garis yang berpotongan dengan petak pasti. Selesaikan frontier lokal itu sebelum memindai seluruh papan lagi.' }
+        ]}
+      ]
+    },
+    'game2048': {
+      titleEn: '2048',
+      titleId: '2048',
+      sections: [
+        { tier:'all', headingEn:'Corner control', headingId:'Kontrol sudut', tips:[
+          { titleEn:'Pick one anchor corner', titleId:'Pilih satu sudut jangkar', textEn:'Keep the largest tile in one corner and build the next-largest tiles beside it in descending order.', textId:'Pertahankan ubin terbesar di satu sudut dan susun ubin berikutnya secara menurun di sebelahnya.' },
+          { titleEn:'Three-direction discipline', titleId:'Disiplin tiga arah', textEn:'Try to play with three directions and avoid the direction that pulls your anchor row or column apart unless recovery is guaranteed.', textId:'Usahakan bermain dengan tiga arah dan hindari arah yang membongkar baris atau kolom jangkar kecuali jalur pemulihannya jelas.' },
+          { titleEn:'Merge from the small end', titleId:'Gabung dari ujung kecil', textEn:'Create space by combining low tiles on the far side, then feed those values toward the large chain.', textId:'Buat ruang dengan menggabungkan ubin kecil di sisi jauh, lalu dorong nilainya menuju rantai besar.' }
+        ]},
+        { tier:'univ', headingEn:'University targets', headingId:'Target Universitas', tips:[
+          { titleEn:'Preserve monotonic order', titleId:'Pertahankan urutan monoton', textEn:'For 2048 and 4096 targets, keep each row or snake segment roughly descending. Random high-value pockets are difficult to merge later.', textId:'Untuk target 2048 dan 4096, jaga tiap baris atau segmen ular tetap menurun. Kantong nilai besar yang acak akan sulit digabung di tahap akhir.' }
+        ]}
+      ]
+    },
     'rps': {
       titleEn: 'Dice Duel 3D',
       titleId: 'Duel Dadu 3D',

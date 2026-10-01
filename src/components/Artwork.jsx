@@ -77,5 +77,11 @@ export default function Artwork({ id, compact = false }) {
       <g transform="translate(236 46)"><circle r="31" fill="#f3eef9" stroke="#d4c4e7"/><path d="M-12 1h24M0-11v24" stroke="#9b7cc1" strokeWidth="4" strokeLinecap="round"/><circle cx="0" cy="0" r="5" fill="#7f5ab3"/></g>
       <path d="m64 49 3 7 7 3-7 3-3 7-3-7-7-3 7-3Zm219 64 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#b29acb"/>
     </>}
+    {id === 'nonogram' && <>
+      <g transform="translate(92 18) rotate(-5 74 58)"><rect x="-8" y="-8" width="164" height="132" rx="16" fill="#f4cdb4" opacity=".45"/><rect width="148" height="116" rx="13" fill="#fffaf6" stroke="#efc7aa"/>{Array.from({length:25},(_,i)=>{const on=[1,5,6,7,8,9,11,13,15,16,17,18,19,21,23].includes(i);return <rect key={i} x={13+(i%5)*24} y={10+Math.floor(i/5)*20} width="17" height="17" rx="3" fill={on?'#b66f49':'#f5e6dc'} stroke="#e8c9b6"/>;})}</g><g fill="#a46242" fontSize="11" fontWeight="700"><text x="72" y="48">3</text><text x="72" y="70">1 1</text><text x="72" y="92">5</text></g>
+    </>}
+    {id === 'game2048' && <>
+      <g transform="translate(90 18) rotate(4 74 58)"><rect x="-8" y="-8" width="164" height="132" rx="16" fill="#f1dda2" opacity=".5"/><rect width="148" height="116" rx="13" fill="#fffaf0" stroke="#ead79d"/>{[2,4,8,16,32,64,128,256,4,8,16,32,2,4,8,16].map((n,i)=><g key={i} transform={`translate(${12+(i%4)*31} ${10+Math.floor(i/4)*25})`}><rect width="26" height="20" rx="5" fill={n>=128?'#9a772b':n>=32?'#c6a24f':'#eadcae'}/><text x="13" y="14" textAnchor="middle" fontSize={n>=100?7:9} fontWeight="800" fill={n>=32?'#fff':'#6f623f'}>{n}</text></g>)}</g><path d="m274 45 4 9 9 4-9 4-4 9-4-9-9-4 9-4Z" fill="#c6a24f"/>
+    </>}
   </svg>;
 }

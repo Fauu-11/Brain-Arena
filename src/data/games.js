@@ -10,6 +10,8 @@ export const GAMES = [
   { id: 'minesweeper', slug: 'minesweeper', season: 2, category: 'logic', difficulty: 'hard', icon: 'mine', color: 'mint', mode: 'solo', title: { id: 'Minesweeper', en: 'Minesweeper' }, description: { id: 'Baca petunjuk angka, tandai ranjau, dan bersihkan semua petak aman.', en: 'Read the number clues, flag the mines, and clear every safe cell.' } },
   { id: 'maze', slug: 'maze-escape', season: 3, category: 'strategy', difficulty: 'hard', icon: 'maze', color: 'blue', mode: 'solo', title: { id: 'Maze Escape', en: 'Maze Escape' }, description: { id: 'Cari jalur keluar secepat mungkin. Setiap langkah menentukan jalanmu.', en: 'Find the exit as fast as you can. Every move shapes your route.' } },
   { id: 'matrix', slug: 'memory-matrix', season: 3, category: 'memory', difficulty: 'expert', icon: 'matrix', color: 'lavender', mode: 'solo', title: { id: 'Memory Matrix', en: 'Memory Matrix' }, description: { id: 'Hafalkan pola cahaya, lalu bangun kembali matriksnya dari ingatan.', en: 'Memorize the lit pattern, then rebuild the matrix from memory.' } },
+  { id: 'nonogram', slug: 'nonogram', season: 4, category: 'logic', difficulty: 'expert', icon: 'grid', color: 'peach', mode: 'solo', title: { id: 'Nonogram', en: 'Nonogram' }, description: { id: 'Baca petunjuk baris dan kolom untuk mengungkap gambar tersembunyi.', en: 'Read row and column clues to reveal the hidden picture.' } },
+  { id: 'game2048', slug: '2048', season: 4, category: 'math', difficulty: 'expert', icon: 'hash', color: 'yellow', mode: 'solo', title: { id: '2048', en: '2048' }, description: { id: 'Geser dan gabungkan angka. Bangun rantai hingga mencapai target tertinggi.', en: 'Slide and merge numbers. Build a chain until you reach the target tile.' } },
 ];
 export const CATEGORIES = {
   all: { id: 'Semua kategori', en: 'All categories' },
@@ -25,7 +27,7 @@ export function resolveRoute(hash = '') {
   try { path = decodeURIComponent(hash.replace(/^#\/?/, '').split('?')[0]).replace(/\/+$/, ''); }
   catch { return 'not-found'; }
   if (!path || path === 'home') return 'home';
-  const pages = { games:'games', permainan:'games', favorites:'favorites', favorit:'favorites', activity:'activity', aktivitas:'activity', guides:'guides', panduan:'guides', tips:'guides', daily:'daily', harian:'daily', profile:'profile', profil:'profile', achievements:'achievements', pencapaian:'achievements', badges:'achievements', missions:'missions', misi:'missions', quests:'missions', leaderboard:'leaderboard', peringkat:'leaderboard' };
+  const pages = { games:'games', permainan:'games', favorites:'favorites', favorit:'favorites', activity:'activity', aktivitas:'activity', guides:'guides', panduan:'guides', tips:'guides', daily:'daily', harian:'daily', profile:'profile', profil:'profile', achievements:'achievements', pencapaian:'achievements', badges:'achievements', missions:'missions', misi:'missions', quests:'missions', leaderboard:'leaderboard', peringkat:'leaderboard', rank:'rank', ranking:'rank', customize:'customize', kustomisasi:'customize', statistics:'statistics', statistik:'statistics', season:'season', musim:'season', events:'events', event:'events', mastery:'mastery', penguasaan:'mastery', settings:'settings', pengaturan:'settings' };
   if (Object.hasOwn(pages, path)) return pages[path];
   if (path.startsWith('tips-')) {
     const game = GAMES.find(g => g.id === path.slice(5) || g.slug === path.slice(5));

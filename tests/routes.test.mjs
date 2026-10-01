@@ -4,9 +4,9 @@ import { GAMES, resolveRoute, routeHash } from '../src/data/games.js';
 import { generateSudokuMatrix } from '../src/utils/sudoku.js';
 
 test('Catalog identifiers and canonical slugs are unique', () => {
-  assert.equal(GAMES.length, 10);
-  assert.equal(new Set(GAMES.map(g => g.id)).size, 10);
-  assert.equal(new Set(GAMES.map(g => g.slug)).size, 10);
+  assert.equal(GAMES.length, 12);
+  assert.equal(new Set(GAMES.map(g => g.id)).size, 12);
+  assert.equal(new Set(GAMES.map(g => g.slug)).size, 12);
 });
 for (const game of GAMES) {
   test(`Routes and guides: ${game.id}`, () => {
@@ -21,7 +21,7 @@ for (const game of GAMES) {
 }
 test('Pages and aliases', () => {
   for (const value of ['', '#', '#/', '#/home']) assert.equal(resolveRoute(value), 'home');
-  for (const [alias, expected] of Object.entries({ permainan:'games', favorit:'favorites', aktivitas:'activity', panduan:'guides', tips:'guides' })) {
+  for (const [alias, expected] of Object.entries({ permainan:'games', favorit:'favorites', aktivitas:'activity', panduan:'guides', tips:'guides', musim:'season', event:'events', penguasaan:'mastery', pengaturan:'settings' })) {
     assert.equal(resolveRoute(`#/${alias}`), expected);
   }
 });

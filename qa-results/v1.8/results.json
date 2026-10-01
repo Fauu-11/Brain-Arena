@@ -1,0 +1,130 @@
+[
+  {
+    "route": "rank",
+    "width": 1440,
+    "overflow": {
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    "jsErrors": [],
+    "h1": "Naik rank lewat progres nyata.",
+    "tiers": 17,
+    "passed": true
+  },
+  {
+    "route": "rank",
+    "width": 390,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "jsErrors": [],
+    "h1": "Naik rank lewat progres nyata.",
+    "tiers": 17,
+    "passed": true
+  },
+  {
+    "route": "customize",
+    "width": 1440,
+    "overflow": {
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    "jsErrors": [],
+    "h1": "Pemain Lokal",
+    "customOptions": 24,
+    "locked": 20,
+    "passed": true
+  },
+  {
+    "route": "customize",
+    "width": 390,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "jsErrors": [],
+    "h1": "Pemain Lokal",
+    "customOptions": 24,
+    "locked": 20,
+    "passed": true
+  },
+  {
+    "route": "statistics",
+    "width": 1440,
+    "overflow": {
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    "jsErrors": [],
+    "h1": "Lihat cara kamu berkembang.",
+    "heat": 28,
+    "passed": true
+  },
+  {
+    "route": "statistics",
+    "width": 390,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "jsErrors": [],
+    "h1": "Lihat cara kamu berkembang.",
+    "heat": 28,
+    "passed": true
+  },
+  {
+    "route": "profile",
+    "width": 1440,
+    "overflow": {
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    "jsErrors": [],
+    "h1": "Pemain Lokal",
+    "passed": true
+  },
+  {
+    "route": "profile",
+    "width": 390,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "jsErrors": [],
+    "h1": "Pemain Lokal",
+    "passed": true
+  },
+  {
+    "route": "home",
+    "width": 1440,
+    "overflow": {
+      "viewport": 1440,
+      "document": 1440,
+      "body": 1440
+    },
+    "jsErrors": [],
+    "h1": "Siap adu pikiran?",
+    "passed": true
+  },
+  {
+    "route": "home",
+    "width": 390,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "jsErrors": [],
+    "h1": "Siap adu pikiran?",
+    "passed": true
+  }
+]

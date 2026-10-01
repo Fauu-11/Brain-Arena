@@ -1,7 +1,7 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.7.0",
+  "version": "1.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,7 +26,7 @@
     "oxlint": "^1.71.0",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena - University War inspired local brain-training games",
+  "description": "Brain Arena - 12 local-first brain-training games with seasons, live events, mastery, adaptive difficulty, accessibility, ranks, quests, achievements, statistics and PWA",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }
