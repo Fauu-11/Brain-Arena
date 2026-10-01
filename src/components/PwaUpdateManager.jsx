@@ -60,7 +60,7 @@ export default function PwaUpdateManager() {
   };
   return <aside className="pwa-update-banner" role="status" aria-live="polite">
     <span className="pwa-update-icon"><Icon name="download" size={18}/></span>
-    <div><small>{copy('UPDATE TERSEDIA','UPDATE AVAILABLE')}</small><strong>{copy('Brain Arena versi baru siap dipakai.','A new Brain Arena version is ready.')}</strong><p>{copy('v1.18 memuat update secara aman dan mempertahankan progres lokal.','v1.18 applies updates safely while preserving local progress.')}</p></div>
+    <div><small>{copy('UPDATE TERSEDIA','UPDATE AVAILABLE')}</small><strong>{copy('Brain Arena versi baru siap dipakai.','A new Brain Arena version is ready.')}</strong><p>{copy('v1.19 memuat update secara aman dan mempertahankan progres lokal.','v1.19 applies updates safely while preserving local progress.')}</p></div>
     <div className="pwa-update-actions"><button type="button" className="ba-button outline" onClick={()=>setDismissed(true)} disabled={updating}>{copy('Nanti','Later')}</button><button type="button" className="ba-button primary" onClick={update} disabled={updating}>{updating?copy('Memperbarui...','Updating...'):copy('Update sekarang','Update now')}</button></div>
   </aside>;
 }

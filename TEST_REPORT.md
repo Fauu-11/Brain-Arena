@@ -1,27 +1,34 @@
-# Brain Arena v1.18 Test Report
+# Brain Arena v1.19 Test Report
 
 ## Automated unit / utility tests
 
-- **129 / 129 passed** menggunakan Node built-in test runner.
-- Coverage baru v1.18 mencakup Schema v18 migration, transactional backup rollback, corrupt-data quarantine, runtime health, dan service-worker strategy.
+- **137 / 137 passed** dengan Node built-in test runner.
+- Coverage v1.19 mencakup Schema v19, guest UUID, feature flags, IndexedDB fallback, sync queue, mutation journal, normalized player model, serta release/CI checks.
 
 ## Portable production build
 
 - Portable ESM production build berhasil dibuat.
-- **115 JavaScript modules** ditranspilasi.
-- Build version: **1.18.0**.
+- **131 JavaScript modules** ditranspilasi.
+- Build version: **1.19.0**.
 
 ## Browser QA
 
-- Setup screen seluruh **12 / 12 game** lulus smoke test pada viewport 1280 px tanpa JavaScript page error.
-- Responsive stability QA lulus pada **390 px** dan **768 px** untuk Home, Settings, System Diagnostics, dan Maze setup.
-- Halaman v1.17 regression (Profiles, Showcase, Result Card, Arena Cup, Practice Lab, Save Slots, Storage Center, Diagnostics, Controls, Settings) tetap lulus.
+- Home pada **390 px** lulus tanpa horizontal overflow.
+- Settings pada **768 px** lulus.
+- Supabase Readiness pada **390 px** lulus dan menampilkan readiness checks.
+- System Diagnostics pada **768 px** lulus dengan IndexedDB / Sync Queue / Cloud Readiness cards.
+- JavaScript page error pada QA v1.19: **0** setelah IndexedDB denied-context fallback diperkuat.
 
 ## HTTP verification
 
-- **134 HTTP checks passed** terhadap build `dist/`.
+- **150 HTTP checks passed** terhadap portable `dist/`.
 - Mencakup byte-for-byte asset checks, MIME type, gzip index, 404, method rejection, dan traversal rejection.
+
+## Release consistency
+
+- `node scripts/check-release.mjs`: **7 / 7 checks passed**.
+- Package, lockfile, service worker, System Diagnostics, Runtime Health, Feedback version, Schema v19, dan manifest marker konsisten.
 
 ## Build note
 
-Paket hosting yang disertakan adalah portable ESM production build. Standard Vite build tidak diklaim dijalankan di environment pengerjaan ini; untuk GitHub Actions gunakan `npm ci` lalu `npm run build`.
+Paket hosting yang disertakan adalah portable ESM production build. Standard Vite build / `npm run lint` tidak diklaim dijalankan di environment pengerjaan ini karena dependency install standar tidak dilakukan di sesi ini. Workflow GitHub sudah dikonfigurasi untuk menjalankan `npm ci`, release check, unit tests, lint, dan `npm run build` sebelum deployment.

@@ -33,7 +33,7 @@ test('ranked integrity labels clean and recovered sessions',()=>{
 });
 
 test('v1.16 schema initializes pinned games from favorites',()=>{
-  const storage=new MemoryStorage({'ba_data_schema':'15','ba_favorites_v2':JSON.stringify(['maze','sudoku','game2048'])});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,18);assert.equal(result.to,18);assert.deepEqual(JSON.parse(storage.getItem('ba_pinned_games_v2')),['maze','sudoku','game2048']);
+  const storage=new MemoryStorage({'ba_data_schema':'15','ba_favorites_v2':JSON.stringify(['maze','sudoku','game2048'])});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,19);assert.equal(result.to,19);assert.deepEqual(JSON.parse(storage.getItem('ba_pinned_games_v2')),['maze','sudoku','game2048']);
 });
 
 test('v1.16 activity calendar route resolves and catalog stays 12 games',()=>{assert.equal(resolveRoute('#/activity-calendar'),'activity-calendar');assert.equal(resolveRoute('#/calendar'),'activity-calendar');assert.equal(GAMES.length,12);});

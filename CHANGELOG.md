@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.19.0 — Supabase Readiness
+
+- Added IndexedDB local data layer with memory fallback.
+- Added repository layer for profile, progress, matches, and settings.
+- Added persistent guest UUID identity.
+- Added deferred sync queue and mutation journal foundations.
+- Added normalized local player model and v2 Supabase migration export.
+- Added feature flags with all online/cloud features disabled by default.
+- Added `#/cloud-readiness` migration simulator and readiness UI.
+- Extended System Diagnostics with IndexedDB, sync queue, mutation journal, and cloud-readiness state.
+- Added Schema v19 migration markers while preserving existing progress.
+- Added release consistency checker and CI workflow; deploy workflow now runs tests/lint before build.
+- Updated PWA cache and app metadata to v1.19.0.
+
 ## v1.18.0 — Stability Release
 
 - Added transactional backup import with rollback on partial storage-write failure.

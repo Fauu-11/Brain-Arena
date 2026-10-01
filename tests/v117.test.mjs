@@ -37,7 +37,7 @@ test('storage optimizer reports categories and can compact replay actions',()=>{
 });
 
 test('v1.17 migration creates new defaults and release rollback snapshot',()=>{
-  const storage=new MemoryStorage({'ba_data_schema':'16','ba_profile_v1':profile('Player',321)});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,18);assert.equal(result.to,18);assert.equal(JSON.parse(storage.getItem('ba_controller_settings_v1')).enabled,true);assert.ok(storage.getItem('ba_release_rollback_v1'));
+  const storage=new MemoryStorage({'ba_data_schema':'16','ba_profile_v1':profile('Player',321)});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,19);assert.equal(result.to,19);assert.equal(JSON.parse(storage.getItem('ba_controller_settings_v1')).enabled,true);assert.ok(storage.getItem('ba_release_rollback_v1'));
 });
 
 test('v1.17 routes resolve and catalog remains 12 games',()=>{

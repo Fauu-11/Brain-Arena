@@ -53,6 +53,7 @@ const PracticeLab = lazy(() => import('./pages/PracticeLab.jsx'));
 const SaveSlots = lazy(() => import('./pages/SaveSlots.jsx'));
 const StorageCenter = lazy(() => import('./pages/StorageCenter.jsx'));
 const SystemDiagnostics = lazy(() => import('./pages/SystemDiagnostics.jsx'));
+const CloudReadiness = lazy(() => import('./pages/CloudReadiness.jsx'));
 const Controls = lazy(() => import('./pages/Controls.jsx'));
 const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix, nonogram:GameNonogram, game2048:Game2048 };
 function AppContent() {
@@ -124,6 +125,7 @@ function AppContent() {
   else if (view==='save-slots') content=<SaveSlots onNavigate={navigate}/>;
   else if (view==='storage-center') content=<StorageCenter onNavigate={navigate}/>;
   else if (view==='diagnostics') content=<SystemDiagnostics onNavigate={navigate}/>;
+  else if (view==='cloud-readiness') content=<CloudReadiness onNavigate={navigate}/>;
   else if (view==='controls') content=<Controls onNavigate={navigate}/>;
   else if (view.startsWith('tips-')) content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
   else content=<div className="empty-state not-found"><span className="not-found-code">404</span><h1>{lang==='id'?'Arena tidak ditemukan.':'This arena is missing.'}</h1><p>{lang==='id'?'Tautan ini tidak tersedia. Tantangan lainnya menantimu di beranda.':'That page is unavailable. More challenges are waiting on the home page.'}</p><button className="ba-button primary" onClick={back}>{lang==='id'?'Kembali ke beranda':'Back to home'}<Icon name="arrow" size={17}/></button></div>;

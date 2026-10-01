@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Brain Arena v1.18 Stability Release - 12 game otak dengan backup aman, recovery crash, migrasi data, PWA offline, accessibility, competitive mode, dan progress lokal.",
+  "description": "Brain Arena v1.19 Supabase Readiness - 12 game otak dengan IndexedDB, repository layer, UUID guest, sync queue, migration tooling, PWA offline, dan progress lokal.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

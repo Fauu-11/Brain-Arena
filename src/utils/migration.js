@@ -1,6 +1,6 @@
 import { createReleaseRollback, restoreReleaseRollback } from './releaseSafety.js';
 
-export const DATA_SCHEMA_VERSION = 18;
+export const DATA_SCHEMA_VERSION = 19;
 export const DATA_SCHEMA_KEY = 'ba_data_schema';
 export const MIGRATION_LOG_KEY = 'ba_migration_log_v1';
 
@@ -58,6 +58,30 @@ function performMigration(storage,current){
     if (!readRaw(storage,'ba_stability_release_v18')) {
       writeRaw(storage,'ba_stability_release_v18',JSON.stringify({migratedAt:Date.now(),from:current,to:18,transactionalBackup:true,pwaCache:'v1.18.0'}));
       steps.push('stability-release-v18');
+    }
+  }
+
+
+  if (current < 19) {
+    if (!readRaw(storage,'ba_feature_flags_v1')) {
+      writeRaw(storage,'ba_feature_flags_v1',JSON.stringify({cloudSync:false,onlineProfile:false,globalLeaderboard:false,social:false,supabaseAdapter:false,indexedDbLayer:true,syncQueue:true,mutationJournal:true}));
+      steps.push('feature-flags-v1');
+    }
+    if (!readRaw(storage,'ba_guest_identity_v1')) {
+      const fallback=`guest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      let id=fallback;
+      try { id=globalThis.crypto?.randomUUID?.()||fallback; } catch {}
+      writeRaw(storage,'ba_guest_identity_v1',JSON.stringify({id,type:'guest',createdAt:Date.now(),schema:1}));
+      steps.push('guest-identity-v1');
+    }
+    if (!readRaw(storage,'ba_supabase_readiness_v19')) {
+      writeRaw(storage,'ba_supabase_readiness_v19',JSON.stringify({migratedAt:Date.now(),from:current,to:19,indexedDb:true,repositories:true,syncQueue:true,mutationJournal:true,normalizedModel:true,featureFlags:true}));
+      steps.push('supabase-readiness-v19');
+    }
+    const health=readJSON(storage,'ba_runtime_health_v1',{});
+    if (health && typeof health==='object') {
+      writeRaw(storage,'ba_runtime_health_v1',JSON.stringify({...health,appVersion:'1.19.0'}));
+      steps.push('runtime-health-v19');
     }
   }
 

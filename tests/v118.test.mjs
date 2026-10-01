@@ -23,11 +23,11 @@ class OneShotFailStorage extends MemoryStorage {
 test('v1.18 migration advances schema and installs stability markers',()=>{
   const storage=new MemoryStorage({'ba_data_schema':'17','ba_profile_v1':JSON.stringify({xp:42})});
   const result=migrateProgressData(storage);
-  assert.equal(DATA_SCHEMA_VERSION,18);
-  assert.equal(result.to,18);
+  assert.equal(DATA_SCHEMA_VERSION,19);
+  assert.equal(result.to,19);
   assert.ok(result.steps.includes('runtime-health-v1'));
   assert.equal(JSON.parse(storage.getItem('ba_stability_release_v18')).transactionalBackup,true);
-  assert.equal(JSON.parse(storage.getItem('ba_release_rollback_v1')).to,18);
+  assert.equal(JSON.parse(storage.getItem('ba_release_rollback_v1')).to,19);
 });
 
 test('v1.18 backup import rolls back partial writes after a storage failure',()=>{
@@ -63,7 +63,7 @@ test('v1.18 runtime health tracks starts, issues and clean exits',()=>{
 
 test('v1.18 service worker uses versioned core and runtime caches',()=>{
   const source=fs.readFileSync(new URL('../public/service-worker.js',import.meta.url),'utf8');
-  assert.match(source,/1\.18\.0/);
+  assert.match(source,/1\.19\.0/);
   assert.match(source,/brain-arena-runtime/);
   assert.match(source,/staleWhileRevalidate/);
   assert.match(source,/networkFirst/);

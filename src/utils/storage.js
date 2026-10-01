@@ -7,8 +7,15 @@ export function readText(key, fallback = null) {
 }
 export function writeText(key, value) {
   const text = String(value); memory.set(key, text);
-  try { localStorage.setItem(key, text); return true; }
-  catch { window.dispatchEvent(new CustomEvent('ba-storage-unavailable')); return false; }
+  try {
+    localStorage.setItem(key, text);
+    if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') window.dispatchEvent(new CustomEvent('ba-storage-write',{detail:{key,text,at:Date.now()}}));
+    return true;
+  }
+  catch {
+    if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') window.dispatchEvent(new CustomEvent('ba-storage-unavailable'));
+    return false;
+  }
 }
 export function readJSON(key, fallback) {
   try { const value = JSON.parse(readText(key, 'null')); return value ?? fallback; }

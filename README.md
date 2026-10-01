@@ -1,3 +1,32 @@
+# Brain Arena v1.19 — Supabase Readiness
+
+Brain Arena v1.19 adalah release transisi sebelum v2.0. Fokusnya bukan menambah game baru, tetapi menyiapkan arsitektur data lokal agar migrasi ke Supabase nanti lebih aman, terukur, dan tidak memaksa seluruh UI ditulis ulang.
+
+## Fondasi baru v1.19
+
+- **IndexedDB Local Data Layer**: store `records`, `sync_queue`, `mutations`, dan `meta`, dengan memory fallback bila IndexedDB diblokir.
+- **Repository / Data Service Architecture**: repository untuk profile, progress, match, dan settings mulai memisahkan UI dari detail penyimpanan.
+- **Guest Identity & UUID**: setiap instalasi lokal memiliki identitas guest permanen sebagai jangkar migrasi ke akun Supabase.
+- **Sync Queue Foundation**: perubahan penting dapat antre sebagai mutation lokal berstatus `deferred`; cloud adapter masih OFF pada v1.19.
+- **Mutation Journal**: perubahan syncable dicatat ke journal lokal terbatas untuk debugging, recovery, dan conflict resolution di v2.0.
+- **Normalized Player Data Model**: progress dipetakan ke struktur profile, progress, matches, records, favorites, pinned, dan settings.
+- **Supabase Migration Export**: Settings dapat menghasilkan `brain-arena-v2-migration-YYYY-MM-DD.json` untuk safety net migrasi v2.0.
+- **Feature Flags**: fitur cloud, online profile, global leaderboard, dan social tetap OFF sampai v2.0.
+- **Migration Simulator & Integrity Check**: route `#/cloud-readiness` menampilkan kesiapan schema, UUID, IndexedDB, normalized model, queue, journal, dan repository mirror.
+- **CI / Release Hardening**: workflow CI dan deploy sekarang memeriksa versi release, unit tests, lint, dan production build sebelum deploy.
+
+## Kompatibilitas
+
+- Seluruh **12 game** dan gameplay v1.18 dipertahankan.
+- Tema merah, sidebar full/compact, Arena Run, Arena Cup, Ranked, Replay v2, Practice Lab, Multi Local Profile, backup, diagnostics, dan PWA tetap tersedia.
+- Data lama dimigrasikan ke **Schema v19** dengan release rollback yang sudah ada.
+- v1.19 tetap **local-first**. Tidak ada data yang dikirim ke Supabase atau server.
+- IndexedDB mulai dipakai sebagai layer/mirror baru, sementara localStorage lama tetap dipertahankan untuk kompatibilitas sampai migrasi v2.0 selesai.
+
+Lihat `RELEASE_NOTES_v1.19.md` dan `TEST_REPORT.md` untuk detail implementasi dan QA.
+
+---
+
 # Brain Arena v1.18 — Stability Release
 
 Brain Arena v1.18 adalah release stabilitas dari v1.17. Tidak ada game baru atau perubahan besar pada aturan 12 game. Fokus versi ini adalah **keamanan progress lokal, recovery saat error, migrasi schema, PWA/cache, performa, responsive layout, dan accessibility**.

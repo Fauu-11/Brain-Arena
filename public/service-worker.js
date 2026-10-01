@@ -1,4 +1,4 @@
-const VERSION = '1.18.0';
+const VERSION = '1.19.0';
 const CACHE = `brain-arena-v${VERSION}`;
 const RUNTIME = `brain-arena-runtime-v${VERSION}`;
 const CORE = ['','index.html','manifest.webmanifest','favicon.svg','icons.svg','pwa-192.png','pwa-512.png'];
