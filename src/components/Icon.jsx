@@ -1,5 +1,9 @@
 import React from 'react';
 const paths = {
+  copy: <><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></>,
+  ghost: <><path d="M5 20V10a7 7 0 0 1 14 0v10l-3-2-4 2-4-2Z"/><path d="M9 11h.01M15 11h.01"/></>,
+  cursor: <path d="m5 3 14 9-6 2-2 6Z"/>,
+  pause: <><path d="M8 5v14M16 5v14"/></>,
   sliders: <><path d="M4 7h5m5 0h6M4 17h10m5 0h1"/><circle cx="11.5" cy="7" r="2.5"/><circle cx="16.5" cy="17" r="2.5"/></>,
   spark: <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/><path d="m20 2 .5 1.5L22 4l-1.5.5L20 6l-.5-1.5L18 4l1.5-.5Z"/></>,
   refresh: <><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.5 6a7 7 0 0 1 12 2M5.5 16a7 7 0 0 0 12 2"/></>,

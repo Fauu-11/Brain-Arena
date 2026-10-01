@@ -10,6 +10,8 @@ import { CURRENT_SEASON, SEASON_COMPLETION_XP, getSeasonLevel, seasonIsActive } 
 import { eventBonusForGame, getActiveEvent } from '../utils/events.js';
 import { MASTERY_XP_PER_COMPLETION, getMasteryInfo, masteryFromProfile } from '../utils/mastery.js';
 import { adaptiveRecommendation } from '../utils/adaptive.js';
+import { bestKey, createChallengeCode, activateSeededRandom, restoreNativeRandom, validateChallengeCode, normalizeChallengeCode, performanceForRun, rankedDeltaFor, levelCompletionKey, nativeShuffle, runPreset } from '../utils/competitive.js';
+import { coachTip } from '../data/coachTips.js';
 
 const ArenaContext = createContext(null);
 const favoriteKey = 'ba_favorites_v2';
@@ -22,14 +24,21 @@ const missionKey = 'ba_missions_v1';
 const customizationKey = 'ba_customization_v1';
 const seasonKey = 'ba_season_v1';
 const accessibilityKey = 'ba_accessibility_v1';
+const competitionSetupKey = 'ba_competition_setup_v1';
+const matchHistoryKey = 'ba_match_history_v1';
+const personalBestKey = 'ba_personal_bests_v1';
+const completionMapKey = 'ba_game_completion_v1';
+const arenaRunKey = 'ba_arena_run_v1';
+const selectedReplayKey = 'ba_selected_replay_v1';
 
-const emptyProfile = () => ({ name:'', xp:0, completions:0, playDates:[], perGame:{}, xpEvents:[], completionEvents:[] });
+const emptyProfile = () => ({ name:'', xp:0, rankedPoints:0, completions:0, playDates:[], perGame:{}, xpEvents:[], completionEvents:[] });
 const emptyDaily = () => ({ completedByDate:{} });
 const emptyAchievements = () => ({ unlocked:{}, selectedBadge:null });
 const emptyMissions = () => ({ claims:{} });
 const emptyCustomization = () => ({ ...DEFAULT_CUSTOMIZATION });
 const emptySeason = () => ({ id:CURRENT_SEASON.id, xp:0, claimed:{} });
 const emptyAccessibility = () => ({ theme:'system', reducedMotion:false, highContrast:false, largeText:false });
+const emptyCompetitionSetup = () => ({ mode:'practice', challengeCodes:{}, schoolLevels:{}, universityDifficulties:{} });
 
 const loadFavorites = () => {
   const data = readJSON(favoriteKey, []);
@@ -44,6 +53,7 @@ const loadProfile = () => {
   const profile = emptyProfile();
   profile.name = typeof raw?.name === 'string' ? raw.name.trim().slice(0,24) : '';
   profile.xp = Math.max(0, Math.floor(Number(raw?.xp) || 0));
+  profile.rankedPoints = Math.max(0, Math.floor(Number(raw?.rankedPoints) || 0));
   profile.completions = Math.max(0, Math.floor(Number(raw?.completions) || 0));
   profile.playDates = Array.isArray(raw?.playDates) ? [...new Set(raw.playDates.filter(value => typeof value === 'string'))].slice(-400) : [];
   profile.perGame = raw?.perGame && typeof raw.perGame === 'object' ? Object.fromEntries(Object.entries(raw.perGame).filter(([id])=>gameById(id)).map(([id,value])=>[id,{
@@ -90,6 +100,34 @@ const loadAccessibility = () => {
   const theme = ['system','light','dark'].includes(raw?.theme) ? raw.theme : 'system';
   return { theme, reducedMotion:Boolean(raw?.reducedMotion), highContrast:Boolean(raw?.highContrast), largeText:Boolean(raw?.largeText) };
 };
+const loadCompetitionSetup = () => {
+  const raw = readJSON(competitionSetupKey, emptyCompetitionSetup());
+  const cleanMap = value => value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([id])=>gameById(id))) : {};
+  return {
+    mode:['practice','ranked'].includes(raw?.mode) ? raw.mode : 'practice',
+    challengeCodes:cleanMap(raw?.challengeCodes),
+    schoolLevels:cleanMap(raw?.schoolLevels),
+    universityDifficulties:cleanMap(raw?.universityDifficulties),
+  };
+};
+const loadMatches = () => {
+  const raw=readJSON(matchHistoryKey,[]);
+  return Array.isArray(raw) ? raw.filter(item=>item&&gameById(item.gameId)&&Number.isFinite(item.time)).slice(0,300) : [];
+};
+const loadPersonalBests = () => {
+  const raw=readJSON(personalBestKey,{});
+  return raw&&typeof raw==='object' ? Object.fromEntries(Object.entries(raw).filter(([,value])=>Number(value)>0)) : {};
+};
+const loadCompletionMap = () => {
+  const raw=readJSON(completionMapKey,{});
+  return raw&&typeof raw==='object' ? raw : {};
+};
+const loadArenaRun = () => {
+  const raw=readJSON(arenaRunKey,null);
+  if (!raw || !Array.isArray(raw.stages)) return null;
+  return raw;
+};
+
 
 export function ArenaProvider({ children }) {
   const [favorites,setFavorites] = useState(loadFavorites);
@@ -104,21 +142,165 @@ export function ArenaProvider({ children }) {
   const [customization,setCustomization] = useState(loadCustomization);
   const [season,setSeason] = useState(loadSeason);
   const [accessibility,setAccessibility] = useState(loadAccessibility);
+  const [competitionSetup,setCompetitionSetup] = useState(loadCompetitionSetup);
+  const [matches,setMatches] = useState(loadMatches);
+  const [personalBests,setPersonalBests] = useState(loadPersonalBests);
+  const [completionMap,setCompletionMap] = useState(loadCompletionMap);
+  const [arenaRun,setArenaRun] = useState(loadArenaRun);
+  const [currentSession,setCurrentSession] = useState(null);
+  const [selectedReplayId,setSelectedReplayId] = useState(() => readText(selectedReplayKey,''));
   const profileRef = useRef(profile);
   const dailyRef = useRef(daily);
   const achievementRef = useRef(achievements);
   const missionRef = useRef(missions);
   const seasonRef = useRef(season);
   const lastRewardRef = useRef(readJSON(lastCompletionKey, null));
+  const competitionSetupRef = useRef(competitionSetup);
+  const matchesRef = useRef(matches);
+  const personalBestsRef = useRef(personalBests);
+  const completionMapRef = useRef(completionMap);
+  const arenaRunRef = useRef(arenaRun);
+  const sessionRef = useRef(currentSession);
 
   useEffect(() => { profileRef.current = profile; }, [profile]);
   useEffect(() => { dailyRef.current = daily; }, [daily]);
   useEffect(() => { achievementRef.current = achievements; }, [achievements]);
   useEffect(() => { missionRef.current = missions; }, [missions]);
   useEffect(() => { seasonRef.current = season; }, [season]);
+  useEffect(() => { competitionSetupRef.current = competitionSetup; }, [competitionSetup]);
+  useEffect(() => { matchesRef.current = matches; }, [matches]);
+  useEffect(() => { personalBestsRef.current = personalBests; }, [personalBests]);
+  useEffect(() => { completionMapRef.current = completionMap; }, [completionMap]);
+  useEffect(() => { arenaRunRef.current = arenaRun; }, [arenaRun]);
+  useEffect(() => { sessionRef.current = currentSession; }, [currentSession]);
 
   const saveProfile = useCallback(next => { profileRef.current = next; setProfile(next); writeJSON(profileKey,next); }, []);
   const saveSeason = useCallback(next => { seasonRef.current = next; setSeason(next); writeJSON(seasonKey,next); }, []);
+  const saveCompetitionSetup = useCallback(next => { competitionSetupRef.current=next; setCompetitionSetup(next); writeJSON(competitionSetupKey,next); }, []);
+  const saveMatches = useCallback(next => { matchesRef.current=next; setMatches(next); writeJSON(matchHistoryKey,next); }, []);
+  const savePersonalBests = useCallback(next => { personalBestsRef.current=next; setPersonalBests(next); writeJSON(personalBestKey,next); }, []);
+  const saveCompletionMap = useCallback(next => { completionMapRef.current=next; setCompletionMap(next); writeJSON(completionMapKey,next); }, []);
+  const saveArenaRun = useCallback(next => { arenaRunRef.current=next; setArenaRun(next); if (next) writeJSON(arenaRunKey,next); else { try { localStorage.removeItem(arenaRunKey); } catch {} } }, []);
+  const updateSession = useCallback(updater => {
+    const next=typeof updater==='function'?updater(sessionRef.current):updater;
+    sessionRef.current=next; setCurrentSession(next); return next;
+  },[]);
+  const setPlayMode = useCallback(mode => {
+    const safe=mode==='ranked'?'ranked':'practice';
+    saveCompetitionSetup({ ...competitionSetupRef.current, mode:safe });
+  },[saveCompetitionSetup]);
+  const ensureCompetitionSetup = useCallback(gameId => {
+    if (!gameById(gameId)) return null;
+    const current=competitionSetupRef.current;
+    const run=arenaRunRef.current;
+    const stage=run?.status==='active' ? run.stages?.[run.index] : null;
+    if (stage?.gameId===gameId) {
+      const next={ ...current,mode:run.mode||current.mode,challengeCodes:{...current.challengeCodes,[gameId]:stage.challengeCode} };
+      if (current.challengeCodes?.[gameId]!==stage.challengeCode || current.mode!==next.mode) saveCompetitionSetup(next);
+      return stage.challengeCode;
+    }
+    if (current.challengeCodes?.[gameId]) return current.challengeCodes[gameId];
+    const code=createChallengeCode(gameId);
+    saveCompetitionSetup({ ...current, challengeCodes:{...current.challengeCodes,[gameId]:code} });
+    return code;
+  },[saveCompetitionSetup]);
+  const setChallengeCode = useCallback((gameId,value) => {
+    if (!gameById(gameId)) return null;
+    const code=normalizeChallengeCode(value);
+    saveCompetitionSetup({ ...competitionSetupRef.current, challengeCodes:{...competitionSetupRef.current.challengeCodes,[gameId]:code} });
+    return code;
+  },[saveCompetitionSetup]);
+  const regenerateChallengeCode = useCallback(gameId => {
+    const code=createChallengeCode(gameId);
+    setChallengeCode(gameId,code); return code;
+  },[setChallengeCode]);
+  const setSessionSchoolLevel = useCallback((gameId,level) => {
+    if (!gameById(gameId) || !['sd','smp','sma','universitas'].includes(level)) return;
+    const current=competitionSetupRef.current;
+    if (current.schoolLevels?.[gameId]===level) return;
+    saveCompetitionSetup({ ...current, schoolLevels:{...current.schoolLevels,[gameId]:level} });
+  },[saveCompetitionSetup]);
+  const setSessionUniversityDifficulty = useCallback((gameId,value) => {
+    if (!gameById(gameId) || !['hard','very-hard','impossible'].includes(value)) return;
+    const current=competitionSetupRef.current;
+    if (current.universityDifficulties?.[gameId]===value) return;
+    saveCompetitionSetup({ ...current, universityDifficulties:{...current.universityDifficulties,[gameId]:value} });
+  },[saveCompetitionSetup]);
+  const appendSessionAction = useCallback(action => {
+    const current=sessionRef.current;
+    if (!current?.active || !gameById(current.gameId)) return;
+    const elapsed=Math.max(0,Date.now()-current.startedAt);
+    const nextAction={ t:elapsed, ...action };
+    const actions=[...(current.actions||[]),nextAction].slice(-240);
+    updateSession({ ...current, actions });
+  },[updateSession]);
+  const beginGameSession = useCallback(gameId => {
+    if (!gameById(gameId)) return null;
+    let setup=competitionSetupRef.current;
+    let code=setup.challengeCodes?.[gameId] || ensureCompetitionSetup(gameId);
+    const activeRun=arenaRunRef.current;
+    const stage=activeRun?.status==='active' ? activeRun.stages?.[activeRun.index] : null;
+    let mode=setup.mode;
+    if (stage?.gameId===gameId) { code=stage.challengeCode; mode=activeRun.mode || mode; }
+    let check=validateChallengeCode(code,gameId);
+    if (!check.valid) { code=createChallengeCode(gameId); setChallengeCode(gameId,code); check=validateChallengeCode(code,gameId); }
+    activateSeededRandom(code);
+    const level=setup.schoolLevels?.[gameId] || 'sd';
+    const universityDifficulty=setup.universityDifficulties?.[gameId] || 'hard';
+    const key=bestKey(gameId,level,universityDifficulty);
+    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:stage?.gameId===gameId?activeRun.id:null };
+    updateSession(next);
+    return next;
+  },[ensureCompetitionSetup,setChallengeCode,updateSession]);
+  const prepareFreshSession = useCallback(gameId => {
+    if (!gameById(gameId)) return null;
+    const code=createChallengeCode(gameId);
+    setChallengeCode(gameId,code);
+    activateSeededRandom(code);
+    const setup=competitionSetupRef.current;
+    const level=setup.schoolLevels?.[gameId]||'sd';
+    const universityDifficulty=setup.universityDifficulties?.[gameId]||'hard';
+    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode:setup.mode,challengeCode:code,seed:validateChallengeCode(code,gameId).seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[bestKey(gameId,level,universityDifficulty)])||0,arenaRunId:null };
+    updateSession(next); return next;
+  },[setChallengeCode,updateSession]);
+  const leaveGameSession = useCallback(() => {
+    restoreNativeRandom();
+    if (sessionRef.current?.active) updateSession({ ...sessionRef.current,active:false,abandonedAt:Date.now() });
+  },[updateSession]);
+  const requestCoachHint = useCallback((gameId,lang='id') => {
+    const current=sessionRef.current;
+    const used=current?.gameId===gameId ? Number(current.hintsUsed)||0 : 0;
+    if (current?.mode==='ranked' && used>=2) return { limited:true,text:lang==='en'?'Ranked mode allows a maximum of 2 Brain Coach hints.':'Mode Ranked membatasi Brain Coach maksimal 2 hint.',used,remaining:0 };
+    const text=coachTip(gameId,used,lang);
+    if (current?.gameId===gameId) {
+      const next={...current,hintsUsed:used+1,actions:[...(current.actions||[]),{t:Math.max(0,Date.now()-current.startedAt),type:'hint',label:`Brain Coach #${used+1}`}].slice(-240)};
+      updateSession(next);
+    }
+    return { limited:false,text,used:used+1,remaining:current?.mode==='ranked'?Math.max(0,1-used):null };
+  },[updateSession]);
+  const personalBestFor = useCallback((gameId,level=null,universityDifficulty=null) => {
+    const setup=competitionSetupRef.current;
+    const lvl=level||setup.schoolLevels?.[gameId]||'sd';
+    const uni=universityDifficulty||setup.universityDifficulties?.[gameId]||'hard';
+    return Number(personalBestsRef.current[bestKey(gameId,lvl,uni)])||0;
+  },[]);
+  const selectReplay = useCallback(id => { setSelectedReplayId(id||''); writeText(selectedReplayKey,id||''); },[]);
+  const startArenaRun = useCallback((size=3,mode='ranked') => {
+    const preset=runPreset(size);
+    const id=`run-${Date.now().toString(36)}`;
+    const games=nativeShuffle(GAMES).slice(0,preset.count);
+    const stages=games.map((game,index)=>({ gameId:game.id,challengeCode:createChallengeCode(game.id,`${id}-${index}-${game.id}`) }));
+    const next={ id,preset:preset.id,count:preset.count,mode:mode==='practice'?'practice':'ranked',status:'active',startedAt:Date.now(),index:0,stages,results:[] };
+    saveArenaRun(next); return next;
+  },[saveArenaRun]);
+  const cancelArenaRun = useCallback(() => saveArenaRun(null),[saveArenaRun]);
+  const continueArenaRun = useCallback(() => {
+    const run=arenaRunRef.current;
+    if (!run) return 'arena-run';
+    if (run.status==='complete') return 'arena-run';
+    return run.stages?.[run.index]?.gameId || 'arena-run';
+  },[]);
+
   const toggleFavorite = useCallback(id => {
     if (!gameById(id)) return;
     setFavorites(prev => { const next = prev.includes(id) ? prev.filter(value => value !== id) : [...prev,id]; writeJSON(favoriteKey,next); return next; });
@@ -153,12 +335,28 @@ export function ArenaProvider({ children }) {
     return { ...event, levelBefore:beforeLevel, levelAfter:getLevelInfo(next.xp).level };
   }, [saveProfile]);
 
-  const recordGameCompletion = useCallback(id => {
+  const recordGameCompletion = useCallback((id, meta={}) => {
     const game = gameById(id);
     if (!game) return null;
     const now = Date.now();
     const prior = lastRewardRef.current;
     if (prior?.gameId === id && Number.isFinite(prior.time) && now - prior.time < 2500) return prior;
+
+    const session=sessionRef.current?.gameId===id ? sessionRef.current : null;
+    const setup=competitionSetupRef.current;
+    const mode=session?.mode || setup.mode || 'practice';
+    const level=session?.schoolLevel || setup.schoolLevels?.[id] || 'sd';
+    const universityDifficulty=session?.universityDifficulty || setup.universityDifficulties?.[id] || 'hard';
+    const challengeCode=session?.challengeCode || setup.challengeCodes?.[id] || createChallengeCode(id);
+    const durationMs=session?.startedAt ? Math.max(1000,now-session.startedAt) : 0;
+    const outcome=meta.outcome || 'completed';
+    const success=['completed','win'].includes(outcome);
+    const pbKey=bestKey(id,level,universityDifficulty);
+    const previousBestMs=Number(personalBestsRef.current[pbKey])||0;
+    const hintsUsed=Number(session?.hintsUsed)||0;
+    const performance=performanceForRun({durationMs:durationMs||previousBestMs||60000,previousBestMs,outcome,hintsUsed});
+    const rankedDelta=mode==='ranked' ? rankedDeltaFor({grade:performance.grade,outcome,hintsUsed}) : 0;
+    const newBest=Boolean(success && durationMs && (!previousBestMs || durationMs<previousBestMs));
 
     const dateKey = localDateKey();
     const oldProfile = profileRef.current;
@@ -178,14 +376,15 @@ export function ArenaProvider({ children }) {
     const seasonXp = seasonIsActive(dateKey) ? SEASON_COMPLETION_XP : 0;
     const seasonXpBefore = seasonRef.current.xp;
     const seasonBefore = getSeasonLevel(seasonXpBefore);
-    const event = { id:`${now}-${id}`, gameId:id, amount, baseXp:BASE_COMPLETION_XP, firstBonus, dailyBonus, eventBonus, dateKey, time:now, source:'game' };
-    const completionEvent = { id:`play-${now}-${id}`, gameId:id, dateKey, time:now, masteryXp, seasonXp };
+    const event = { id:`${now}-${id}`, gameId:id, amount, baseXp:BASE_COMPLETION_XP, firstBonus, dailyBonus, eventBonus, dateKey, time:now, source:'game', mode, rankedDelta, performance:performance.score };
+    const completionEvent = { id:`play-${now}-${id}`, gameId:id, dateKey, time:now, masteryXp, seasonXp,mode,rankedDelta,performance:performance.score };
     const nextProfile = {
       ...oldProfile,
       xp:oldProfile.xp + amount,
+      rankedPoints:Math.max(0,(Number(oldProfile.rankedPoints)||0)+rankedDelta),
       completions:oldProfile.completions + 1,
       playDates:firstOfDay ? [...oldProfile.playDates,dateKey].slice(-400) : oldProfile.playDates,
-      perGame:{ ...oldProfile.perGame, [id]:{ completions:(Number(gameStats.completions)||0)+1, xp:(Number(gameStats.xp)||0)+amount, masteryXp:(Number(gameStats.masteryXp)||0)+masteryXp, lastPlayedAt:now } },
+      perGame:{ ...oldProfile.perGame, [id]:{ completions:(Number(gameStats.completions)||0)+1, xp:(Number(gameStats.xp)||0)+amount, masteryXp:(Number(gameStats.masteryXp)||0)+masteryXp, lastPlayedAt:now, bestPerformance:Math.max(Number(gameStats.bestPerformance)||0,performance.score) } },
       xpEvents:[event,...oldProfile.xpEvents].slice(0,150),
       completionEvents:[completionEvent,...(oldProfile.completionEvents || [])].slice(0,700),
     };
@@ -195,6 +394,23 @@ export function ArenaProvider({ children }) {
     if (dailyBonus) {
       const nextDaily = { completedByDate:{ ...dailyRef.current.completedByDate, [dateKey]:{ gameId:id,completedAt:now,rewardXp:DAILY_CHALLENGE_XP } } };
       dailyRef.current = nextDaily; setDaily(nextDaily); writeJSON(dailyKey,nextDaily);
+    }
+    if (newBest) savePersonalBests({ ...personalBestsRef.current,[pbKey]:durationMs });
+    if (success) {
+      const completionKey=levelCompletionKey(level,universityDifficulty);
+      const gameMap=completionMapRef.current[id]&&typeof completionMapRef.current[id]==='object'?completionMapRef.current[id]:{};
+      saveCompletionMap({ ...completionMapRef.current,[id]:{...gameMap,[completionKey]:gameMap[completionKey]||now} });
+    }
+
+    const match={ id:`match-${now}-${id}`,gameId:id,time:now,dateKey,mode,outcome,schoolLevel:level,universityDifficulty:level==='universitas'?universityDifficulty:null,challengeCode,durationMs,performance:performance.score,grade:performance.grade,hintsUsed,rankedDelta,xp:amount,isPersonalBest:newBest,previousBestMs,replay:Array.isArray(session?.actions)?session.actions:[],arenaRunId:session?.arenaRunId||null };
+    saveMatches([match,...matchesRef.current.filter(item=>item.id!==match.id)].slice(0,300));
+    selectReplay(match.id);
+
+    const activeRun=arenaRunRef.current;
+    if (activeRun?.status==='active' && activeRun.stages?.[activeRun.index]?.gameId===id) {
+      const results=[...(activeRun.results||[]),{matchId:match.id,gameId:id,durationMs,performance:performance.score,grade:performance.grade,rankedDelta,outcome}];
+      const finished=activeRun.index>=activeRun.stages.length-1;
+      saveArenaRun({ ...activeRun,results,index:finished?activeRun.index:activeRun.index+1,status:finished?'complete':'active',completedAt:finished?now:null });
     }
 
     const reward = {
@@ -210,10 +426,13 @@ export function ArenaProvider({ children }) {
       seasonXp,
       seasonLevelBefore:seasonBefore.level,
       seasonLevelAfter:getSeasonLevel(seasonXpBefore + seasonXp).level,
+      durationMs,previousBestMs,isPersonalBest:newBest,performance:performance.score,grade:performance.grade,mode,rankedDelta,hintsUsed,challengeCode,matchId:match.id,arenaRunId:match.arenaRunId,
     };
-    lastRewardRef.current = reward; writeJSON(lastCompletionKey,reward); setNotice(`+${amount} XP · +${masteryXp} Mastery`);
+    if (session) updateSession({ ...session,active:false,endedAt:now,lastMatchId:match.id });
+    restoreNativeRandom();
+    lastRewardRef.current = reward; writeJSON(lastCompletionKey,reward); setNotice(`+${amount} XP${rankedDelta?` · ${rankedDelta>0?'+':''}${rankedDelta} RP`:''}`);
     return reward;
-  }, [saveProfile,saveSeason]);
+  }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,selectReplay,updateSession]);
 
   const selectBadge = useCallback(id => {
     if (id !== null && (!achievementById(id) || !achievementRef.current.unlocked[id])) return false;
@@ -306,6 +525,27 @@ export function ArenaProvider({ children }) {
   }, [profile,daily,saveProfile]);
 
   useEffect(() => {
+    const recordClick=e => {
+      if (!sessionRef.current?.active) return;
+      const main=e.target?.closest?.('#main-content');
+      if (!main) return;
+      const target=e.target.closest?.('button,[role="button"],input');
+      if (!target) return;
+      const label=(target.getAttribute('aria-label')||target.textContent||target.getAttribute('value')||target.tagName).replace(/\s+/g,' ').trim().slice(0,64);
+      if (label) appendSessionAction({type:'click',label});
+    };
+    const recordKey=e => {
+      if (!sessionRef.current?.active) return;
+      const tag=e.target?.tagName;
+      if (['INPUT','TEXTAREA','SELECT'].includes(tag)) return;
+      if (/^(ArrowUp|ArrowDown|ArrowLeft|ArrowRight|w|a|s|d|W|A|S|D|Enter|Space)$/.test(e.key)) appendSessionAction({type:'key',label:e.key});
+    };
+    document.addEventListener('click',recordClick);
+    window.addEventListener('keydown',recordKey);
+    return()=>{document.removeEventListener('click',recordClick);window.removeEventListener('keydown',recordKey);};
+  },[appendSessionAction]);
+
+  useEffect(() => {
     writeText('ba_muted',muted); window.__BA_MUTED__ = muted;
     window.dispatchEvent(new CustomEvent('ba-sound-toggle',{ detail:{ muted } }));
   }, [muted]);
@@ -328,6 +568,11 @@ export function ArenaProvider({ children }) {
       if (!e.key || e.key === customizationKey) setCustomization(loadCustomization());
       if (!e.key || e.key === seasonKey) setSeason(loadSeason());
       if (!e.key || e.key === accessibilityKey) setAccessibility(loadAccessibility());
+      if (!e.key || e.key === competitionSetupKey) setCompetitionSetup(loadCompetitionSetup());
+      if (!e.key || e.key === matchHistoryKey) setMatches(loadMatches());
+      if (!e.key || e.key === personalBestKey) setPersonalBests(loadPersonalBests());
+      if (!e.key || e.key === completionMapKey) setCompletionMap(loadCompletionMap());
+      if (!e.key || e.key === arenaRunKey) setArenaRun(loadArenaRun());
     };
     const unavailable = () => setStorageOk(false);
     window.addEventListener('storage',sync); window.addEventListener('ba-storage-unavailable',unavailable);
@@ -344,6 +589,9 @@ export function ArenaProvider({ children }) {
     rankInfo,customization,updateCustomization,avatarOption,frameOption,titleOption,bannerOption,
     season,currentSeason:CURRENT_SEASON,seasonLevel,claimSeasonReward,activeEvent,
     masteryForGame,adaptiveForGame,
+    competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,leaveGameSession,currentSession,personalBests,personalBestFor,
+    matches,selectReplay,selectedReplayId,requestCoachHint,completionMap,
+    arenaRun,startArenaRun,cancelArenaRun,continueArenaRun,
     accessibility,updateAccessibility,
   }}>{children}</ArenaContext.Provider>;
 }

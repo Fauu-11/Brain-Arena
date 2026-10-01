@@ -1,0 +1,20 @@
+import React, { useMemo, useState } from 'react';
+import { useLanguage } from '../context/LanguageContext.jsx';
+import { useArena } from '../context/ArenaContext.jsx';
+import { GAMES, gameById } from '../data/games.js';
+import { formatDuration } from '../utils/competitive.js';
+import Icon from '../components/Icon.jsx';
+
+export default function MatchHistory({ onNavigate }) {
+  const { lang }=useLanguage();
+  const { matches,selectReplay }=useArena();
+  const copy=(id,en)=>lang==='id'?id:en;
+  const [mode,setMode]=useState('all'); const [game,setGame]=useState('all');
+  const list=useMemo(()=>matches.filter(item=>(mode==='all'||item.mode===mode)&&(game==='all'||item.gameId===game)),[matches,mode,game]);
+  const replay=id=>{selectReplay(id);onNavigate('replay');};
+  const levelLabel=item=>item.schoolLevel==='universitas'?`Universitas · ${item.universityDifficulty==='very-hard'?'Very Hard':item.universityDifficulty==='impossible'?'Impossible':'Hard'}`:String(item.schoolLevel||'sd').toUpperCase();
+  return <div className="competitive-page history-page"><section className="competitive-hero"><div><span className="section-eyebrow"><Icon name="clock" size={15}/>{copy('ARSIP PERTANDINGAN','MATCH ARCHIVE')}</span><h1>{copy('Match History','Match History')}</h1><p>{copy('Semua sesi yang selesai tersimpan di sini bersama mode, seed, performa, Arena RP, personal best, dan replay aksi.','Every completed session is stored here with its mode, seed, performance, Arena RP, personal best, and action replay.')}</p></div><div className="hero-stat"><span>{copy('MATCH TERCATAT','RECORDED MATCHES')}</span><strong>{matches.length}</strong><small>{copy('maks. 300 sesi lokal','up to 300 local sessions')}</small></div></section>
+    <section className="history-toolbar"><div><button className={mode==='all'?'active':''} onClick={()=>setMode('all')}>{copy('Semua','All')}</button><button className={mode==='ranked'?'active':''} onClick={()=>setMode('ranked')}>Ranked</button><button className={mode==='practice'?'active':''} onClick={()=>setMode('practice')}>Practice</button></div><select value={game} onChange={e=>setGame(e.target.value)} aria-label={copy('Filter game','Game filter')}><option value="all">{copy('Semua game','All games')}</option>{GAMES.map(g=><option key={g.id} value={g.id}>{g.title[lang]}</option>)}</select></section>
+    {list.length?<div className="match-list">{list.map(item=>{const g=gameById(item.gameId);return <article key={item.id} className="match-row"><div className={`match-icon color-${g?.color}`}><Icon name={g?.icon||'grid'} size={19}/></div><div className="match-main"><div><strong>{g?.title?.[lang]}</strong><span className={`mode-chip ${item.mode}`}>{item.mode==='ranked'?'Ranked':'Practice'}</span>{item.isPersonalBest&&<span className="pb-chip"><Icon name="ghost" size={12}/>PB</span>}</div><small>{new Date(item.time).toLocaleString(lang==='id'?'id-ID':'en-US')} · {levelLabel(item)}</small><code>{item.challengeCode}</code></div><div className="match-metrics"><span><small>{copy('Waktu','Time')}</small><b>{formatDuration(item.durationMs)}</b></span><span><small>{copy('Performa','Performance')}</small><b>{item.grade} · {item.performance}</b></span><span><small>Arena RP</small><b>{item.mode==='ranked'?`${item.rankedDelta>=0?'+':''}${item.rankedDelta}`:'—'}</b></span></div><button className="history-replay" onClick={()=>replay(item.id)}><Icon name="play" size={15}/>{copy('Replay','Replay')}</button></article>})}</div>:<div className="empty-state"><Icon name="clock" size={35}/><h2>{copy('Belum ada pertandingan','No matches yet')}</h2><p>{copy('Selesaikan satu game untuk mulai mengisi riwayat kompetitifmu.','Complete a game to start building your competitive history.')}</p></div>}
+  </div>;
+}

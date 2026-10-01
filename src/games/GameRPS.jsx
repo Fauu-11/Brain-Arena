@@ -227,7 +227,7 @@ export default function GameRPS({ onBack, onNavigate }) {
       desc={text(`Arena 7\u00d77 \u00b7 ${config.minMoves}-${config.maxMoves} langkah/giliran \u00b7 ${config.seconds} detik \u00b7 Target ${WIN_SCORE} poin${game.level === 'universitas' ? ` \u00b7 ${game.universityDifficulty === 'very-hard' ? 'Very Hard' : game.universityDifficulty === 'impossible' ? 'Impossible' : 'Hard'}` : ''}`,
         `7\u00d77 Arena \u00b7 ${config.minMoves}-${config.maxMoves} steps/turn \u00b7 ${config.seconds} seconds \u00b7 First to ${WIN_SCORE} points${game.level === 'universitas' ? ` \u00b7 ${game.universityDifficulty === 'very-hard' ? 'Very Hard' : game.universityDifficulty === 'impossible' ? 'Impossible' : 'Hard'}` : ''}`)}>
       {game.level === 'universitas' && <UniversityDifficultySelector value={game.universityDifficulty} onChange={value => reset('universitas', 'setup', value)} lang={lang}/>}
-      <button className="uw-btn uw-btn-primary" onClick={() => dispatch({ type: 'NET' })}><Icon name="play" size={16}/>{text('Masuk arena', 'Enter arena')}</button>
+      <button className="uw-btn uw-btn-primary" onClick={() => reset(game.level, 'net', game.universityDifficulty)}><Icon name="play" size={16}/>{text('Masuk arena', 'Enter arena')}</button>
       <TipsButton onClick={() => onNavigate?.('tips-rps')} lang={lang}/>
     </SetupCard>}
 

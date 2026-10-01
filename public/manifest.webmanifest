@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Arena 12 permainan matematika, logika, memori, dan strategi dengan Season, Event, Game Mastery, adaptive difficulty, aksesibilitas, XP, rank, misi, badge, statistik, dan PWA.",
+  "description": "Arena 12 permainan matematika, logika, memori, dan strategi dengan Seed & Challenge Code, Arena Run, Ranked, Match History, Replay, Personal Best, Brain Coach, Performance Rating, Game Completion, Season, Mastery, XP, rank, dan PWA.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -30,9 +30,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Season Mind Explorer",
-      "short_name": "Season",
-      "url": "./#/season",
+      "name": "Arena Run",
+      "short_name": "Arena Run",
+      "url": "./#/arena-run",
       "icons": [
         {
           "src": "./pwa-192.png",
@@ -42,9 +42,9 @@
       ]
     },
     {
-      "name": "Live Events",
-      "short_name": "Events",
-      "url": "./#/events",
+      "name": "Match History",
+      "short_name": "History",
+      "url": "./#/history",
       "icons": [
         {
           "src": "./pwa-192.png",
@@ -54,9 +54,9 @@
       ]
     },
     {
-      "name": "Game Mastery",
-      "short_name": "Mastery",
-      "url": "./#/mastery",
+      "name": "Game Completion",
+      "short_name": "Completion",
+      "url": "./#/completion",
       "icons": [
         {
           "src": "./pwa-192.png",

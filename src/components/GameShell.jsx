@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Icon from './Icon.jsx';
 import Dialog from './Dialog.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
-import { gameById, resolveRoute } from '../data/games.js';
+import { gameById, resolveRoute, routeHash } from '../data/games.js';
+import { formatDuration } from '../utils/competitive.js';
 
 export function StatBadge({ label, value, color = 'var(--uw-primary)' }) {
   return <div className="play-stat"><span>{label}</span><strong style={{ color }}>{value}</strong></div>;
@@ -34,43 +35,56 @@ export function TipsButton({ onClick, lang, label }) {
 }
 
 export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
+  const { setSessionUniversityDifficulty } = useArena();
+  const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
+  useEffect(()=>{ if (gameById(gameId)) setSessionUniversityDifficulty(gameId,value); },[gameId,value,setSessionUniversityDifficulty]);
   const levels = [
     { id:'hard', label:'Hard', note:{ id:'Sulit', en:'Hard' } },
     { id:'very-hard', label:'Very Hard', note:{ id:'Sangat sulit', en:'Very hard' } },
     { id:'impossible', label:'Impossible', note:{ id:'Mustahil', en:'Impossible' } },
   ];
   return <div className="play-university-block">
-    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University Arena Mode' : 'Mode Arena Universitas'}</span><small>{lang === 'en' ? 'Hard · Very Hard · Impossible' : 'Hard · Very Hard · Impossible'}</small></div>
+    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University Arena Mode' : 'Mode Arena Universitas'}</span><small>Hard · Very Hard · Impossible</small></div>
     <div className="play-university-difficulty" role="group" aria-label={lang === 'en' ? 'University difficulty' : 'Tingkat kesulitan Universitas'}>
-      {levels.map((item,index)=><button type="button" key={item.id} className={value===item.id?'selected':''} aria-pressed={value===item.id} onClick={()=>onChange(item.id)}><span>{item.label}</span><small>{item.note[lang]}</small><i aria-hidden="true" style={{ width:`${34 + index*22}%` }}/></button>)}
+      {levels.map((item,index)=><button type="button" key={item.id} className={value===item.id?'selected':''} aria-pressed={value===item.id} onClick={()=>{setSessionUniversityDifficulty(gameId,item.id);onChange(item.id);}}><span>{item.label}</span><small>{item.note[lang]}</small><i aria-hidden="true" style={{ width:`${34 + index*22}%` }}/></button>)}
     </div>
   </div>;
 }
 
 export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, children, badge, bestRecord = null }) {
-  const { adaptiveForGame } = useArena();
+  const { adaptiveForGame,competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,beginGameSession,personalBestFor,setNotice } = useArena();
   const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
   const recommendation = gameById(gameId) ? adaptiveForGame(gameId) : null;
   const showRecommendation = recommendation && recommendation.level !== schoolLevel;
+  const code=gameById(gameId) ? (competitionSetup.challengeCodes?.[gameId] || '') : '';
+  const mode=competitionSetup.mode || 'practice';
+  const ghostBest=gameById(gameId) ? personalBestFor(gameId,schoolLevel,competitionSetup.universityDifficulties?.[gameId]||'hard') : 0;
+  useEffect(()=>{ if (gameById(gameId)) { ensureCompetitionSetup(gameId); setSessionSchoolLevel(gameId,schoolLevel); } },[gameId,schoolLevel,ensureCompetitionSetup,setSessionSchoolLevel]);
+  const copyCode=async()=>{ try { await navigator.clipboard?.writeText(code); setNotice(lang==='en'?'Challenge code copied':'Challenge code disalin'); } catch { setNotice(code); } };
+  const captureStart=e=>{ if (gameById(gameId) && e.target.closest('button.uw-btn-primary')) beginGameSession(gameId); };
   return <div className="play-setup-card">
-    <div className="play-setup-heading"><span className="play-kicker">{lang === 'en' ? 'YOUR CHALLENGE, YOUR PACE' : 'TANTANGANMU, RITMEMU'}</span>{badge && <span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang === 'en' ? 'Choose the level that suits you. Start small, go further.' : 'Pilih jenjang yang sesuai. Mulai ringan, tingkatkan perlahan.'}</p></div>
+    <div className="play-setup-heading"><span className="play-kicker">{lang === 'en' ? 'YOUR CHALLENGE, YOUR PACE' : 'TANTANGANMU, RITMEMU'}</span>{badge && <span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang === 'en' ? 'Choose the level, play mode, and challenge seed before entering the arena.' : 'Pilih jenjang, mode bermain, dan seed challenge sebelum masuk arena.'}</p></div>
     <label className="play-field-label">{lang === 'en' ? 'Education level' : 'Jenjang pendidikan'}<span>{lang === 'en' ? '4 levels available' : '4 jenjang tersedia'}</span></label>
     <LevelSelector value={schoolLevel} onChange={onLevelChange} lang={lang}/>
+    <div className="competitive-setup">
+      <div className="competitive-mode-block"><div><small>{lang==='en'?'PLAY MODE':'MODE BERMAIN'}</small><strong>{lang==='en'?'Practice or Ranked':'Practice atau Ranked'}</strong></div><div className="competitive-mode-toggle" role="group" aria-label={lang==='en'?'Play mode':'Mode bermain'}><button type="button" className={mode==='practice'?'selected':''} onClick={()=>setPlayMode('practice')}><Icon name="gamepad" size={15}/><span>Practice<small>{lang==='en'?'No rank pressure':'Tidak memengaruhi rank'}</small></span></button><button type="button" className={mode==='ranked'?'selected':''} onClick={()=>setPlayMode('ranked')}><Icon name="shield" size={15}/><span>Ranked<small>{lang==='en'?'Earn Arena RP':'Dapatkan Arena RP'}</small></span></button></div></div>
+      <div className="challenge-code-block"><div className="challenge-code-head"><span><small>{lang==='en'?'SEED & CHALLENGE CODE':'SEED & CHALLENGE CODE'}</small><strong>{lang==='en'?'Same code = same random start':'Kode sama = pola awal yang sama'}</strong></span>{ghostBest>0&&<em><Icon name="clock" size={13}/>{lang==='en'?'Ghost PB':'Ghost PB'} {formatDuration(ghostBest)}</em>}</div><div className="challenge-code-input"><input value={code} onChange={e=>setChallengeCode(gameId,e.target.value)} aria-label={lang==='en'?'Challenge code':'Kode challenge'} spellCheck="false"/><button type="button" onClick={copyCode} title={lang==='en'?'Copy code':'Salin kode'}><Icon name="copy" size={15}/></button><button type="button" onClick={()=>regenerateChallengeCode(gameId)} title={lang==='en'?'New random code':'Kode acak baru'}><Icon name="shuffle" size={15}/></button></div></div>
+    </div>
     {desc && <div className="play-level-description"><span><Icon name="layers" size={18}/></span><div><strong>{lang === 'en' ? 'Your challenge' : 'Tantangan yang kamu pilih'}</strong><p>{desc}</p></div></div>}
     {showRecommendation && <div className="adaptive-suggestion"><span><Icon name="brain" size={18}/></span><div><small>{lang==='en'?'ADAPTIVE SUGGESTION':'SARAN ADAPTIF'}</small><strong>{lang==='en'?`Try ${recommendation.label.en}`:`Coba ${recommendation.label.id}`}</strong><p>{recommendation.reason[lang]}</p></div><button type="button" onClick={()=>onLevelChange(recommendation.level)}>{lang==='en'?'Use':'Pilih'}</button></div>}
     {bestRecord !== null && <StatBadge label={lang === 'en' ? 'Best record' : 'Rekor terbaik'} value={bestRecord} color="var(--uw-secondary)"/>}
-    {children && <div className="play-setup-actions">{children}</div>}
-    <p className="play-setup-footnote"><Icon name="check" size={13}/>{lang === 'en' ? 'No sign-up. Ready when you are.' : 'Tanpa daftar. Mulai kapan saja.'}</p>
+    {children && <div className="play-setup-actions" onClickCapture={captureStart}>{children}</div>}
+    <p className="play-setup-footnote"><Icon name="check" size={13}/>{mode==='ranked'?(lang==='en'?'Ranked results affect Arena RP. Brain Coach is limited to 2 hints.':'Hasil Ranked memengaruhi Arena RP. Brain Coach dibatasi 2 hint.'):(lang==='en'?'Practice keeps progression without rank pressure.':'Practice tetap memberi progres tanpa tekanan rank.')}</p>
   </div>;
 }
 
-function useCompletionReward() {
+function useCompletionReward(meta = {}) {
   const { recordGameCompletion } = useArena();
   const [reward, setReward] = useState(null);
   useEffect(() => {
     const gameId = resolveRoute(window.location.hash);
     if (!gameById(gameId)) return;
-    setReward(recordGameCompletion(gameId));
+    setReward(recordGameCompletion(gameId,meta));
   }, [recordGameCompletion]);
   return reward;
 }
@@ -80,32 +94,41 @@ function XpRewardPanel({ reward, lang }) {
   const leveledUp = reward.levelAfter > reward.levelBefore;
   const masteryUp = reward.masteryLevelAfter > reward.masteryLevelBefore;
   const seasonUp = reward.seasonLevelAfter > reward.seasonLevelBefore;
+  const diff=reward.previousBestMs&&reward.durationMs?reward.durationMs-reward.previousBestMs:0;
   return <div className={`play-xp-reward result-v2 ${reward.dailyCompleted ? 'daily' : ''}`} aria-live="polite">
-    <div className="result-v2-head"><span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span><div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : (lang === 'en' ? 'RESULT SCREEN v2' : 'RESULT SCREEN v2')}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}`}</p></div>{leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}</div>
-    <div className="result-v2-grid"><div><span><Icon name="trophy" size={15}/>{lang==='en'?'Mastery':'Mastery'}</span><strong>+{reward.masteryXp || 0} MXP</strong>{masteryUp&&<small>{lang==='en'?'Mastery level up!':'Mastery naik level!'}</small>}</div><div><span><Icon name="spark" size={15}/>{lang==='en'?'Season':'Season'}</span><strong>+{reward.seasonXp || 0} SXP</strong>{seasonUp&&<small>{lang==='en'?'Season level up!':'Season naik level!'}</small>}</div><div><span><Icon name="bolt" size={15}/>{lang==='en'?'Event':'Event'}</span><strong>{reward.eventBonus ? `+${reward.eventBonus} XP` : '—'}</strong><small>{reward.eventBonus ? reward.event?.title?.[lang] : (lang==='en'?'No bonus this run':'Tidak ada bonus')}</small></div></div>
+    <div className="result-v2-head"><span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span><div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : 'RESULT SCREEN v2'}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}`}</p></div>{leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}</div>
+    <div className="performance-result"><div className={`performance-grade grade-${String(reward.grade||'B').toLowerCase()}`}><small>{lang==='en'?'PERFORMANCE':'PERFORMA'}</small><strong>{reward.grade}</strong><span>{reward.performance}/100</span></div><div className="performance-details"><div><span><Icon name="clock" size={14}/>{lang==='en'?'Run time':'Waktu sesi'}</span><strong>{formatDuration(reward.durationMs)}</strong></div><div><span><Icon name="shield" size={14}/>{reward.mode==='ranked'?'Ranked':'Practice'}</span><strong>{reward.mode==='ranked'?`${reward.rankedDelta>=0?'+':''}${reward.rankedDelta} RP`:(lang==='en'?'No RP':'Tanpa RP')}</strong></div><div><span><Icon name="ghost" size={14}/>{lang==='en'?'Personal best':'Personal best'}</span><strong>{reward.isPersonalBest?(lang==='en'?'NEW PB':'PB BARU'):(reward.previousBestMs?`${diff>=0?'+':'-'}${formatDuration(Math.abs(diff))}`:'—')}</strong></div><div><span><Icon name="brain" size={14}/>Brain Coach</span><strong>{reward.hintsUsed||0} hint</strong></div></div></div>
+    <div className="result-v2-grid"><div><span><Icon name="trophy" size={15}/>Mastery</span><strong>+{reward.masteryXp || 0} MXP</strong>{masteryUp&&<small>{lang==='en'?'Mastery level up!':'Mastery naik level!'}</small>}</div><div><span><Icon name="spark" size={15}/>Season</span><strong>+{reward.seasonXp || 0} SXP</strong>{seasonUp&&<small>{lang==='en'?'Season level up!':'Season naik level!'}</small>}</div><div><span><Icon name="bolt" size={15}/>Event</span><strong>{reward.eventBonus ? `+${reward.eventBonus} XP` : '—'}</strong><small>{reward.eventBonus ? reward.event?.title?.[lang] : (lang==='en'?'No bonus this run':'Tidak ada bonus')}</small></div></div>
+    <div className="result-challenge-code"><span><Icon name="hash" size={14}/>{lang==='en'?'Challenge code':'Kode challenge'}</span><code>{reward.challengeCode}</code></div>
   </div>;
 }
 
 export function MultiEndCard({ winner, score1, score2, p1Label, p2Label, onBack, onPlayAgain, lang }) {
-  const reward = useCompletionReward();
   const draw = winner === 'draw';
+  const reward = useCompletionReward({ outcome:draw?'draw':winner===1?'win':'loss' });
   const p1 = p1Label || (lang === 'en' ? 'Player 1' : 'Pemain 1');
   const p2 = p2Label || (lang === 'en' ? 'Player 2' : 'Pemain 2');
   const title = draw ? (lang === 'en' ? 'A well-matched duel!' : 'Pertandingan berakhir seri!') : `${winner === 1 ? p1 : p2} ${lang === 'en' ? 'wins!' : 'menang!'}`;
   return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'FINAL RESULT' : 'HASIL AKHIR'}</p><h2>{title}</h2><p>{lang === 'en' ? 'Every round is another chance to improve.' : 'Setiap ronde adalah kesempatan untuk jadi lebih baik.'}</p>
     <div className="play-result-scores">{[{ name: p1, score: score1 }, { name: p2, score: score2 }].map((p, i) => <div key={i} className={winner === i + 1 ? 'winner' : ''}><span>{p.name}{winner === i + 1 && <Icon name="trophy" size={13}/>}</span><strong>{p.score}</strong><small>{lang === 'en' ? 'points' : 'poin'}</small></div>)}</div>
     <XpRewardPanel reward={reward} lang={lang}/>
-    <ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang}/>
+    <ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang} reward={reward}/>
   </div>;
 }
 
-function ResultActions({ onBack, onPlayAgain, lang, label }) {
-  return <div className="play-result-actions"><button className="uw-btn uw-btn-neutral" onClick={onBack}><Icon name="home" size={16}/>{lang === 'en' ? 'Back to home' : 'Ke beranda'}</button><button className="uw-btn uw-btn-primary" onClick={onPlayAgain}><Icon name="refresh" size={16}/>{label ?? (lang === 'en' ? 'Play again' : 'Main lagi')}</button></div>;
+function ResultActions({ onBack, onPlayAgain, lang, label, reward }) {
+  const { prepareFreshSession,arenaRun,continueArenaRun,selectReplay }=useArena();
+  const gameId=typeof window!=='undefined'?resolveRoute(window.location.hash):null;
+  const replay=()=>{ if (reward?.matchId) { selectReplay(reward.matchId); window.location.hash=routeHash('replay'); } };
+  const playAgain=()=>{ if (gameById(gameId)) prepareFreshSession(gameId); onPlayAgain(); };
+  const arenaRelevant=Boolean(reward?.arenaRunId && arenaRun?.id===reward.arenaRunId);
+  const continueRun=()=>{ const target=continueArenaRun(); window.location.hash=routeHash(target); };
+  return <div className="play-result-actions">{arenaRelevant&&<button className="uw-btn uw-btn-primary" onClick={continueRun}><Icon name="trophy" size={16}/>{arenaRun?.status==='complete'?(lang==='en'?'Arena Run results':'Hasil Arena Run'):(lang==='en'?'Next Arena stage':'Lanjut Arena')}</button>}<button className="uw-btn uw-btn-neutral" onClick={replay} disabled={!reward?.matchId}><Icon name="play" size={16}/>{lang==='en'?'Replay':'Replay'}</button><button className="uw-btn uw-btn-neutral" onClick={onBack}><Icon name="home" size={16}/>{lang === 'en' ? 'Back to home' : 'Ke beranda'}</button><button className="uw-btn uw-btn-primary" onClick={playAgain}><Icon name="refresh" size={16}/>{label ?? (lang === 'en' ? 'Play again' : 'Main lagi')}</button></div>;
 }
 
-export function SoloEndCard({ heading, subtext, onBack, onPlayAgain, playAgainLabel, lang, stats = null, children }) {
-  const reward = useCompletionReward();
-  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'CHALLENGE COMPLETE' : 'TANTANGAN SELESAI'}</p><h2>{heading}</h2>{subtext && <p>{subtext}</p>}{Array.isArray(stats) && stats.length > 0 && <div className="play-result-scores">{stats.map((stat, i) => <div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<XpRewardPanel reward={reward} lang={lang}/><ResultActions onBack={onBack} onPlayAgain={onPlayAgain} label={playAgainLabel} lang={lang}/></div>;
+export function SoloEndCard({ heading, subtext, onBack, onPlayAgain, playAgainLabel, lang, stats = null, children, outcome = 'completed' }) {
+  const reward = useCompletionReward({ outcome });
+  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'CHALLENGE COMPLETE' : 'TANTANGAN SELESAI'}</p><h2>{heading}</h2>{subtext && <p>{subtext}</p>}{Array.isArray(stats) && stats.length > 0 && <div className="play-result-scores">{stats.map((stat, i) => <div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<XpRewardPanel reward={reward} lang={lang}/><ResultActions onBack={onBack} onPlayAgain={onPlayAgain} label={playAgainLabel} lang={lang} reward={reward}/></div>;
 }
 
 export function ConfirmModal({ isOpen, title, message, confirmText, cancelText, onConfirm, onCancel, lang, isDangerous = false }) {

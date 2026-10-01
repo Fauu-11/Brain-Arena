@@ -262,6 +262,7 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
       onPlayAgain={startGame}
       playAgainLabel={copy('Main lagi', 'Play again')}
       lang={lang}
+      outcome={outcome === 'won' ? 'completed' : 'loss'}
       stats={[
         { label: copy('Waktu', 'Time'), value: formatMinesweeperTime(elapsed) },
         { label: copy('Petak aman', 'Safe cells'), value: `${revealedSafeCount}/${safeCells}` },

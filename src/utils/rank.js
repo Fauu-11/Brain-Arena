@@ -27,12 +27,14 @@ export function calculateArenaRating(profile = {}, daily = {}, achievements = {}
   const badges = Object.keys(achievements.unlocked || {}).length;
   const explored = GAMES.filter(game => (Number(profile.perGame?.[game.id]?.completions) || 0) > 0).length;
   const streak = bestDailyStreak(Object.keys(daily.completedByDate || {}));
+  const ranked = Math.max(0, Number(profile.rankedPoints) || 0);
   const parts = {
     xp:Math.floor(xp / 5),
     completions:completions * 10,
     badges:badges * 45,
     streak:streak * 20,
     explored:explored * 30,
+    ranked,
   };
   return { rating:Object.values(parts).reduce((sum,value)=>sum+value,0), parts, badges, explored, streak };
 }

@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.11.0 - Competitive Arena, Seed Challenges & Replay
+- Added deterministic **Seed & Challenge Code** support across all 12 games so the same game/code combination can reproduce the same random sequence.
+- Added **Practice / Ranked** setup on every game, with Ranked RP progression and a two-hint Brain Coach limit.
+- Added **Arena Run / Tournament** formats for 3, 5, 8, or all 12 unique games with per-stage challenge codes and aggregate results.
+- Added **Match History** with up to 300 local competitive records, filters, level metadata, performance, RP, PB, seed, and replay links.
+- Added an **Action Replay** viewer with click/key/hint timeline, Play/Pause, previous/next, and 1x/2x/4x playback speed.
+- Added per-game/per-level **Personal Best / Ghost** timing and Result Screen PB delta.
+- Added bilingual **Brain Coach / Smart Hint** banks for all 12 games.
+- Added **Performance Rating** from S through D and integrated it with Ranked RP calculation.
+- Added **Game Completion** tracking for SD, SMP, SMA, University Hard, Very Hard, and Impossible across 12 games (72 targets).
+- Extended the competitive HUD with mode, timer, Ghost PB, Challenge Code, Arena Run stage, and Brain Coach quota.
+- Added new navigation/routes for Arena Run, Match History, Replay, and Game Completion.
+- Updated Arena Rating to include Ranked RP contribution.
+- Updated PWA cache, manifest shortcuts, backup metadata, README, and QA coverage to v1.11.0.
+
 ## v1.10.0 - Random Arena, Impossible Mode & Random Maze Endpoints
 - Standardized **University Arena Mode** across all 12 games with exactly **Hard, Very Hard, and Impossible**.
 - Renamed the active University label `Extreme` to `Impossible`; legacy `extreme` data is normalized where needed for compatibility.

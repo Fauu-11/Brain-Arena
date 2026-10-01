@@ -33,9 +33,13 @@ const Season = lazy(() => import('./pages/Season.jsx'));
 const Events = lazy(() => import('./pages/Events.jsx'));
 const Mastery = lazy(() => import('./pages/Mastery.jsx'));
 const Settings = lazy(() => import('./pages/Settings.jsx'));
+const ArenaRun = lazy(() => import('./pages/ArenaRun.jsx'));
+const MatchHistory = lazy(() => import('./pages/MatchHistory.jsx'));
+const ReplayViewer = lazy(() => import('./pages/ReplayViewer.jsx'));
+const GameCompletion = lazy(() => import('./pages/GameCompletion.jsx'));
 const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix, nonogram:GameNonogram, game2048:Game2048 };
 function AppContent() {
-  const { lang } = useLanguage(); const { recordVisit } = useArena();
+  const { lang } = useLanguage(); const { recordVisit,leaveGameSession } = useArena();
   const [view, setView] = useState(() => resolveRoute(window.location.hash)); const previous = useRef(null);
   const navigate = useCallback(next => {
     const target = routeHash(next);
@@ -45,6 +49,7 @@ function AppContent() {
   useEffect(() => { const sync=()=>setView(resolveRoute(window.location.hash)); window.addEventListener('hashchange',sync); return()=>window.removeEventListener('hashchange',sync); }, []);
   useEffect(() => {
     if (gameById(view) && previous.current !== view) recordVisit(view);
+    if (!gameById(view)) leaveGameSession();
     if (previous.current !== view) {
       window.scrollTo({ top:0, behavior:'instant' });
       if (previous.current !== null) document.getElementById('main-content')?.focus({ preventScroll:true });
@@ -52,7 +57,7 @@ function AppContent() {
     }
     const title = gameById(view)?.title[lang] || (view.startsWith('tips-') ? (lang==='id'?'Panduan bermain':'Game guide') : (lang==='id'?'Arena matematika, logika & strategi':'Math, logic & strategy arena'));
     document.title = `${title} | Brain Arena`;
-  }, [view,lang,recordVisit]);
+  }, [view,lang,recordVisit,leaveGameSession]);
   const back=()=>navigate('home'); const Game=GAME_COMPONENTS[view];
   let content;
   if (Game) content=<Game onBack={back} onNavigate={navigate}/>;
@@ -71,6 +76,10 @@ function AppContent() {
   else if (view==='events') content=<Events onNavigate={navigate}/>;
   else if (view==='mastery') content=<Mastery onNavigate={navigate}/>;
   else if (view==='settings') content=<Settings onNavigate={navigate}/>;
+  else if (view==='arena-run') content=<ArenaRun onNavigate={navigate}/>;
+  else if (view==='history') content=<MatchHistory onNavigate={navigate}/>;
+  else if (view==='replay') content=<ReplayViewer onNavigate={navigate}/>;
+  else if (view==='completion') content=<GameCompletion onNavigate={navigate}/>;
   else if (view.startsWith('tips-')) content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
   else content=<div className="empty-state not-found"><span className="not-found-code">404</span><h1>{lang==='id'?'Arena tidak ditemukan.':'This arena is missing.'}</h1><p>{lang==='id'?'Tautan ini tidak tersedia. Tantangan lainnya menantimu di beranda.':'That page is unavailable. More challenges are waiting on the home page.'}</p><button className="ba-button primary" onClick={back}>{lang==='id'?'Kembali ke beranda':'Back to home'}<Icon name="arrow" size={17}/></button></div>;
   return <Layout currentView={view} onViewChange={navigate}><ErrorBoundary key={view} lang={lang}><Suspense fallback={<div className="loading-state" role="status"><span className="loading-spinner"/>{lang==='id'?'Menyiapkan arena...':'Preparing your arena...'}</div>}>{content}</Suspense></ErrorBoundary></Layout>;

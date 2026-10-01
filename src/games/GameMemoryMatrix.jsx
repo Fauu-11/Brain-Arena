@@ -221,6 +221,7 @@ export default function GameMemoryMatrix({ onBack, onNavigate }) {
       onBack={onBack}
       onPlayAgain={startGame}
       lang={lang}
+      outcome={outcomeWon ? 'completed' : 'loss'}
       stats={[
         { label: copy('Skor', 'Score'), value: score.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') },
         { label: copy('Ronde', 'Round'), value: `${Math.min(round, config.rounds)}/${config.rounds}` },

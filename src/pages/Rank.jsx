@@ -14,10 +14,11 @@ export default function Rank() {
     [copy('Badge','Badges'),rankInfo.parts.badges,copy('45 poin per badge terbuka','45 points per unlocked badge')],
     [copy('Streak','Streak'),rankInfo.parts.streak,copy('20 poin per hari best streak','20 points per best-streak day')],
     [copy('Eksplorasi','Exploration'),rankInfo.parts.explored,copy('30 poin per game yang dijelajahi','30 points per explored game')],
+    ['Ranked RP',rankInfo.parts.ranked||0,copy('Diperoleh dari hasil Ranked dan performance grade','Earned from Ranked results and performance grades')],
   ];
   return <div className="progression-page rank-page">
     <section className={`progression-hero rank-hero rank-${rankInfo.tier.group}`}>
-      <div><span className="eyebrow"><Icon name="shield" size={14}/>{copy('RANK SYSTEM','RANK SYSTEM')}</span><h1>{copy('Naik rank lewat progres nyata.','Climb ranks through real progress.')}</h1><p>{copy('Arena Rating menggabungkan XP, jumlah sesi, badge, streak, dan banyaknya game yang kamu jelajahi. Rank berbeda dari Level: Level hanya mengikuti XP, sedangkan Rank menilai progresmu secara lebih menyeluruh.','Arena Rating combines XP, completed sessions, badges, streaks, and game exploration. Rank is separate from Level: Level follows XP only, while Rank reflects broader progress.')}</p></div>
+      <div><span className="eyebrow"><Icon name="shield" size={14}/>{copy('RANK SYSTEM','RANK SYSTEM')}</span><h1>{copy('Naik rank lewat progres nyata.','Climb ranks through real progress.')}</h1><p>{copy('Arena Rating menggabungkan XP, jumlah sesi, badge, streak, eksplorasi game, dan Ranked RP. Rank berbeda dari Level: Level hanya mengikuti XP, sedangkan Rank menilai progresmu secara lebih menyeluruh.','Arena Rating combines XP, completed sessions, badges, streaks, game exploration, and Ranked RP. Rank is separate from Level: Level follows XP only, while Rank reflects broader progress.')}</p></div>
       <div className="rank-current-card"><span className={`rank-emblem rank-${rankInfo.tier.group}`}><Icon name="shield" size={31}/></span><small>ARENA RATING</small><strong>{rankInfo.rating.toLocaleString()}</strong><b>{rankInfo.tier.title[lang]}</b>{rankInfo.next?<><i><span style={{width:`${rankInfo.progress}%`}}/></i><em>{copy(`${rankInfo.remaining} AR lagi ke ${rankInfo.next.title[lang]}`,`${rankInfo.remaining} AR to ${rankInfo.next.title[lang]}`)}</em></>:<em>{copy('Rank tertinggi tercapai','Highest rank reached')}</em>}</div>
     </section>
 
