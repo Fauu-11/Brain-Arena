@@ -7,7 +7,7 @@ import { syncQueueSummary } from './syncQueue.js';
 import { mutationSummary } from './mutationJournal.js';
 import { simulateCloudMigration } from './cloudReadiness.js';
 import { readGuestIdentity } from './guestIdentity.js';
-export const APP_VERSION='1.19.0';
+export const APP_VERSION='1.19.1';
 export async function collectSystemDiagnostics(storage=window.localStorage){
   const storageInfo=storageBreakdown(storage);let cacheNames=[];try{cacheNames=typeof caches!=='undefined'?await caches.keys():[];}catch{}
   const sw={supported:'serviceWorker'in navigator,controlled:Boolean(navigator.serviceWorker?.controller),state:navigator.serviceWorker?.controller?.state||'none'};

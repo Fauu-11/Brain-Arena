@@ -12,7 +12,7 @@ const UNI={hard:{size:12,density:.44},'very-hard':{size:15,density:.45},impossib
 const UL={hard:'Hard','very-hard':'Very Hard',impossible:'Impossible'};
 
 export default function GameNonogram({onBack,onNavigate}) {
-  const {lang}=useLanguage(); const copy=(id,en)=>lang==='en'?en:id;
+  const {lang}=useLanguage(); const copy=useCallback((id,en)=>lang==='en'?en:id,[lang]);
   const [showRules,setShowRules]=useState(false); const [state,setState]=useState('setup');
   const [level,setLevel]=useState('sd'); const [uni,setUni]=useState('hard'); const [puzzle,setPuzzle]=useState(null);
   const [marks,setMarks]=useState([]); const [mode,setMode]=useState('fill'); const [elapsed,setElapsed]=useState(0); const [moves,setMoves]=useState(0);

@@ -23,7 +23,7 @@ export function seasonIsActive(dateKey = localDateKey(), season = CURRENT_SEASON
   return dateKey >= season.start && dateKey <= season.end;
 }
 
-export function getSeasonLevel(seasonXp = 0, season = CURRENT_SEASON) {
+export function getSeasonLevel(seasonXp = 0) {
   const xp = Math.max(0,Math.floor(Number(seasonXp)||0));
   let level = 1;
   let floor = 0;

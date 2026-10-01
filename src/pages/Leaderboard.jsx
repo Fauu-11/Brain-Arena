@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
 import { GAMES, gameById } from '../data/games.js';
@@ -13,8 +13,8 @@ function seededScore(seed,index,base) {
 
 export default function Leaderboard() {
   const { lang } = useLanguage();
-  const { profile,levelInfo,rankInfo,avatarOption,frameOption } = useArena();
-  const copy = (id,en)=>lang==='id'?id:en;
+  const { profile,rankInfo,avatarOption,frameOption } = useArena();
+  const copy = useCallback((id,en)=>lang==='id'?id:en,[lang]);
   const [scope,setScope] = useState('overall');
   const selectedGame = scope==='overall'?null:gameById(scope);
   const yourScore = scope==='overall' ? profile.xp : Number(profile.perGame?.[scope]?.xp)||0;
@@ -23,7 +23,7 @@ export default function Leaderboard() {
     const seed = `${localDateKey()}:${scope}`;
     const rivals = RIVALS.slice(0,7).map((name,index)=>({ id:`bot-${index}`,name:`${name} ${copy('Rival','Rival')}`,score:seededScore(seed,index,baseline),simulated:true }));
     return [...rivals,{ id:'you',name:profile.name||copy('Pemain Lokal','Local Player'),score:yourScore,you:true }].sort((a,b)=>b.score-a.score).map((item,index)=>({...item,rank:index+1}));
-  },[scope,profile.xp,profile.name,profile.perGame,lang]);
+  },[scope,profile.xp,profile.name,profile.perGame,copy,yourScore]);
   const you = board.find(item=>item.you);
   return <div className="progression-page leaderboard-page">
     <section className="progression-hero leaderboard-hero"><div><span className="eyebrow"><Icon name="trophy" size={14}/>{copy('LEADERBOARD','LEADERBOARD')}</span><h1>{copy('Ukur progresmu melawan rival latihan.','See how your progress stacks up.')}</h1><p>{copy('Leaderboard ini bekerja offline. Nama rival adalah simulasi latihan, bukan akun pemain sungguhan. Skor kamu berasal dari progres lokal di perangkat ini.','This leaderboard works offline. Rival names are training simulations, not real player accounts. Your score comes from progress stored on this device.')}</p></div><div className="progression-hero-stat"><small>{copy('POSISIMU','YOUR POSITION')}</small><strong>#{you?.rank || board.length}</strong><span>{selectedGame?selectedGame.title[lang]:`${rankInfo.tier.title[lang]} · ${rankInfo.rating.toLocaleString()} AR`}</span><i><b style={{width:`${Math.max(8,100-((you?.rank||8)-1)*12)}%`}}/></i></div></section>

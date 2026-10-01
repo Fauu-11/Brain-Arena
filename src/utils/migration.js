@@ -80,7 +80,7 @@ function performMigration(storage,current){
     }
     const health=readJSON(storage,'ba_runtime_health_v1',{});
     if (health && typeof health==='object') {
-      writeRaw(storage,'ba_runtime_health_v1',JSON.stringify({...health,appVersion:'1.19.0'}));
+      writeRaw(storage,'ba_runtime_health_v1',JSON.stringify({...health,appVersion:'1.19.1'}));
       steps.push('runtime-health-v19');
     }
   }

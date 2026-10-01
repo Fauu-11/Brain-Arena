@@ -1,6 +1,6 @@
 export const RUNTIME_HEALTH_KEY = 'ba_runtime_health_v1';
 export const LAST_CRASH_KEY = 'ba_last_crash_v1';
-export const APP_VERSION = '1.19.0';
+export const APP_VERSION = '1.19.1';
 
 const safeParse = (value, fallback = null) => {
   try { return JSON.parse(value ?? '') ?? fallback; } catch { return fallback; }

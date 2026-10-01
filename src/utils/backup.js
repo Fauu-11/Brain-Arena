@@ -20,7 +20,7 @@ function allowedStorageSnapshot(storage) {
 }
 
 export function createProgressBackup(storage = window.localStorage) {
-  return { format:'brain-arena-backup',version:1,appVersion:'1.19.0',exportedAt:new Date().toISOString(),data:allowedStorageSnapshot(storage) };
+  return { format:'brain-arena-backup',version:1,appVersion:'1.19.1',exportedAt:new Date().toISOString(),data:allowedStorageSnapshot(storage) };
 }
 
 export function validateProgressBackup(raw) {

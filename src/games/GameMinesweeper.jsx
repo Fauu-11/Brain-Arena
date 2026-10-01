@@ -23,7 +23,7 @@ const NUMBER_CLASS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
 
 export default function GameMinesweeper({ onBack, onNavigate }) {
   const { lang } = useLanguage();
-  const copy = (id, en) => lang === 'en' ? en : id;
+  const copy = useCallback((id, en) => lang === 'en' ? en : id, [lang]);
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup');
   const [schoolLevel, setSchoolLevel] = useState('sd');

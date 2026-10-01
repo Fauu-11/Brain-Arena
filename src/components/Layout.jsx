@@ -52,8 +52,8 @@ function readSidebarGroups(){ try { const raw=JSON.parse(localStorage.getItem('b
 function Navigation({currentView,onNavigate}){
   const {lang}=useLanguage();
   const {favorites,pinnedGames,togglePinnedGame,movePinnedGame,profile,levelInfo,dailyCompleted,rankInfo,avatarOption,frameOption}=useArena();
-  const copy=(id,en)=>lang==='id'?id:en;
-  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[lang,dailyCompleted,favorites.length]);
+  const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
+  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[copy,dailyCompleted,favorites.length]);
   const [groups,setGroups]=useState(readSidebarGroups);
   const groupInfo=[
     ['arena',copy('ARENA','ARENA')],['competitive',copy('KOMPETITIF','COMPETITIVE')],['progress',copy('PROGRES','PROGRESS')],['other',copy('LAINNYA','OTHER')]
@@ -73,8 +73,8 @@ function Navigation({currentView,onNavigate}){
 }
 
 function RailNavigation({currentView,onNavigate}){
-  const {lang}=useLanguage(); const {favorites,pinnedGames,dailyCompleted}=useArena(); const copy=(id,en)=>lang==='id'?id:en;
-  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[lang,dailyCompleted,favorites.length]);
+  const {lang}=useLanguage(); const {favorites,pinnedGames,dailyCompleted}=useArena(); const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
+  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[copy,dailyCompleted,favorites.length]);
   const ids=['home','daily','games','favorites','arena-run','leaderboard','achievements','missions','rank','statistics','settings','profile'];
   return <><button className="brand brand-compact" onClick={()=>onNavigate('home')} aria-label="Brain Arena - Home compact"><span className="brand-mark"><Icon name="cube" size={22}/></span></button><div className="rail-separator"/><nav className="rail-nav" aria-label={copy('Navigasi cepat','Quick navigation')}>{nav.filter(item=>ids.includes(item.id)).map(item=><button key={item.id} className={`rail-item ${isNavActive(item.id,currentView)?'active':''}`} onClick={()=>onNavigate(item.id)} aria-label={item.label} title={item.label}><Icon name={item.icon} size={18}/>{item.count!=null&&<span className="rail-dot">{item.count==='✓'?'•':item.count}</span>}</button>)}</nav><div className="rail-footer"><button className="rail-item rail-highlight" onClick={()=>onNavigate((gameById(pinnedGames[0])||GAMES[0]).id)} title={(gameById(pinnedGames[0])||GAMES[0]).title[lang]}><Icon name={(gameById(pinnedGames[0])||GAMES[0]).icon} size={18}/></button></div></>;
 }
@@ -84,7 +84,7 @@ export default function Layout({children,currentView,onViewChange}){
   const {muted,toggleSound,storageOk,notice,profile,levelInfo,rankInfo,avatarOption,frameOption,accessibility,updateAccessibility,currentSession,requestCoachHint,arenaRun,arenaCup,notifications,unreadNotifications,markNotificationRead,markAllNotificationsRead,recoverySession,resumeRecovery,setSessionSchoolLevel,setSessionUniversityDifficulty}=useArena();
   const [menu,setMenu]=useState(false),[search,setSearch]=useState(false),[help,setHelp]=useState(false),[notificationsOpen,setNotificationsOpen]=useState(false),[query,setQuery]=useState(''),[focus,setFocus]=useState(false),[coachOpen,setCoachOpen]=useState(false),[coachData,setCoachData]=useState(null),[sessionNow,setSessionNow]=useState(Date.now());
   const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{try{return localStorage.getItem('ba_sidebar_collapsed')==='1';}catch{return false;}});
-  const copy=(id,en)=>lang==='id'?id:en;
+  const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
   const activeGame=gameById(currentView);
   const navigate=useCallback(view=>{setMenu(false);setSearch(false);setNotificationsOpen(false);setQuery('');onViewChange(view);},[onViewChange]);
   const toggleSidebar=useCallback(()=>setSidebarCollapsed(value=>!value),[]);

@@ -25,7 +25,7 @@ function difficultyKey(level, universityDifficulty) {
 
 export default function GameMemoryMatrix({ onBack, onNavigate }) {
   const { lang } = useLanguage();
-  const copy = (id, en) => lang === 'en' ? en : id;
+  const copy = useCallback((id, en) => lang === 'en' ? en : id, [lang]);
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup');
   const [schoolLevel, setSchoolLevel] = useState('sd');

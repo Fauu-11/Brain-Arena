@@ -1,5 +1,7 @@
-# Brain Arena v1.19 — Supabase Readiness
+# Brain Arena v1.19.1 — Supabase Readiness CI/Lint Hotfix
 
+
+> **v1.19.1 hotfix:** GitHub Actions lint sekarang hanya memeriksa first-party code (`src`, `tests`, `scripts`), bukan `vendor/react-runtime`. Hook dependency warnings dan unused bindings yang muncul di v1.19 juga sudah dibersihkan. Workflow dipindahkan ke Node 24 / Ubuntu 24.04.
 Brain Arena v1.19 adalah release transisi sebelum v2.0. Fokusnya bukan menambah game baru, tetapi menyiapkan arsitektur data lokal agar migrasi ke Supabase nanti lebih aman, terukur, dan tidak memaksa seluruh UI ditulis ulang.
 
 ## Fondasi baru v1.19

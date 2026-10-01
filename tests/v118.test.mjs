@@ -63,7 +63,7 @@ test('v1.18 runtime health tracks starts, issues and clean exits',()=>{
 
 test('v1.18 service worker uses versioned core and runtime caches',()=>{
   const source=fs.readFileSync(new URL('../public/service-worker.js',import.meta.url),'utf8');
-  assert.match(source,/1\.19\.0/);
+  assert.match(source,/1\.19\.1/);
   assert.match(source,/brain-arena-runtime/);
   assert.match(source,/staleWhileRevalidate/);
   assert.match(source,/networkFirst/);

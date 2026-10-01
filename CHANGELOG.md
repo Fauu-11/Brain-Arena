@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.19.1 — CI / Lint Hotfix
+
+- Scoped Oxlint to first-party source (`src`, `tests`, `scripts`) so vendored React runtime code is not linted as application hooks.
+- Stabilized translation helpers with `useCallback` where they participate in hook dependency arrays.
+- Removed unused bindings/parameters reported by lint.
+- Updated GitHub Actions to Node 24-compatible action releases and pinned runners to Ubuntu 24.04.
+- Bumped app/PWA metadata to v1.19.1.
+
 ## v1.19.0 — Supabase Readiness
 
 - Added IndexedDB local data layer with memory fallback.

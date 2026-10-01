@@ -1,12 +1,12 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.19.0",
+  "version": "1.19.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "oxlint",
+    "lint": "oxlint src tests scripts",
     "preview": "vite preview",
     "serve:dist": "node scripts/serve.mjs",
     "test:routes": "node --test tests/routes.test.mjs",
@@ -28,7 +28,7 @@
     "oxlint": "^1.71.0",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena v1.19 - Supabase readiness with IndexedDB local data layer, repositories, guest UUID, sync queue, mutation journal, normalized data, migration export, feature flags, migration simulation, and CI hardening",
+  "description": "Brain Arena v1.19.1 - Supabase readiness CI/lint hotfix with IndexedDB local data layer, repositories, guest UUID, sync queue, mutation journal, normalized data, migration export, feature flags, migration simulation, and CI hardening",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }

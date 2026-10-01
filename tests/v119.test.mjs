@@ -88,7 +88,7 @@ test('v1.19 release sources include CI hardening and versioned PWA',()=>{
   const sw=fs.readFileSync(new URL('../public/service-worker.js',import.meta.url),'utf8');
   const workflow=fs.readFileSync(new URL('../.github/workflows/ci.yml',import.meta.url),'utf8');
   const releaseCheck=fs.readFileSync(new URL('../scripts/check-release.mjs',import.meta.url),'utf8');
-  assert.match(sw,/1\.19\.0/);
+  assert.match(sw,/1\.19\.1/);
   assert.match(workflow,/npm run check:release/);
   assert.match(workflow,/npm test/);
   assert.match(workflow,/npm run lint/);

@@ -3,7 +3,7 @@ import { DATA_SCHEMA_VERSION } from './migration.js';
 function checksum(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16).padStart(8,'0');}
 export function createSupabaseMigrationPackage(){
   const player=buildNormalizedPlayerModel();const validation=validateNormalizedPlayerModel(player);if(!validation.valid)throw new Error(`migration-model-invalid:${validation.issues.join(',')}`);
-  const payload={format:'brain-arena-supabase-migration',version:1,sourceAppVersion:'1.19.0',sourceSchema:DATA_SCHEMA_VERSION,generatedAt:Date.now(),player};
+  const payload={format:'brain-arena-supabase-migration',version:1,sourceAppVersion:'1.19.1',sourceSchema:DATA_SCHEMA_VERSION,generatedAt:Date.now(),player};
   const serialized=JSON.stringify(payload);return {...payload,checksum:checksum(serialized)};
 }
 export function downloadSupabaseMigrationPackage(){

@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import Dialog from './Dialog.jsx';import Icon from './Icon.jsx';import {useLanguage} from '../context/LanguageContext.jsx';import {useArena} from '../context/ArenaContext.jsx';
 const KEY='ba_onboarding_v1';
-export default function OnboardingTour({onNavigate}){const {lang}=useLanguage();const {grantXp,profile}=useArena();const copy=(id,en)=>lang==='id'?id:en;const [open,setOpen]=useState(false);const [step,setStep]=useState(0);useEffect(()=>{try{if(!localStorage.getItem(KEY))setOpen(true);}catch{}},[]);const steps=[
+export default function OnboardingTour(){const {lang}=useLanguage();const {grantXp,profile}=useArena();const copy=(id,en)=>lang==='id'?id:en;const [open,setOpen]=useState(false);const [step,setStep]=useState(0);useEffect(()=>{try{if(!localStorage.getItem(KEY))setOpen(true);}catch{}},[]);const steps=[
  {icon:'grid',title:copy('Pilih arena bermain','Choose your arena'),body:copy('Brain Arena punya 12 game matematika, logika, memori, dan strategi.','Brain Arena has 12 math, logic, memory, and strategy games.')},
  {icon:'spark',title:'Daily Challenge',body:copy('Satu tantangan baru setiap hari untuk XP dan streak.','A fresh daily challenge for XP and streaks.')},
  {icon:'trophy',title:copy('XP, Rank, dan Mastery','XP, Rank, and Mastery'),body:copy('Setiap sesi membangun progres akun dan penguasaan tiap game.','Every session builds account progress and per-game mastery.')},
