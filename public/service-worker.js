@@ -1,4 +1,4 @@
-const CACHE = 'brain-arena-v1.13.0';
+const CACHE = 'brain-arena-v1.13.1';
 const CORE = ['','index.html','manifest.webmanifest','favicon.svg','icons.svg','pwa-192.png','pwa-512.png'];
 const scoped = path => new URL(path, self.registration.scope).href;
 

@@ -33,6 +33,7 @@ const paths = {
   down: <path d="m6 9 6 6 6-6"/>,
   close: <path d="m6 6 12 12M6 18 18 6"/>,
   menu: <path d="M4 6h16M4 12h16M4 18h16"/>,
+  sidebar: <><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M12 9h6M12 13h6"/></>,
   globe: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></>,
   sound: <><path d="m11 4-6 5H2v6h3l6 5Zm4 4c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/></>,
   muted: <><path d="m11 4-6 5H2v6h3l6 5Zm5 5 5 6m0-6-5 6"/></>,

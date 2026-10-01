@@ -1,4 +1,4 @@
-# Laporan pengujian Brain Arena v1.13.0
+# Laporan pengujian Brain Arena v1.13.1
 
 Tanggal: 1 Oktober 2026.
 
@@ -205,3 +205,15 @@ PWA service-worker cache:
 ```text
 brain-arena-v1.11.0
 ```
+
+## v1.13.1 Sidebar Toggle verification
+- Existing project unit tests: **102/102 passed**.
+- Portable ESM build: **76 modules**.
+- Desktop browser QA at 1440 px confirmed:
+  - full sidebar visible by default;
+  - compact rail hidden by default;
+  - topbar toggle changes Full -> Compact;
+  - content margin changes from 266 px -> 118 px;
+  - `Ctrl + Shift + S` restores Full mode;
+  - preference stored in `ba_sidebar_collapsed`;
+  - uncaught JavaScript errors: **0**.
