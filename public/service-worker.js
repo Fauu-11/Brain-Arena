@@ -1,9 +1,9 @@
-const CACHE = 'brain-arena-v1.14.0';
+const CACHE = 'brain-arena-v1.15.0';
 const CORE = ['','index.html','manifest.webmanifest','favicon.svg','icons.svg','pwa-192.png','pwa-512.png'];
 const scoped = path => new URL(path, self.registration.scope).href;
 
 self.addEventListener('install', event => {
-  // Do not skip waiting automatically. v1.14 lets the UI ask the player before reloading.
+  // Do not skip waiting automatically. v1.15 lets the UI ask the player before reloading.
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE.map(scoped))));
 });
 

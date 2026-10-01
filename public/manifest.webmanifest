@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Brain Arena v1.14 - 12 game otak dengan autosave recovery, Smart Sidebar, Notification Center, Command Palette, competitive play, mastery, season, dan PWA.",
+  "description": "Brain Arena v1.15 - 12 game otak dengan Challenge Link, Custom Arena, onboarding, Data Health, Daily Archive, Accessibility 2.0, Offline Manager, personal goals, competitive play, mastery, season, dan PWA.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

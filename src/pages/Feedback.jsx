@@ -5,10 +5,11 @@ import { useArena } from '../context/ArenaContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { FEEDBACK_TYPES, cleanFeedback, sendFeedback } from '../utils/feedback.js';
 import { readJSON, writeJSON } from '../utils/storage.js';
+import { buildDiagnostics } from '../utils/diagnostics.js';
 
 const RECEIPT_KEY = 'ba_feedback_receipts_v1';
 const MAX_RECEIPTS = 8;
-const APP_VERSION = '1.14.0';
+const APP_VERSION = '1.15.0';
 
 function loadReceipts() {
   const value = readJSON(RECEIPT_KEY, []);
@@ -17,7 +18,7 @@ function loadReceipts() {
 
 export default function Feedback() {
   const { lang } = useLanguage();
-  const { profile, setNotice } = useArena();
+  const { profile, setNotice, currentSession } = useArena();
   const copy = (id,en) => lang === 'id' ? id : en;
   const [form,setForm] = useState({
     type:'suggestion', gameId:'general', rating:5, subject:'', message:'',
@@ -46,7 +47,7 @@ export default function Feedback() {
       route:window.location.hash || '#/feedback',
       gameTitle:selectedGame?.title?.[lang] || copy('Umum / Brain Arena','General / Brain Arena'),
       localTime:new Date().toLocaleString(lang === 'id' ? 'id-ID' : 'en-US'),
-      diagnostics:`Browser: ${navigator.userAgent}; Screen: ${window.innerWidth}x${window.innerHeight}; Language: ${lang}; Online: ${navigator.onLine ? 'yes' : 'no'}`,
+      diagnostics:buildDiagnostics({gameId:cleaned.gameId,session:currentSession,version:APP_VERSION}),
     };
     try {
       const result = await sendFeedback(cleaned, context);
@@ -91,7 +92,7 @@ export default function Feedback() {
         </div>
 
         <input className="feedback-honey" tabIndex={-1} autoComplete="off" value={form.honey} onChange={e=>set('honey',e.target.value)} aria-hidden="true" name="company_website"/>
-        <label className="feedback-diagnostic"><input type="checkbox" checked={form.includeDiagnostics} onChange={e=>set('includeDiagnostics',e.target.checked)}/><span><strong>{copy('Sertakan info teknis ringan','Include basic technical info')}</strong><small>{copy('Versi Brain Arena, ukuran layar, browser, bahasa, dan halaman asal. Tidak menyertakan password atau isi penyimpanan lokal.','Brain Arena version, screen size, browser, language, and current page. Passwords and local storage contents are not included.')}</small></span></label>
+        <label className="feedback-diagnostic"><input type="checkbox" checked={form.includeDiagnostics} onChange={e=>set('includeDiagnostics',e.target.checked)}/><span><strong>{copy('Sertakan info teknis ringan','Include basic technical info')}</strong><small>{copy('Versi Brain Arena, layar, browser, PWA, seed, mode, difficulty, dan maksimal 20 aksi terakhir. Tidak menyertakan password atau isi penyimpanan lokal.','Brain Arena version, screen, browser, PWA state, seed, mode, difficulty, and up to 20 recent actions. Passwords and local storage contents are not included.')}</small></span></label>
 
         {error&&<div className="feedback-alert error" role="alert"><Icon name="help" size={18}/><span>{error}</span></div>}
         {status==='success'&&<div className="feedback-alert success" role="status"><Icon name="check" size={18}/><span>{copy('Terima kasih. Masukanmu sudah masuk ke saluran developer.','Thank you. Your feedback has been sent to the developer channel.')}</span></div>}

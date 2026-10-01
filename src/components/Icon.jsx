@@ -1,5 +1,6 @@
 import React from 'react';
 const paths = {
+  plus: <path d="M12 5v14M5 12h14"/>,
   message: <><path d="M4 5h16v11H9l-5 4Z"/><path d="M8 9h8M8 12h5"/></>,
   send: <><path d="m3 11 18-8-7 18-3-7Z"/><path d="m11 14 4-4"/></>,
   copy: <><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></>,

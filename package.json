@@ -1,7 +1,7 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.14.0",
+  "version": "1.15.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,7 +26,7 @@
     "oxlint": "^1.71.0",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena v1.14 - 12 local-first brain-training games with autosave recovery, Smart Sidebar v2, notifications, command palette, competitive play, post-game insights, PWA updates, mastery and seasons",
+  "description": "Brain Arena v1.15 - 12 local-first brain-training games with autosave recovery, Smart Sidebar v2, notifications, command palette, competitive play, post-game insights, PWA updates, mastery and seasons",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }

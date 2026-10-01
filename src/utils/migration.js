@@ -1,4 +1,4 @@
-export const DATA_SCHEMA_VERSION = 14;
+export const DATA_SCHEMA_VERSION = 15;
 export const DATA_SCHEMA_KEY = 'ba_data_schema';
 export const MIGRATION_LOG_KEY = 'ba_migration_log_v1';
 
@@ -27,6 +27,22 @@ export function migrateProgressData(storage = typeof window !== 'undefined' ? wi
     if (!readRaw(storage,'ba_notifications_v1')) {
       writeRaw(storage,'ba_notifications_v1',JSON.stringify({read:{},createdAt:Date.now()}));
       steps.push('notification-state');
+    }
+  }
+
+  if (current < 15) {
+    const defaults={
+      ba_onboarding_v1:null,
+      ba_personal_goals_v1:[],
+      ba_offline_games_v1:[],
+    };
+    for (const [key,value] of Object.entries(defaults)) {
+      if (!readRaw(storage,key) && value !== null) { writeRaw(storage,key,JSON.stringify(value)); steps.push(`init-${key}`); }
+    }
+    const a11y=readJSON(storage,'ba_accessibility_v1',{});
+    if (a11y && typeof a11y==='object') {
+      writeRaw(storage,'ba_accessibility_v1',JSON.stringify({colorVision:'default',enhancedFocus:false,screenReaderHints:false,disableTimerPressure:false,...a11y}));
+      steps.push('accessibility-v2');
     }
   }
 

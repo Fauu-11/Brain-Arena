@@ -40,7 +40,7 @@ const emptyAchievements = () => ({ unlocked:{}, selectedBadge:null });
 const emptyMissions = () => ({ claims:{} });
 const emptyCustomization = () => ({ ...DEFAULT_CUSTOMIZATION });
 const emptySeason = () => ({ id:CURRENT_SEASON.id, xp:0, claimed:{} });
-const emptyAccessibility = () => ({ theme:'system', reducedMotion:false, highContrast:false, largeText:false });
+const emptyAccessibility = () => ({ theme:'system', reducedMotion:false, highContrast:false, largeText:false, colorVision:'default', enhancedFocus:false, screenReaderHints:false, disableTimerPressure:false });
 const emptyCompetitionSetup = () => ({ mode:'practice', challengeCodes:{}, schoolLevels:{}, universityDifficulties:{} });
 const emptyNotificationState = () => ({ read:{} });
 
@@ -102,7 +102,7 @@ const loadSeason = () => {
 const loadAccessibility = () => {
   const raw = readJSON(accessibilityKey, emptyAccessibility());
   const theme = ['system','light','dark'].includes(raw?.theme) ? raw.theme : 'system';
-  return { theme, reducedMotion:Boolean(raw?.reducedMotion), highContrast:Boolean(raw?.highContrast), largeText:Boolean(raw?.largeText) };
+  return { theme, reducedMotion:Boolean(raw?.reducedMotion), highContrast:Boolean(raw?.highContrast), largeText:Boolean(raw?.largeText), colorVision:['default','protanopia','deuteranopia','tritanopia','monochrome'].includes(raw?.colorVision)?raw.colorVision:'default', enhancedFocus:Boolean(raw?.enhancedFocus), screenReaderHints:Boolean(raw?.screenReaderHints), disableTimerPressure:Boolean(raw?.disableTimerPressure) };
 };
 const loadCompetitionSetup = () => {
   const raw = readJSON(competitionSetupKey, emptyCompetitionSetup());
@@ -360,6 +360,19 @@ export function ArenaProvider({ children }) {
     const next={ id,preset:preset.id,count:preset.count,mode:mode==='practice'?'practice':'ranked',status:'active',startedAt:Date.now(),index:0,stages,results:[] };
     saveArenaRun(next); return next;
   },[saveArenaRun]);
+  const startCustomArenaRun = useCallback(({gameIds=[],mode='ranked',schoolLevel='universitas',universityDifficulty='hard',randomize=true}={}) => {
+    const clean=[...new Set(gameIds)].filter(id=>gameById(id)).slice(0,12);
+    if (clean.length<3) return null;
+    const id=`custom-${Date.now().toString(36)}`;
+    const order=randomize?nativeShuffle(clean):clean;
+    const stages=order.map((gameId,index)=>({gameId,challengeCode:createChallengeCode(gameId,`${id}-${index}-${gameId}`),schoolLevel,universityDifficulty}));
+    const next={id,preset:'custom',count:stages.length,mode:mode==='practice'?'practice':'ranked',schoolLevel,universityDifficulty,status:'active',startedAt:Date.now(),index:0,stages,results:[]};
+    saveArenaRun(next);
+    const current=competitionSetupRef.current;
+    saveCompetitionSetup({...current,mode:next.mode,schoolLevels:{...current.schoolLevels,...Object.fromEntries(clean.map(g=>[g,schoolLevel]))},universityDifficulties:{...current.universityDifficulties,...Object.fromEntries(clean.map(g=>[g,universityDifficulty]))}});
+    return next;
+  },[saveArenaRun,saveCompetitionSetup]);
+
   const cancelArenaRun = useCallback(() => saveArenaRun(null),[saveArenaRun]);
   const continueArenaRun = useCallback(() => {
     const run=arenaRunRef.current;
@@ -529,10 +542,10 @@ export function ArenaProvider({ children }) {
   }, [grantXp,saveSeason]);
 
   const updateAccessibility = useCallback((field,value) => {
-    const allowed = ['theme','reducedMotion','highContrast','largeText'];
+    const allowed = ['theme','reducedMotion','highContrast','largeText','colorVision','enhancedFocus','screenReaderHints','disableTimerPressure'];
     if (!allowed.includes(field)) return false;
     setAccessibility(previous => {
-      const next={...previous,[field]:field==='theme' && ['system','light','dark'].includes(value) ? value : field==='theme' ? previous.theme : Boolean(value)};
+      const next={...previous,[field]: field==='theme' ? (['system','light','dark'].includes(value)?value:previous.theme) : field==='colorVision' ? (['default','protanopia','deuteranopia','tritanopia','monochrome'].includes(value)?value:previous.colorVision) : Boolean(value)};
       writeJSON(accessibilityKey,next); return next;
     });
     return true;
@@ -642,6 +655,10 @@ export function ArenaProvider({ children }) {
     root.classList.toggle('ba-reduced-motion',accessibility.reducedMotion);
     root.classList.toggle('ba-high-contrast',accessibility.highContrast);
     root.classList.toggle('ba-large-text',accessibility.largeText);
+    root.dataset.baColorVision=accessibility.colorVision;
+    root.classList.toggle('ba-enhanced-focus',accessibility.enhancedFocus);
+    root.classList.toggle('ba-screen-reader-hints',accessibility.screenReaderHints);
+    root.classList.toggle('ba-no-timer-pressure',accessibility.disableTimerPressure);
   }, [accessibility]);
   useEffect(() => {
     const sync = e => {
@@ -680,7 +697,7 @@ export function ArenaProvider({ children }) {
     masteryForGame,adaptiveForGame,
     competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,leaveGameSession,currentSession,personalBests,personalBestFor,
     matches,selectReplay,selectedReplayId,requestCoachHint,completionMap,
-    arenaRun,startArenaRun,cancelArenaRun,continueArenaRun,
+    arenaRun,startArenaRun,startCustomArenaRun,cancelArenaRun,continueArenaRun,
     recoverySession,resumeRequestedId,resumeRecovery,discardRecovery,
     notifications,unreadNotifications,markNotificationRead,markAllNotificationsRead,
     accessibility,updateAccessibility,

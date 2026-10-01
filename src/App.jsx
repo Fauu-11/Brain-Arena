@@ -38,6 +38,12 @@ const MatchHistory = lazy(() => import('./pages/MatchHistory.jsx'));
 const ReplayViewer = lazy(() => import('./pages/ReplayViewer.jsx'));
 const GameCompletion = lazy(() => import('./pages/GameCompletion.jsx'));
 const Feedback = lazy(() => import('./pages/Feedback.jsx'));
+const ChallengeShare = lazy(() => import('./pages/ChallengeShare.jsx'));
+const ArenaBuilder = lazy(() => import('./pages/ArenaBuilder.jsx'));
+const DailyArchive = lazy(() => import('./pages/DailyArchive.jsx'));
+const DataHealth = lazy(() => import('./pages/DataHealth.jsx'));
+const OfflineManager = lazy(() => import('./pages/OfflineManager.jsx'));
+const Goals = lazy(() => import('./pages/Goals.jsx'));
 const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix, nonogram:GameNonogram, game2048:Game2048 };
 function AppContent() {
   const { lang } = useLanguage(); const { recordVisit,leaveGameSession } = useArena();
@@ -93,6 +99,12 @@ function AppContent() {
   else if (view==='replay') content=<ReplayViewer onNavigate={navigate}/>;
   else if (view==='completion') content=<GameCompletion onNavigate={navigate}/>;
   else if (view==='feedback') content=<Feedback onNavigate={navigate}/>;
+  else if (view==='challenge') content=<ChallengeShare onNavigate={navigate}/>;
+  else if (view==='arena-builder') content=<ArenaBuilder onNavigate={navigate}/>;
+  else if (view==='daily-archive') content=<DailyArchive onNavigate={navigate}/>;
+  else if (view==='data-health') content=<DataHealth onNavigate={navigate}/>;
+  else if (view==='offline') content=<OfflineManager onNavigate={navigate}/>;
+  else if (view==='goals') content=<Goals onNavigate={navigate}/>;
   else if (view.startsWith('tips-')) content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
   else content=<div className="empty-state not-found"><span className="not-found-code">404</span><h1>{lang==='id'?'Arena tidak ditemukan.':'This arena is missing.'}</h1><p>{lang==='id'?'Tautan ini tidak tersedia. Tantangan lainnya menantimu di beranda.':'That page is unavailable. More challenges are waiting on the home page.'}</p><button className="ba-button primary" onClick={back}>{lang==='id'?'Kembali ke beranda':'Back to home'}<Icon name="arrow" size={17}/></button></div>;
   return <Layout currentView={view} onViewChange={navigate}><ErrorBoundary key={view} lang={lang}><Suspense fallback={<div className="loading-state" role="status"><span className="loading-spinner"/>{lang==='id'?'Menyiapkan arena...':'Preparing your arena...'}</div>}>{content}</Suspense></ErrorBoundary></Layout>;

@@ -1,21 +1,25 @@
-# Brain Arena v1.14 - UX & Recovery Update
+# Brain Arena v1.15 - Sharing, Stability & Onboarding
 
-Brain Arena v1.14 melanjutkan v1.13.1 dengan fokus pada pengalaman pemain, recovery sesi, notifikasi, navigasi, PWA update, dan performa. Seluruh 12 game, mode Ranked/Practice, Arena Run, Seed Challenge, XP, Rank, Season, Mission, Achievement, Mastery, statistik, feedback, dan tema merah tetap dipertahankan.
+Brain Arena v1.15 melanjutkan v1.14 dengan fokus pada berbagi challenge, turnamen custom, onboarding, keamanan data lokal, arsip Daily Challenge, accessibility, offline content, diagnostics feedback, dan target personal. Seluruh 12 game, tema merah, Smart Sidebar, Ranked/Practice, Arena Run, XP, Rank, Season, Mission, Achievement, Mastery, autosave/recovery, PWA, dan competitive system tetap dipertahankan.
 
-## Fitur baru v1.14
+## Fitur baru v1.15
 
-- **Continue Playing / Autosave**: sesi aktif disimpan otomatis berkala beserta game, seed/challenge code, mode, jenjang, tingkat Universitas, waktu kompetitif, hint, dan action log.
-- **Session Recovery**: Home dan setup game menampilkan recovery checkpoint. Continue mengembalikan challenge yang sama dan memulai kembali dengan seed/mode/difficulty yang tersimpan.
-- **Smart Sidebar v2**: menu dikelompokkan menjadi Arena, Kompetitif, Progres, dan Lainnya; tiap grup bisa collapse; favorit tampil sebagai Pinned Games; mode full/compact tetap tersedia.
-- **Notification Center**: Daily, mission siap klaim, season reward, achievement terbaru, dan session recovery masuk ke satu inbox.
-- **Universal Command Palette** (`Ctrl/Cmd + K`): cari game sekaligus jalankan aksi seperti toggle sidebar, notifikasi, suara, bahasa, theme, settings, dan profile.
-- **Post-Game Insights**: Result Screen v2 menampilkan insight berdasarkan PB, performance grade, Brain Coach, dan Ranked RP.
-- **PWA Update Manager**: service worker baru menunggu persetujuan pemain sebelum reload ketika versi baru tersedia.
-- **Lazy Loading & Performance**: Home juga dilazy-load; halaman/game tetap route-based lazy loading; beberapa halaman populer diprefetch saat browser idle.
-- **Progress Data Migration**: schema lokal v14 memigrasikan preferensi lama secara idempotent tanpa mereset XP, rank, record, profil, achievement, atau data kompetitif.
+- **Challenge Link & QR**: Challenge Code dapat dibuka melalui `#/challenge/<code>`, disalin sebagai link, dan ditampilkan sebagai QR untuk membagikan seed yang sama.
+- **Custom Arena Builder**: pilih 3-12 game, Practice/Ranked, jenjang, University Arena difficulty, serta urutan random/manual.
+- **First-Time Onboarding**: tur 5 langkah untuk pemain baru; selesai onboarding memberi +25 XP satu kali.
+- **Data Health & Repair**: scan seluruh key `ba_*`, buat restore point, deteksi JSON rusak, repair, dan restore snapshot tanpa menyentuh data browser lain.
+- **Daily Challenge Archive**: 30 hari challenge terakhir dapat dibuka ulang; replay arsip tidak menambah Daily Streak.
+- **Accessibility 2.0**: color-vision presets, enhanced focus ring, screen-reader hints, dan reduced timer pressure ditambahkan ke pengaturan lama.
+- **Offline Content Manager**: pemain dapat memilih game yang akan diprefetch/lazy-load agar modulnya tersedia melalui cache browser/service worker setelah pernah dipersiapkan.
+- **Diagnostics / Feedback v2**: opsi diagnostics sekarang menyertakan versi, route, game, mode, difficulty, seed, PWA state, viewport, UA, dan maksimal 20 aksi terakhir tanpa membaca isi localStorage.
+- **Personal Goal System**: target sesi, XP, Ranked match, atau Daily Challenge dengan scope semua game / satu game.
+- **Progress Data Migration v15**: schema lokal naik ke v15 dan menambahkan default aman untuk accessibility v2, goals, dan offline selection.
 
-### Catatan recovery
-Checkpoint v1.14 memulihkan **challenge yang sama** (seed, mode, jenjang, difficulty, timer kompetitif, dan log aksi). State visual per-sel pada game yang sedang berlangsung tidak diserialisasi frame-by-frame; challenge diregenerasi deterministik dari seed saat dipulihkan.
+### Catatan QR
+QR challenge memakai layanan image QR publik (`api.qrserver.com`) hanya untuk mengubah link challenge publik menjadi gambar QR. Challenge Code tidak berisi password/token. Link challenge tetap bisa disalin tanpa QR.
+
+### Catatan offline
+Offline Manager mem-prefetch modul game yang dipilih. Keberhasilan offline tetap bergantung pada service worker/browser cache dan aset yang sudah pernah dimuat pada origin GitHub Pages/PWA.
 
 ---
 

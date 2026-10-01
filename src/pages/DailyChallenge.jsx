@@ -8,7 +8,7 @@ import { shiftDateKey } from '../utils/progression.js';
 
 export default function DailyChallenge({ onNavigate }) {
   const { lang } = useLanguage();
-  const { todayChallenge, dailyCompleted, currentStreak, bestStreak, daily, profile, levelInfo } = useArena();
+  const { todayChallenge, dailyCompleted, currentStreak, bestStreak, daily, profile, levelInfo, setChallengeCode } = useArena();
   const copy = (id, en) => lang === 'id' ? id : en;
   const game = gameById(todayChallenge.gameId);
   const date = new Date(`${todayChallenge.dateKey}T12:00:00`);
@@ -37,7 +37,7 @@ export default function DailyChallenge({ onNavigate }) {
           <h2>{game?.title[lang]}</h2>
           <p>{game?.description[lang]}</p>
           <div className="daily-goal"><span><Icon name="trophy" size={18}/></span><div><small>{copy('TARGET', 'GOAL')}</small><strong>{copy('Selesaikan 1 sesi', 'Complete 1 session')}</strong><p>{copy('Jenjang dan tingkat kesulitan bebas.', 'Any education level and difficulty counts.')}</p></div></div>
-          <button className={`ba-button ${dailyCompleted ? 'outline' : 'primary'}`} onClick={() => onNavigate(game.id)}>{dailyCompleted ? copy('Main lagi', 'Play again') : copy('Mulai tantangan', 'Start challenge')}<Icon name="arrow" size={16}/></button>
+          <button className={`ba-button ${dailyCompleted ? 'outline' : 'primary'}`} onClick={() => { setChallengeCode(game.id,`BA-${game.id.toUpperCase()}-${todayChallenge.dateKey.replaceAll('-','')}`); onNavigate(game.id); }}>{dailyCompleted ? copy('Main lagi', 'Play again') : copy('Mulai tantangan', 'Start challenge')}<Icon name="arrow" size={16}/></button>
         </div>
       </article>
 

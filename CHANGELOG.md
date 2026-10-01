@@ -1,18 +1,19 @@
 # Changelog
 
-## v1.14.0 - UX & Recovery Update
+## v1.15.0 - Sharing, Stability & Onboarding
 
-- Added autosave/recovery checkpoints for active seeded sessions.
-- Added Continue Playing on Home and recovery actions inside game setup.
-- Added Smart Sidebar v2 with collapsible groups and pinned favorite games.
-- Added Notification Center with persistent read state.
-- Upgraded Ctrl/Cmd+K into a universal command palette.
-- Added contextual Post-Game Insights to Result Screen v2.
-- Added player-controlled PWA update flow using a waiting service worker and `SKIP_WAITING`.
-- Extended route-level lazy loading to Home and added idle prefetch for common meta pages.
-- Added local progress schema v14 and idempotent data migration.
-- Updated PWA cache to `brain-arena-v1.14.0`.
-- Added v1.14 unit tests for migration, notifications, and insights.
+- Added Challenge Link & QR route for seeded challenges.
+- Added Custom Arena Builder for 3-12 selected games with mode, level, university difficulty, and order controls.
+- Added first-time onboarding tour with one-time welcome XP.
+- Added Data Health & Repair with restore points and invalid Brain Arena JSON cleanup.
+- Added 30-day Daily Challenge Archive; archive replay does not extend the current Daily Streak.
+- Added Accessibility 2.0: color vision modes, enhanced focus, screen reader hints, and reduced timer pressure.
+- Added Offline Content Manager backed by lazy module prefetch + existing service-worker caching.
+- Upgraded feedback diagnostics to include seed/mode/difficulty/PWA/last actions while excluding local-storage contents.
+- Added Personal Goal System for sessions, XP, Ranked matches, and Daily completions.
+- Added v15 data migration defaults for new local-first features.
+- Updated PWA cache and app version to `1.15.0`.
+- Added v1.15 utility/unit QA and responsive browser QA.
 
 ## v1.13.1 - Player Feedback & Suggestions
 - Added a dedicated **Feedback & Saran** page at `#/feedback` with Indonesian and English copy.

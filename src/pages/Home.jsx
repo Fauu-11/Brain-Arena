@@ -6,7 +6,7 @@ import Icon from '../components/Icon.jsx';
 import GameCard from '../components/GameCard.jsx';
 import { HeroArtwork } from '../components/Artwork.jsx';
 export default function Home({ onSelectGame, view = 'home' }) {
-  const { lang } = useLanguage(); const { favorites, history, profile, levelInfo, todayChallenge, dailyCompleted, currentStreak, achievements, achievementList, missionCards, rankInfo, avatarOption, frameOption, seasonLevel, activeEvent, matches, completionMap, arenaRun, recoverySession, resumeRecovery, discardRecovery } = useArena();
+  const { lang } = useLanguage(); const { favorites, history, profile, levelInfo, todayChallenge, dailyCompleted, currentStreak, achievements, achievementList, missionCards, rankInfo, avatarOption, frameOption, seasonLevel, activeEvent, matches, completionMap, arenaRun, recoverySession, resumeRecovery, discardRecovery, setChallengeCode } = useArena();
   const [season, setSeason] = useState('all'); const [category, setCategory] = useState('all'); const [query, setQuery] = useState('');
   const catalog = useRef(null); const home = view === 'home'; const favoriteView = view === 'favorites';
   const copy = (id, en) => lang === 'id' ? id : en;
@@ -22,7 +22,7 @@ export default function Home({ onSelectGame, view = 'home' }) {
       <section className={`home-daily-card ${dailyCompleted ? 'is-complete' : ''}`}>
         <div className="home-daily-main"><span className={`home-daily-icon color-${dailyGame.color}`}><Icon name={dailyGame.icon} size={24}/></span><div><span className="eyebrow"><Icon name="spark" size={12}/>{copy('DAILY CHALLENGE', 'DAILY CHALLENGE')}</span><h2>{dailyCompleted ? copy('Tantangan hari ini selesai!', 'Today’s challenge is complete!') : dailyGame.title[lang]}</h2><p>{dailyCompleted ? copy('Bonus harian sudah diamankan. Kamu tetap bisa bermain lagi untuk XP sesi.', 'Your daily bonus is secured. You can still play again for session XP.') : copy(`Selesaikan 1 sesi ${dailyGame.title[lang]} hari ini dan raih +${todayChallenge.rewardXp} XP bonus.`, `Complete 1 ${dailyGame.title[lang]} session today and earn +${todayChallenge.rewardXp} bonus XP.`)}</p></div></div>
         <div className="home-daily-reward"><span><Icon name="bolt" size={15}/>{copy('Streak', 'Streak')} <strong>{currentStreak}</strong></span><span><Icon name="spark" size={15}/><strong>+{todayChallenge.rewardXp} XP</strong></span></div>
-        <button className={`ba-button ${dailyCompleted ? 'outline' : 'primary'}`} onClick={() => onSelectGame(dailyCompleted ? 'daily' : dailyGame.id)}>{dailyCompleted ? copy('Lihat Daily', 'View Daily') : copy('Mulai sekarang', 'Start now')}<Icon name="arrow" size={15}/></button>
+        <button className={`ba-button ${dailyCompleted ? 'outline' : 'primary'}`} onClick={() => { if (dailyCompleted) onSelectGame('daily'); else { setChallengeCode(dailyGame.id,`BA-${dailyGame.id.toUpperCase()}-${todayChallenge.dateKey.replaceAll('-','')}`); onSelectGame(dailyGame.id); } }}>{dailyCompleted ? copy('Lihat Daily', 'View Daily') : copy('Mulai sekarang', 'Start now')}<Icon name="arrow" size={15}/></button>
         <button className="home-level-mini" onClick={() => onSelectGame('profile')}><span className={`profile-avatar frame-${frameOption.id}`}><Icon name={avatarOption.icon} size={16}/></span><span><small>{profile.name || copy('Pemain Lokal', 'Local Player')}</small><strong>{rankInfo.tier.title[lang]} · Lv. {levelInfo.level}</strong></span><i><b style={{ width:`${levelInfo.progress}%` }}/></i></button>
       </section>
       <section className="home-progression-strip">
