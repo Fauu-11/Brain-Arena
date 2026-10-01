@@ -1,4 +1,4 @@
-# Laporan pengujian Brain Arena v1.12.0
+# Laporan pengujian Brain Arena v1.13.0
 
 Tanggal: 1 Oktober 2026.
 

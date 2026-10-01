@@ -1,6 +1,6 @@
-# Brain Arena v1.12 - Player Feedback
+# Brain Arena v1.13 - Player Feedback
 
-Brain Arena v1.12 melanjutkan seluruh fitur competitive v1.11 dan menambahkan kanal **Feedback & Saran** untuk pemain. Katalog tetap berisi 12 game, seluruh progression/competitive system tetap kompatibel, dan project tetap dapat di-host di GitHub Pages.
+Brain Arena v1.13 melanjutkan seluruh fitur competitive v1.11 dan menambahkan kanal **Feedback & Saran** untuk pemain. Katalog tetap berisi 12 game, seluruh progression/competitive system tetap kompatibel, dan project tetap dapat di-host di GitHub Pages.
 
 ## Feedback & Saran v1.12
 

@@ -8,7 +8,7 @@ import { readJSON, writeJSON } from '../utils/storage.js';
 
 const RECEIPT_KEY = 'ba_feedback_receipts_v1';
 const MAX_RECEIPTS = 8;
-const APP_VERSION = '1.12.0';
+const APP_VERSION = '1.13.0';
 
 function loadReceipts() {
   const value = readJSON(RECEIPT_KEY, []);

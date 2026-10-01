@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.12.0 - Player Feedback & Suggestions
+## v1.13.0 - Player Feedback & Suggestions
 - Added a dedicated **Feedback & Saran** page at `#/feedback` with Indonesian and English copy.
 - Added **Feedback & Saran** to the desktop sidebar and the shared mobile navigation drawer.
 - Added feedback categories for feature suggestions, bugs, gameplay, UI/UX, content/guides, and other topics.
@@ -10,7 +10,7 @@
 - Added local submission receipts so the player can see recent messages sent from the current device without storing the message body locally.
 - Added validation, honeypot anti-spam field, sending/success/error states, and duplicate-click protection while a request is in flight.
 - Added a static-host-compatible AJAX form relay to deliver feedback to the developer while keeping the developer address out of the visible interface.
-- Updated the PWA cache to `brain-arena-v1.12.0` and added a Feedback app shortcut.
+- Updated the PWA cache to `brain-arena-v1.13.0` and added a Feedback app shortcut.
 - Added v1.12 unit tests and responsive browser QA at 1440 px and 390 px.
 
 ## v1.11.0 - Competitive Arena, Seed Challenges & Replay
