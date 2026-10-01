@@ -1,4 +1,23 @@
-# Laporan pengujian Brain Arena v1.13.1
+# Laporan pengujian Brain Arena v1.14.0
+
+## Ringkasan v1.14
+
+| Pemeriksaan | Hasil |
+|---|---|
+| Node unit tests | **106/106 lulus** | termasuk migration, notification feed, insights |
+| Portable ESM build | **80 module** | source transpile/import verification lulus |
+| HTTP verification | **99 checks lulus** | asset bytes, MIME, gzip, error responses |
+| Desktop UI smoke 1440px | **lulus** | Smart Sidebar v2, toggle, Command Palette, Notification Center |
+| Mobile UI smoke 390px | **lulus** | drawer, Command Palette, Notification Center |
+| Browser page errors pada smoke v1.14 | **0** | Chromium harness |
+
+### Batas QA
+
+Harness browser memakai import-map in-memory dan tidak dapat memvalidasi penuh transisi lazy-route ke game setelah menekan Continue Playing. Recovery challenge tetap lolos transpile/build dan logic-path review. Untuk validasi produksi, jalankan Vite standard build (`npm ci && npm run build`) lalu uji recovery pada HTTP origin sebenarnya.
+
+---
+
+## Riwayat laporan sebelumnya
 
 Tanggal: 1 Oktober 2026.
 

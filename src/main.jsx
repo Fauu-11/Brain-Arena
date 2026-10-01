@@ -4,6 +4,8 @@ import './index.css';
 import './arena.css';
 import './game-theme.css';
 import App from './App.jsx';
+import { migrateProgressData } from './utils/migration.js';
+migrateProgressData();
 createRoot(document.getElementById('root')).render(<StrictMode><App/></StrictMode>);
 
 

@@ -1,11 +1,11 @@
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Layout from './components/Layout.jsx';
-import Home from './pages/Home.jsx';
 import Icon from './components/Icon.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { LanguageProvider, useLanguage } from './context/LanguageContext.jsx';
 import { ArenaProvider, useArena } from './context/ArenaContext.jsx';
 import { gameById, resolveRoute, routeHash } from './data/games.js';
+const Home = lazy(() => import('./pages/Home.jsx'));
 const Game300 = lazy(() => import('./games/Game300.jsx'));
 const GamePrime = lazy(() => import('./games/GamePrime.jsx'));
 const GamePixel = lazy(() => import('./games/GamePixel.jsx'));
@@ -48,6 +48,17 @@ function AppContent() {
     else window.location.hash = target;
   }, []);
   useEffect(() => { const sync=()=>setView(resolveRoute(window.location.hash)); window.addEventListener('hashchange',sync); return()=>window.removeEventListener('hashchange',sync); }, []);
+  useEffect(() => {
+    const schedule=window.requestIdleCallback || (cb=>setTimeout(cb,900));
+    const cancel=window.cancelIdleCallback || clearTimeout;
+    const handle=schedule(()=>{
+      // Warm only a few high-frequency meta pages after the current route is interactive.
+      import('./pages/DailyChallenge.jsx');
+      import('./pages/Settings.jsx');
+      import('./pages/MatchHistory.jsx');
+    });
+    return()=>cancel(handle);
+  },[]);
   useEffect(() => {
     if (gameById(view) && previous.current !== view) recordVisit(view);
     if (!gameById(view)) leaveGameSession();

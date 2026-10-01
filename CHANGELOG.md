@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.14.0 - UX & Recovery Update
+
+- Added autosave/recovery checkpoints for active seeded sessions.
+- Added Continue Playing on Home and recovery actions inside game setup.
+- Added Smart Sidebar v2 with collapsible groups and pinned favorite games.
+- Added Notification Center with persistent read state.
+- Upgraded Ctrl/Cmd+K into a universal command palette.
+- Added contextual Post-Game Insights to Result Screen v2.
+- Added player-controlled PWA update flow using a waiting service worker and `SKIP_WAITING`.
+- Extended route-level lazy loading to Home and added idle prefetch for common meta pages.
+- Added local progress schema v14 and idempotent data migration.
+- Updated PWA cache to `brain-arena-v1.14.0`.
+- Added v1.14 unit tests for migration, notifications, and insights.
+
 ## v1.13.1 - Player Feedback & Suggestions
 - Added a dedicated **Feedback & Saran** page at `#/feedback` with Indonesian and English copy.
 - Added **Feedback & Saran** to the desktop sidebar and the shared mobile navigation drawer.

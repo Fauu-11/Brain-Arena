@@ -12,6 +12,7 @@ import { MASTERY_XP_PER_COMPLETION, getMasteryInfo, masteryFromProfile } from '.
 import { adaptiveRecommendation } from '../utils/adaptive.js';
 import { bestKey, createChallengeCode, activateSeededRandom, restoreNativeRandom, validateChallengeCode, normalizeChallengeCode, performanceForRun, rankedDeltaFor, levelCompletionKey, nativeShuffle, runPreset } from '../utils/competitive.js';
 import { coachTip } from '../data/coachTips.js';
+import { buildNotificationFeed } from '../utils/notifications.js';
 
 const ArenaContext = createContext(null);
 const favoriteKey = 'ba_favorites_v2';
@@ -30,6 +31,8 @@ const personalBestKey = 'ba_personal_bests_v1';
 const completionMapKey = 'ba_game_completion_v1';
 const arenaRunKey = 'ba_arena_run_v1';
 const selectedReplayKey = 'ba_selected_replay_v1';
+const recoverySessionKey = 'ba_recovery_session_v2';
+const notificationKey = 'ba_notifications_v1';
 
 const emptyProfile = () => ({ name:'', xp:0, rankedPoints:0, completions:0, playDates:[], perGame:{}, xpEvents:[], completionEvents:[] });
 const emptyDaily = () => ({ completedByDate:{} });
@@ -39,6 +42,7 @@ const emptyCustomization = () => ({ ...DEFAULT_CUSTOMIZATION });
 const emptySeason = () => ({ id:CURRENT_SEASON.id, xp:0, claimed:{} });
 const emptyAccessibility = () => ({ theme:'system', reducedMotion:false, highContrast:false, largeText:false });
 const emptyCompetitionSetup = () => ({ mode:'practice', challengeCodes:{}, schoolLevels:{}, universityDifficulties:{} });
+const emptyNotificationState = () => ({ read:{} });
 
 const loadFavorites = () => {
   const data = readJSON(favoriteKey, []);
@@ -128,6 +132,21 @@ const loadArenaRun = () => {
   return raw;
 };
 
+const loadRecoverySession = () => {
+  const raw=readJSON(recoverySessionKey,null);
+  if (!raw || !gameById(raw.gameId) || typeof raw.challengeCode!=='string') return null;
+  return {
+    ...raw,
+    elapsedMs:Math.max(0,Math.floor(Number(raw.elapsedMs)||0)),
+    lastSavedAt:Math.max(0,Math.floor(Number(raw.lastSavedAt)||0)),
+    actions:Array.isArray(raw.actions)?raw.actions.slice(-240):[],
+  };
+};
+const loadNotificationState = () => {
+  const raw=readJSON(notificationKey,emptyNotificationState());
+  return { read:raw?.read&&typeof raw.read==='object'?raw.read:{} };
+};
+
 
 export function ArenaProvider({ children }) {
   const [favorites,setFavorites] = useState(loadFavorites);
@@ -148,6 +167,9 @@ export function ArenaProvider({ children }) {
   const [completionMap,setCompletionMap] = useState(loadCompletionMap);
   const [arenaRun,setArenaRun] = useState(loadArenaRun);
   const [currentSession,setCurrentSession] = useState(null);
+  const [recoverySession,setRecoverySession] = useState(loadRecoverySession);
+  const [resumeRequestedId,setResumeRequestedId] = useState(null);
+  const [notificationState,setNotificationState] = useState(loadNotificationState);
   const [selectedReplayId,setSelectedReplayId] = useState(() => readText(selectedReplayKey,''));
   const profileRef = useRef(profile);
   const dailyRef = useRef(daily);
@@ -161,6 +183,7 @@ export function ArenaProvider({ children }) {
   const completionMapRef = useRef(completionMap);
   const arenaRunRef = useRef(arenaRun);
   const sessionRef = useRef(currentSession);
+  const recoveryRef = useRef(recoverySession);
 
   useEffect(() => { profileRef.current = profile; }, [profile]);
   useEffect(() => { dailyRef.current = daily; }, [daily]);
@@ -173,6 +196,7 @@ export function ArenaProvider({ children }) {
   useEffect(() => { completionMapRef.current = completionMap; }, [completionMap]);
   useEffect(() => { arenaRunRef.current = arenaRun; }, [arenaRun]);
   useEffect(() => { sessionRef.current = currentSession; }, [currentSession]);
+  useEffect(() => { recoveryRef.current = recoverySession; }, [recoverySession]);
 
   const saveProfile = useCallback(next => { profileRef.current = next; setProfile(next); writeJSON(profileKey,next); }, []);
   const saveSeason = useCallback(next => { seasonRef.current = next; setSeason(next); writeJSON(seasonKey,next); }, []);
@@ -181,10 +205,24 @@ export function ArenaProvider({ children }) {
   const savePersonalBests = useCallback(next => { personalBestsRef.current=next; setPersonalBests(next); writeJSON(personalBestKey,next); }, []);
   const saveCompletionMap = useCallback(next => { completionMapRef.current=next; setCompletionMap(next); writeJSON(completionMapKey,next); }, []);
   const saveArenaRun = useCallback(next => { arenaRunRef.current=next; setArenaRun(next); if (next) writeJSON(arenaRunKey,next); else { try { localStorage.removeItem(arenaRunKey); } catch {} } }, []);
+  const persistRecovery = useCallback(session => {
+    if (!session?.gameId || !gameById(session.gameId)) return null;
+    const now=Date.now();
+    const elapsedMs=session.startedAt?Math.max(0,now-session.startedAt):Math.max(0,Number(session.elapsedMs)||0);
+    const snapshot={...session,active:false,elapsedMs,lastSavedAt:now,actions:Array.isArray(session.actions)?session.actions.slice(-240):[]};
+    recoveryRef.current=snapshot; setRecoverySession(snapshot); writeJSON(recoverySessionKey,snapshot);
+    return snapshot;
+  },[]);
+  const clearRecovery = useCallback(() => {
+    recoveryRef.current=null; setRecoverySession(null);
+    try { localStorage.removeItem(recoverySessionKey); } catch {}
+  },[]);
   const updateSession = useCallback(updater => {
     const next=typeof updater==='function'?updater(sessionRef.current):updater;
-    sessionRef.current=next; setCurrentSession(next); return next;
-  },[]);
+    sessionRef.current=next; setCurrentSession(next);
+    if (next?.active) persistRecovery(next);
+    return next;
+  },[persistRecovery]);
   const setPlayMode = useCallback(mode => {
     const safe=mode==='ranked'?'ranked':'practice';
     saveCompetitionSetup({ ...competitionSetupRef.current, mode:safe });
@@ -236,6 +274,16 @@ export function ArenaProvider({ children }) {
   },[updateSession]);
   const beginGameSession = useCallback(gameId => {
     if (!gameById(gameId)) return null;
+    const saved=recoveryRef.current?.gameId===gameId ? recoveryRef.current : null;
+    if (resumeRequestedId===gameId && saved) {
+      const code=saved.challengeCode;
+      const check=validateChallengeCode(code,gameId);
+      if (check.valid) activateSeededRandom(code);
+      const resumed={...saved,active:true,startedAt:Date.now()-Math.max(0,Number(saved.elapsedMs)||0),resumedAt:Date.now(),seed:check.seed??saved.seed};
+      setResumeRequestedId(null);
+      updateSession(resumed);
+      return resumed;
+    }
     let setup=competitionSetupRef.current;
     let code=setup.challengeCodes?.[gameId] || ensureCompetitionSetup(gameId);
     const activeRun=arenaRunRef.current;
@@ -251,7 +299,7 @@ export function ArenaProvider({ children }) {
     const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:stage?.gameId===gameId?activeRun.id:null };
     updateSession(next);
     return next;
-  },[ensureCompetitionSetup,setChallengeCode,updateSession]);
+  },[ensureCompetitionSetup,setChallengeCode,updateSession,resumeRequestedId]);
   const prepareFreshSession = useCallback(gameId => {
     if (!gameById(gameId)) return null;
     const code=createChallengeCode(gameId);
@@ -265,8 +313,27 @@ export function ArenaProvider({ children }) {
   },[setChallengeCode,updateSession]);
   const leaveGameSession = useCallback(() => {
     restoreNativeRandom();
-    if (sessionRef.current?.active) updateSession({ ...sessionRef.current,active:false,abandonedAt:Date.now() });
-  },[updateSession]);
+    if (sessionRef.current?.active) {
+      persistRecovery(sessionRef.current);
+      const next={ ...sessionRef.current,active:false,abandonedAt:Date.now() };
+      sessionRef.current=next; setCurrentSession(next);
+    }
+  },[persistRecovery]);
+  const resumeRecovery = useCallback(() => {
+    const saved=recoveryRef.current;
+    if (!saved?.gameId || !gameById(saved.gameId)) return null;
+    const current=competitionSetupRef.current;
+    saveCompetitionSetup({
+      ...current,
+      mode:saved.mode==='ranked'?'ranked':'practice',
+      challengeCodes:{...current.challengeCodes,[saved.gameId]:saved.challengeCode},
+      schoolLevels:{...current.schoolLevels,[saved.gameId]:saved.schoolLevel||'sd'},
+      universityDifficulties:{...current.universityDifficulties,[saved.gameId]:saved.universityDifficulty||'hard'},
+    });
+    setResumeRequestedId(saved.gameId);
+    return saved.gameId;
+  },[saveCompetitionSetup]);
+  const discardRecovery = useCallback(() => { setResumeRequestedId(null); clearRecovery(); },[clearRecovery]);
   const requestCoachHint = useCallback((gameId,lang='id') => {
     const current=sessionRef.current;
     const used=current?.gameId===gameId ? Number(current.hintsUsed)||0 : 0;
@@ -429,10 +496,11 @@ export function ArenaProvider({ children }) {
       durationMs,previousBestMs,isPersonalBest:newBest,performance:performance.score,grade:performance.grade,mode,rankedDelta,hintsUsed,challengeCode,matchId:match.id,arenaRunId:match.arenaRunId,
     };
     if (session) updateSession({ ...session,active:false,endedAt:now,lastMatchId:match.id });
+    if (recoveryRef.current?.gameId===id) clearRecovery();
     restoreNativeRandom();
     lastRewardRef.current = reward; writeJSON(lastCompletionKey,reward); setNotice(`+${amount} XP${rankedDelta?` · ${rankedDelta>0?'+':''}${rankedDelta} RP`:''}`);
     return reward;
-  }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,selectReplay,updateSession]);
+  }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,selectReplay,updateSession,clearRecovery]);
 
   const selectBadge = useCallback(id => {
     if (id !== null && (!achievementById(id) || !achievementRef.current.unlocked[id])) return false;
@@ -488,6 +556,20 @@ export function ArenaProvider({ children }) {
   const bannerOption = customizationById(PROFILE_BANNERS,customization.banner);
   const masteryForGame = useCallback(id => masteryFromProfile(profileRef.current,id), []);
   const adaptiveForGame = useCallback(id => adaptiveRecommendation(profileRef.current,id), []);
+
+  const notificationFeed = useMemo(() => buildNotificationFeed({
+    dateKey:todayKey,dailyCompleted,todayChallenge,missionCards,season,currentSeason:CURRENT_SEASON,achievements,recoverySession,
+  }), [todayKey,dailyCompleted,todayChallenge,missionCards,season,achievements,recoverySession]);
+  const notifications = useMemo(() => notificationFeed.map(item=>({...item,read:Boolean(notificationState.read?.[item.id])})),[notificationFeed,notificationState]);
+  const unreadNotifications = useMemo(() => notifications.filter(item=>!item.read).length,[notifications]);
+  const markNotificationRead = useCallback(id => {
+    if (!id) return;
+    setNotificationState(previous=>{ const next={read:{...(previous.read||{}),[id]:Date.now()}}; writeJSON(notificationKey,next); return next; });
+  },[]);
+  const markAllNotificationsRead = useCallback(() => {
+    const stamp=Date.now();
+    setNotificationState(previous=>{ const read={...(previous.read||{})}; for (const item of notificationFeed) read[item.id]=stamp; const next={read}; writeJSON(notificationKey,next); return next; });
+  },[notificationFeed]);
 
   const updateCustomization = useCallback((type,id) => {
     const lists = { avatar:AVATARS, frame:PROFILE_FRAMES, title:PROFILE_TITLES, banner:PROFILE_BANNERS };
@@ -546,6 +628,11 @@ export function ArenaProvider({ children }) {
   },[appendSessionAction]);
 
   useEffect(() => {
+    const timer=setInterval(()=>{ if (sessionRef.current?.active) persistRecovery(sessionRef.current); },8000);
+    return()=>clearInterval(timer);
+  },[persistRecovery]);
+
+  useEffect(() => {
     writeText('ba_muted',muted); window.__BA_MUTED__ = muted;
     window.dispatchEvent(new CustomEvent('ba-sound-toggle',{ detail:{ muted } }));
   }, [muted]);
@@ -573,6 +660,8 @@ export function ArenaProvider({ children }) {
       if (!e.key || e.key === personalBestKey) setPersonalBests(loadPersonalBests());
       if (!e.key || e.key === completionMapKey) setCompletionMap(loadCompletionMap());
       if (!e.key || e.key === arenaRunKey) setArenaRun(loadArenaRun());
+      if (!e.key || e.key === recoverySessionKey) setRecoverySession(loadRecoverySession());
+      if (!e.key || e.key === notificationKey) setNotificationState(loadNotificationState());
     };
     const unavailable = () => setStorageOk(false);
     window.addEventListener('storage',sync); window.addEventListener('ba-storage-unavailable',unavailable);
@@ -592,6 +681,8 @@ export function ArenaProvider({ children }) {
     competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,leaveGameSession,currentSession,personalBests,personalBestFor,
     matches,selectReplay,selectedReplayId,requestCoachHint,completionMap,
     arenaRun,startArenaRun,cancelArenaRun,continueArenaRun,
+    recoverySession,resumeRequestedId,resumeRecovery,discardRecovery,
+    notifications,unreadNotifications,markNotificationRead,markAllNotificationsRead,
     accessibility,updateAccessibility,
   }}>{children}</ArenaContext.Provider>;
 }

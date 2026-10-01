@@ -1,0 +1,11 @@
+export function buildNotificationFeed({dateKey,dailyCompleted,todayChallenge,missionCards=[],season,currentSeason,achievements,recoverySession}) {
+  const items=[];
+  if (!dailyCompleted && todayChallenge) items.push({id:`daily:${dateKey}`,type:'daily',icon:'spark',route:'daily',title:{id:'Daily Challenge menunggu',en:'Daily Challenge is waiting'},body:{id:`Selesaikan challenge hari ini untuk +${todayChallenge.rewardXp} XP.`,en:`Complete today’s challenge for +${todayChallenge.rewardXp} XP.`},time:Date.now()});
+  for (const mission of missionCards.filter(item=>item.complete&&!item.claimed)) items.push({id:`mission:${mission.claimKey}`,type:'mission',icon:'checklist',route:'missions',title:{id:'Mission siap diklaim',en:'Mission reward ready'},body:{id:`${mission.title.id} · +${mission.rewardXp} XP`,en:`${mission.title.en} · +${mission.rewardXp} XP`},time:Date.now()-1000});
+  const readyRewards=(currentSeason?.rewards||[]).filter(item=>season?.xp>=item.xp&&!season?.claimed?.[item.id]);
+  for (const reward of readyRewards) items.push({id:`season:${currentSeason.id}:${reward.id}`,type:'season',icon:'trophy',route:'season',title:{id:'Season reward tersedia',en:'Season reward available'},body:{id:`${reward.label.id} · +${reward.rewardXp} XP`,en:`${reward.label.en} · +${reward.rewardXp} XP`},time:Date.now()-2000});
+  const unlocked=Object.entries(achievements?.unlocked||{}).map(([id,value])=>({id,value})).sort((a,b)=>(b.value?.unlockedAt||0)-(a.value?.unlockedAt||0)).slice(0,2);
+  for (const item of unlocked) items.push({id:`achievement:${item.id}`,type:'achievement',icon:'medal',route:'achievements',title:{id:'Achievement terbuka',en:'Achievement unlocked'},body:{id:`Badge ${item.id} sudah menjadi milikmu.`,en:`Badge ${item.id} is now yours.`},time:item.value?.unlockedAt||Date.now()-3000});
+  if (recoverySession?.gameId) items.unshift({id:`recovery:${recoverySession.id}`,type:'recovery',icon:'refresh',route:recoverySession.gameId,title:{id:'Sesi dapat dipulihkan',en:'Session can be recovered'},body:{id:'Challenge terakhir tersimpan otomatis. Lanjutkan dari challenge yang sama.',en:'Your last challenge was autosaved. Continue with the same challenge.'},time:recoverySession.lastSavedAt||Date.now()});
+  return items.sort((a,b)=>(b.time||0)-(a.time||0));
+}

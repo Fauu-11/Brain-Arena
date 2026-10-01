@@ -1,13 +1,22 @@
-const CACHE = 'brain-arena-v1.13.1';
+const CACHE = 'brain-arena-v1.14.0';
 const CORE = ['','index.html','manifest.webmanifest','favicon.svg','icons.svg','pwa-192.png','pwa-512.png'];
 const scoped = path => new URL(path, self.registration.scope).href;
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE.map(scoped))).then(() => self.skipWaiting()));
+  // Do not skip waiting automatically. v1.14 lets the UI ask the player before reloading.
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE.map(scoped))));
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE && key.startsWith('brain-arena-')).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE && key.startsWith('brain-arena-')).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {

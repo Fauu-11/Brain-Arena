@@ -1,4 +1,25 @@
-# Brain Arena v1.13 - Player Feedback
+# Brain Arena v1.14 - UX & Recovery Update
+
+Brain Arena v1.14 melanjutkan v1.13.1 dengan fokus pada pengalaman pemain, recovery sesi, notifikasi, navigasi, PWA update, dan performa. Seluruh 12 game, mode Ranked/Practice, Arena Run, Seed Challenge, XP, Rank, Season, Mission, Achievement, Mastery, statistik, feedback, dan tema merah tetap dipertahankan.
+
+## Fitur baru v1.14
+
+- **Continue Playing / Autosave**: sesi aktif disimpan otomatis berkala beserta game, seed/challenge code, mode, jenjang, tingkat Universitas, waktu kompetitif, hint, dan action log.
+- **Session Recovery**: Home dan setup game menampilkan recovery checkpoint. Continue mengembalikan challenge yang sama dan memulai kembali dengan seed/mode/difficulty yang tersimpan.
+- **Smart Sidebar v2**: menu dikelompokkan menjadi Arena, Kompetitif, Progres, dan Lainnya; tiap grup bisa collapse; favorit tampil sebagai Pinned Games; mode full/compact tetap tersedia.
+- **Notification Center**: Daily, mission siap klaim, season reward, achievement terbaru, dan session recovery masuk ke satu inbox.
+- **Universal Command Palette** (`Ctrl/Cmd + K`): cari game sekaligus jalankan aksi seperti toggle sidebar, notifikasi, suara, bahasa, theme, settings, dan profile.
+- **Post-Game Insights**: Result Screen v2 menampilkan insight berdasarkan PB, performance grade, Brain Coach, dan Ranked RP.
+- **PWA Update Manager**: service worker baru menunggu persetujuan pemain sebelum reload ketika versi baru tersedia.
+- **Lazy Loading & Performance**: Home juga dilazy-load; halaman/game tetap route-based lazy loading; beberapa halaman populer diprefetch saat browser idle.
+- **Progress Data Migration**: schema lokal v14 memigrasikan preferensi lama secara idempotent tanpa mereset XP, rank, record, profil, achievement, atau data kompetitif.
+
+### Catatan recovery
+Checkpoint v1.14 memulihkan **challenge yang sama** (seed, mode, jenjang, difficulty, timer kompetitif, dan log aksi). State visual per-sel pada game yang sedang berlangsung tidak diserialisasi frame-by-frame; challenge diregenerasi deterministik dari seed saat dipulihkan.
+
+---
+
+## Riwayat dokumentasi sebelumnya
 
 Brain Arena v1.13 melanjutkan seluruh fitur competitive v1.11 dan menambahkan kanal **Feedback & Saran** untuk pemain. Katalog tetap berisi 12 game, seluruh progression/competitive system tetap kompatibel, dan project tetap dapat di-host di GitHub Pages.
 

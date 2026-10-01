@@ -15,7 +15,7 @@ def browser_options():
     return options
 
 
-def mount(page, route='sudoku', language='id'):
+def mount(page, route='sudoku', language='id', extra_store=None):
     modules={}
     for path in DIST.rglob('*.js'):
         key=path.relative_to(DIST).as_posix()
@@ -27,8 +27,8 @@ def mount(page, route='sudoku', language='id'):
         modules['arena/'+key]=text
     css='\n'.join(p.read_text() for p in (DIST/'assets').glob('*.css'))
     page.set_content('<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>'+css+'</style></head><body><div id="root"></div></body></html>')
-    page.evaluate('''({modules, route, language}) => {
-        const store = {uw_lang: language, ba_muted: 'true'};
+    page.evaluate('''({modules, route, language, extraStore}) => {
+        const store = {uw_lang: language, ba_muted: 'true', ...(extraStore || {})};
         window.__qaStorage = store;
         Object.defineProperty(window, 'localStorage', {configurable:true, value:{getItem: k => Object.hasOwn(store,k) ? store[k] : null, setItem:(k,v)=>store[k]=String(v), removeItem:k=>delete store[k], clear:()=>Object.keys(store).forEach(k=>delete store[k])}});
         location.hash = '#/'+route;
@@ -39,7 +39,7 @@ def mount(page, route='sudoku', language='id'):
         const imports={...urls,react:urls[vendor],'react-dom':urls[vendorDir+'react-dom.js'],'react-dom/client':urls[vendorDir+'react-dom-client.js']};
         const map=document.createElement('script');map.type='importmap';map.textContent=JSON.stringify({imports});document.head.appendChild(map);
         const main=document.createElement('script');main.type='module';main.src=urls[Object.keys(urls).find(k=>k.endsWith('/main.js'))];document.body.appendChild(main);
-    }''', {'modules':modules,'route':route,'language':language})
+    }''', {'modules':modules,'route':route,'language':language,'extraStore':extra_store or {}})
     page.wait_for_selector('.ba-app',timeout=15000)
     page.wait_for_timeout(300)
 
