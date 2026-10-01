@@ -1,4 +1,4 @@
-# Laporan pengujian Brain Arena v1.9.0
+# Laporan pengujian Brain Arena v1.10.0
 
 Tanggal: 1 Oktober 2026.
 
@@ -6,154 +6,126 @@ Tanggal: 1 Oktober 2026.
 
 | Kelompok | Hasil | Cakupan |
 | --- | --- | --- |
-| Unit seluruh proyek | **83/83 lulus** | game logic, routes, guides, progression v1.6–v1.9, rank, customization, statistics |
-| Season System | **Lulus** | active window, level progression, reward lookup |
-| Event System | **Lulus** | deterministic weekly rotation, eligibility, +50% XP calculation |
-| Game Mastery | **Lulus** | mastery XP, levels, tiers, profile lookup |
-| Adaptive Difficulty | **Lulus** | SD/SMP/SMA/Universitas recommendation from progress |
-| Backup | **Lulus** | allowlist export, validation, merge/replace import |
-| Nonogram | **Lulus** | clue generation, puzzle generation, valid-solution detection |
-| 2048 | **Lulus** | move/merge, score, random tile insertion, locked-board detection |
-| Browser QA v1.9 | **Lulus** | Season, Events, Mastery, Settings, Nonogram, 2048 at 1440/390 px |
-| Accessibility interaction | **Lulus** | reduced motion, high contrast, larger text, dark theme |
-| Result Screen v2 | **Lulus** | account XP, MXP, SXP, Event XP after a completed game |
-| Home/Profile regression | **Lulus** | desktop/mobile load, no page-level horizontal overflow |
-| JavaScript runtime | **0 uncaught error** | v1.9 browser scenarios executed |
-| Portable build | **Lulus** | **67 modules** transpiled |
-| HTTP checks | **86 lulus** | 82 assets + 4 response/security checks |
+| Unit seluruh proyek | **88/88 lulus** | game logic, routes, guides, progression, Maze endpoint randomization, University Arena contract |
+| University Arena | **Lulus** | 12/12 game memiliki Hard / Very Hard / Impossible |
+| Impossible mobile smoke | **12/12 lulus** | seluruh game dimulai pada Impossible di 390 px tanpa uncaught JS error |
+| Maze random endpoints | **Lulus** | START/EXIT acak, perimeter, berbeda, rute valid |
+| Maze + Memory Matrix responsive | **6/6 lulus** | Impossible pada 1440, 390, 320 px |
+| Browser University selector | **18/18 lulus** | 12 game desktop + 5 game mobile + Maze endpoint restart |
+| Portable build | **Lulus** | **68 modules** |
+| HTTP verification | **87 checks lulus** | 83 assets + 4 response/security checks |
 
-## Season System
+## Mode Arena Universitas
 
-Diverifikasi:
-- `2026-10-01` dan `2026-11-30` berada di Season 1 aktif;
-- `2026-12-01` berada di luar season;
-- Season Level naik dari Level 1 ke Level 2 pada ambang SXP awal;
-- reward berikutnya dipilih dengan benar berdasarkan SXP dan status claim;
-- browser QA halaman `#/season` lulus pada 1440×1000 dan 390×844 tanpa horizontal overflow.
-
-## Event System
-
-Diverifikasi:
-- event yang sama selalu terpilih untuk tanggal yang sama;
-- event mempunyai bonus 50%;
-- game dengan kategori event menerima bonus dari XP dasar;
-- game kategori lain mendapat bonus 0;
-- halaman `#/events` merender daftar arena eligible di desktop/mobile.
-
-Pada QA Result Screen tanggal pengujian, event aktif adalah **Logic Week**. Penyelesaian Hitung Kubus menghasilkan breakdown:
+Seluruh game diperiksa agar pilihan Universitas memakai kontrak yang sama:
 
 ```text
-Base        +60 XP
-First Play  +25 XP
-Event       +30 XP
-Total       +115 XP
-Mastery     +50 MXP
-Season      +40 SXP
+Hard
+Very Hard
+Impossible
 ```
 
-Daily Challenge bonus tidak aktif pada skenario tersebut sehingga tidak ditambahkan.
+Source-level QA memeriksa 12 komponen game dan memastikan setiap game menggunakan `UniversityDifficultySelector`. Browser QA kemudian membuka selector aktual pada seluruh 12 game di desktop 1440 px dan memastikan ketiga pilihan dapat dipilih. Maze Escape, Memory Matrix, Nonogram, 2048, dan Blitz Aritmatika juga diperiksa pada 390 px.
 
-## Game Mastery & Adaptive Difficulty
+Nama `Extreme` tidak lagi digunakan sebagai label aktif. Utility kompatibilitas tetap menerima nilai legacy `extreme` dan menormalisasinya menjadi `impossible` sehingga data lama tidak langsung rusak.
 
-Diverifikasi:
-- mastery dimulai pada Novice Level 1;
-- MXP yang meningkat menaikkan mastery level;
-- profil dengan progress tinggi direkomendasikan menuju Universitas;
-- rekomendasi Universitas menghitung Hard / Very Hard / Extreme;
-- halaman `#/mastery` menampilkan seluruh **12 game** dan progress masing-masing.
+## Audit randomisasi 12 game
 
-Adaptive Difficulty tetap berupa rekomendasi sehingga pemain masih dapat memilih jenjang secara manual.
+| Game | Generator/randomisasi yang diverifikasi dari implementasi |
+| --- | --- |
+| Blitz Aritmatika | angka, operator, kategori soal, faktorial, eksponen, akar, basis |
+| Perburuan Prima | angka pada papan dan mystery tile |
+| Digit Piksel | target digit, fragment, distractor, urutan kartu |
+| Match & Mix | pasangan dan distribusi chip |
+| Hitung Kubus | tinggi kolom dan orientasi susunan |
+| Duel Dadu | enam sisi dadu dan tile RPS arena |
+| Sudoku Buta | solved grid dan hidden-cell mask |
+| Minesweeper | posisi ranjau setelah first-click protection |
+| Maze Escape | perfect-maze layout serta START/EXIT perimeter |
+| Memory Matrix | target pattern per ronde |
+| Nonogram | hidden bitmap dan row/column clues |
+| 2048 | dua initial tile dan tile spawn setiap move valid |
 
-## Export / Import Progress
+Randomisasi tidak berarti setiap dua sesi *pasti* berbeda secara matematis; generator acak masih dapat menghasilkan konfigurasi identik secara kebetulan. Yang diverifikasi adalah bahwa sesi baru memanggil generator acak dan tidak membaca satu papan/soal statis yang sama.
 
-Unit QA memakai storage tiruan untuk memverifikasi:
-- key `ba_*` dan key game yang diizinkan dapat diekspor;
-- key tidak terkait Brain Arena tidak masuk backup;
-- backup menyimpan `appVersion: 1.9.0`;
-- import `replace=true` menghapus hanya key Brain Arena yang lama;
-- key browser/aplikasi lain tetap dipertahankan;
-- format backup salah ditolak.
+## Maze Escape
 
-## Accessibility
+Unit QA memverifikasi:
 
-Diverifikasi melalui browser QA mobile 390 px:
-- Reduce motion menambahkan class `ba-reduced-motion`;
-- High contrast menambahkan class `ba-high-contrast`;
-- Larger text menambahkan class `ba-large-text`;
-- Dark theme mengubah `data-ba-theme="dark"`;
-- halaman Settings tetap tanpa page-level horizontal overflow.
+- maze 7×7, 10×10, 14×14, 18×18, 24×24, dan 32×32 tetap fully connected;
+- wall antar-sel bersifat reciprocal;
+- START dan EXIT hasil `chooseMazeEndpoints` selalu berbeda;
+- kedua endpoint berada pada perimeter;
+- jarak yang dilaporkan sama dengan shortest path aktual;
+- 16 seed endpoint pada maze 18×18 menghasilkan minimal enam pasangan berbeda dan tidak dipatok pada `0 → lastCell`.
 
-## Nonogram
-
-Unit QA:
-- clue `[true,true,false,true]` menjadi `[2,1]`;
-- baris kosong menjadi `[0]`;
-- generator 5×5 menghasilkan 25 sel serta clue baris/kolom lengkap;
-- solved-state menerima susunan yang memenuhi clue baris dan kolom, bukan hanya satu bitmap internal.
-
-Browser QA:
-- Universitas Extreme menghasilkan papan **20×20 / 400 sel**;
-- 20 clue baris dan 20 clue kolom tersedia;
-- mode X/Kosong bekerja;
-- desktop 1440 px dan mobile 390 px lulus;
-- pada mobile, papan Extreme menggunakan horizontal scroll lokal agar sel tidak dipaksa terlalu kecil dan document tidak melebar.
-
-## 2048
-
-Unit QA:
-- `[2,2,4,4]` ke kiri menjadi `[4,8,0,0]`;
-- merge score dihitung benar;
-- board checker mendeteksi posisi tanpa langkah;
-- initial board menghasilkan dua tile;
-- random insertion menambah satu tile.
-
-Browser QA:
-- Universitas Extreme memakai target **4096**;
-- 16 tile board tampil;
-- Arrow Key mengubah state papan;
-- D-pad 4 arah tersedia;
-- desktop 1440 px dan mobile 390 px lulus tanpa page-level overflow.
-
-## Catalog, route, guide dan regresi
-
-Catalog sekarang berisi **12 game** dengan ID dan slug unik. Route baru yang diverifikasi:
+Browser QA Impossible 32×32 menjalankan enam kali **Labirin baru** dan pada skenario tersebut menghasilkan enam pasangan START/EXIT berbeda:
 
 ```text
-#/season        #/musim
-#/events        #/event
-#/mastery       #/penguasaan
-#/settings      #/pengaturan
-#/nonogram
-#/2048
+12:1007
+1001:3
+992:2
+127:864
+351:320
+831:416
 ```
 
-Guide completeness test juga lulus untuk seluruh 12 game, termasuk konten bilingual Nonogram dan 2048.
+Angka tersebut adalah indeks sel QA, bukan posisi yang di-hardcode.
 
-Home dan Profile diverifikasi ulang pada 1440 px dan 390 px. Mobile Season tab diperbaiki setelah penambahan Musim 4 sehingga document width kembali sama dengan viewport.
+## Impossible-mode mobile smoke
 
-## Build & HTTP
+Seluruh 12 game dibuka pada viewport 390 px, Universitas dipilih, kemudian `Impossible` dipilih dan gameplay dimulai. Semua skenario lulus tanpa uncaught JavaScript error dan tanpa document-level horizontal overflow.
 
-Perintah yang berhasil:
+Ukuran yang ikut divalidasi:
+
+- Perburuan Prima: 25 tile;
+- Duel Dadu: 49 arena cells;
+- Sudoku Buta: 81 memo cells;
+- Minesweeper: **24×36 = 864 cells / 240 mines**;
+- Maze Escape: **32×32 = 1.024 cells**;
+- Memory Matrix: **8×8 = 64 cells**;
+- Nonogram: **20×20 = 400 cells**;
+- 2048: 16 cells, target Impossible 4096.
+
+Game lain diverifikasi berhasil memasuki state permainan dengan konfigurasi Impossible yang aktif.
+
+## Rekor dan kompatibilitas
+
+Activity sekarang membaca record University per Arena difficulty untuk Digit Piksel, Sudoku, Minesweeper, Maze Escape, dan Memory Matrix. Untuk Maze/Memory Matrix, key lama yang menggunakan suffix `extreme` masih dapat dibaca sebagai fallback ketika record `impossible` belum ada.
+
+Backup metadata diperbarui menjadi:
+
+```text
+appVersion: 1.10.0
+```
+
+PWA service-worker cache diperbarui menjadi:
+
+```text
+brain-arena-v1.10.0
+```
+
+## Perintah QA yang berhasil
 
 ```bash
 npm test
 npm run build:portable
-node scripts/serve.mjs
-python tests/http.test.py
+python3 tests/browser/newgames.py
+python3 tests/browser/v110.py
+python3 tests/browser/v110_impossible.py
+ARENA_TEST_URL=http://127.0.0.1:4174 python3 tests/http.test.py
 ```
 
 Hasil akhir:
 
 ```text
-83 unit tests passed
-67 portable modules
-86 HTTP checks passed
+88 unit tests passed
+68 portable modules
+87 HTTP checks passed
+12/12 Impossible mobile game starts passed
+0 uncaught JavaScript errors pada skenario v1.10
 ```
 
-HTTP checks mencakup byte equality asset build, MIME JavaScript/CSS, gzip, 404, method restriction, dan traversal protection.
+## Catatan build
 
-`npm run build` standar tidak dapat dijalankan pada environment pengerjaan karena binary `vite` tidak tersedia di `node_modules`. Workflow GitHub Pages tetap menggunakan `npm ci` kemudian `npm run build` berdasarkan `package-lock.json`.
-
-## Batas pengujian
-
-Belum dilakukan verifikasi menyeluruh pada perangkat fisik Android/iOS, Safari/Firefox, install prompt PWA pada setiap OS, sinkronisasi lintas perangkat, atau leaderboard online. Progress, Season, Mastery, accessibility, backup source, dan sistem progression lain masih local-first. Menghapus site data akan menghapus progres yang belum diekspor.
+`npm run build:portable` berhasil dan build tersebut digunakan untuk QA browser serta HTTP. Build Vite standar tetap disiapkan melalui workflow GitHub Actions (`npm ci` lalu `npm run build`) untuk deployment GitHub Pages.

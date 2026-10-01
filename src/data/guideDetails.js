@@ -29,7 +29,7 @@ export const GUIDE_DETAILS = {
       example: bi('Contoh: 53² − 47² tidak perlu dihitung satu-satu. Gunakan (53+47)(53−47)=100×6=600.', 'Example: do not square 53 and 47 separately. Use (53+47)(53−47)=100×6=600.')
     },
     mistakes: [bi('Mengirim halaman ketika masih ada jawaban yang hanya ditebak.', 'Submitting while some answers are still guesses.'), bi('Menghitung kuadrat atau faktorial besar secara mentah padahal bisa disederhanakan.', 'Brute-forcing large squares or factorials instead of simplifying.'), bi('Melupakan prioritas ×/÷ sebelum +/−.', 'Forgetting multiplication/division precedence over addition/subtraction.')],
-    levels: [level('SD', 'Operasi dasar, FPB/KPK, pecahan, persen, skala.'), level('SMP', 'Bilangan negatif, akar/pangkat, pola, barisan, perbandingan.'), level('SMA', 'Logaritma, deret, sigma, geometri tak hingga, finansial.'), level('Universitas', 'Eksponensiasi modular, faktorial, kombinasi konsep dan hitung mental cepat.')]
+    levels: [level('SD', 'Operasi dasar, FPB/KPK, pecahan, persen, skala.'), level('SMP', 'Bilangan negatif, akar/pangkat, pola, barisan, perbandingan.'), level('SMA', 'Logaritma, deret, sigma, geometri tak hingga, finansial.'), level('Univ · Hard', 'Soal Universitas acak dengan bilangan dan operasi lebih besar.'), level('Univ · Very Hard', 'Variasi acak lebih padat: faktorial, eksponen, akar, basis, dan operasi campuran.'), level('Univ · Impossible', 'Rentang angka tertinggi dan kombinasi acak paling agresif; setiap sesi menghasilkan set soal baru.') ]
   },
   prime: {
     objective: bi('Temukan bilangan prima di antara 25 kubus angka. Prima memberi poin dan mempertahankan giliran; komposit menyerahkan giliran.', 'Find primes among 25 number cubes. A prime scores and keeps your turn; a composite passes the turn.'),
@@ -54,7 +54,7 @@ export const GUIDE_DETAILS = {
       example: bi('Contoh 221: √221 ≈ 14,9. Cek 2,3,5,7,11,13. 221 ÷ 13 = 17, jadi 221 komposit.', 'Example 221: √221 ≈ 14.9. Test 2,3,5,7,11,13. 221 ÷ 13 = 17, so 221 is composite.')
     },
     mistakes: [bi('Menganggap semua bilangan berbentuk 6k±1 pasti prima; bentuk itu hanya filter kandidat.', 'Assuming every 6k±1 number is prime; it is only a candidate filter.'), bi('Menghabiskan waktu mencoba pembagi lebih besar dari √n.', 'Testing divisors larger than √n.'), bi('Menekan kandidat meragukan saat masih ada angka yang jelas-jelas prima.', 'Choosing uncertain candidates while obvious primes remain.')],
-    levels: [level('SD', 'Angka 2–99.'), level('SMP', 'Angka 101–500.'), level('SMA', 'Angka 501–1500.'), level('Universitas', 'Angka 1501–4000; butuh filter dan pembagian mental yang lebih disiplin.')]
+    levels: [level('SD', 'Angka 2–99.'), level('SMP', 'Angka 101–500.'), level('SMA', 'Angka 501–1500.'), level('Univ · Hard', 'Papan acak angka 1501–4000.'), level('Univ · Very Hard', 'Papan acak angka 4001–9000 dengan waktu lebih singkat.'), level('Univ · Impossible', 'Papan acak angka 9001–20000 dan tekanan waktu tertinggi.')]
   },
   pixel: {
     objective: bi('Gabungkan potongan kartu piksel menjadi digit target 3×5 tanpa ada piksel yang tumpang tindih.', 'Combine pixel-card fragments into 3×5 target digits without any overlapping pixels.'),
@@ -80,7 +80,7 @@ export const GUIDE_DETAILS = {
       example: bi('Untuk digit 1, fokus pada kolom kanan/kolom ke-3. Potongan yang menyalakan sisi kiri biasanya bisa dieliminasi lebih awal.', 'For digit 1, focus on the rightmost/third column. Fragments lighting the left side can usually be eliminated early.')
     },
     mistakes: [bi('Memilih kartu hanya karena jumlah pikselnya cocok.', 'Choosing cards only because their pixel counts match.'), bi('Membiarkan overlap merah lalu tetap menambah kartu.', 'Continuing to add cards while red overlaps are present.'), bi('Tidak memanfaatkan kartu yang sudah terpakai untuk mempersempit target berikutnya.', 'Failing to use consumed cards to narrow the remaining targets.')],
-    levels: [level('SD', '1 target · 6 kartu.'), level('SMP', '2 target · 10 kartu.'), level('SMA', '3 target · 12 kartu.'), level('Universitas', '3 target · 15 kartu dengan pecahan lebih kompleks.')]
+    levels: [level('SD', '1 target · 6 kartu.'), level('SMP', '2 target · 10 kartu.'), level('SMA', '3 target · 12 kartu.'), level('Univ · Hard', '3 digit target acak · sekitar 15 kartu.'), level('Univ · Very Hard', '4 digit target acak · sekitar 20 kartu.'), level('Univ · Impossible', '5 digit target acak · sekitar 26 kartu dan fragmen paling halus.')]
   },
   sudoku: {
     objective: bi('Hafalkan solusi yang ditampilkan, lalu isi sel yang disembunyikan dengan gabungan ingatan dan aturan Sudoku.', 'Memorize the revealed solution, then restore hidden cells using memory plus standard Sudoku logic.'),
@@ -106,7 +106,7 @@ export const GUIDE_DETAILS = {
       example: bi('Contoh 4×4: kandidat {1,2,3,4}; baris sudah punya 1 dan 4, kolom punya 2 → hanya 3 yang tersisa.', '4×4 example: candidates {1,2,3,4}; row has 1 and 4, column has 2 → only 3 remains.')
     },
     mistakes: [bi('Mengandalkan hafalan saja dan mengabaikan aturan Sudoku.', 'Relying only on memory and ignoring Sudoku constraints.'), bi('Memakai Intip terlalu dini untuk sel yang bisa dideduksi.', 'Using Quick Peek too early on a logically solvable cell.'), bi('Mengisi banyak tebakan sekaligus sehingga sulit melacak sumber kesalahan.', 'Entering several guesses at once and losing track of the source of an error.')],
-    levels: [level('SD', '4×4 · blok 2×2 · 4–6 sel tersembunyi · 3 Intip.'), level('SMP', '6×6 · blok 2×3 · 10–14 sel tersembunyi · 2 Intip.'), level('SMA', '9×9 · 22–26 sel tersembunyi · 2 Intip.'), level('Universitas', '9×9 · 34–40 sel tersembunyi · hanya 1 Intip.')]
+    levels: [level('SD', '4×4 · blok 2×2 · 4–6 sel tersembunyi · 3 Intip.'), level('SMP', '6×6 · blok 2×3 · 10–14 sel tersembunyi · 2 Intip.'), level('SMA', '9×9 · 22–26 sel tersembunyi · 2 Intip.'), level('Univ · Hard', '9×9 acak · 34–40 sel tersembunyi · 1 Intip.'), level('Univ · Very Hard', '9×9 acak · 44–50 sel tersembunyi · 1 Intip.'), level('Univ · Impossible', '9×9 acak · 52–58 sel tersembunyi · tanpa Intip.')]
   },
   mnm: {
     objective: bi('Hafalkan pasangan chip, cocokkan dua angka yang sama, lalu gunakan pergeseran ubin untuk mengubah posisi chip dan mengacaukan lawan.', 'Memorize chip pairs, match equal numbers, then use tile sliding to relocate chips and disrupt your opponent.'),
@@ -131,7 +131,7 @@ export const GUIDE_DETAILS = {
       example: bi('Jika pasangan 5 berada di dua ubin yang tidak pernah bergeser, ambil pasangan itu dulu. Jangan mengejar pasangan yang baru saja ikut berpindah jika kamu belum yakin posisinya.', 'If pair 5 sits on two tiles that never moved, claim it first. Avoid chasing a pair that just moved unless you are certain of its new positions.')
     },
     mistakes: [bi('Menghafal nomor tanpa mengikatnya ke posisi/ubin.', 'Memorizing numbers without binding them to positions/tiles.'), bi('Menggeser ubin secara acak setelah mismatch.', 'Sliding randomly after a mismatch.'), bi('Mencoba langsung membalik geseran terakhir.', 'Trying to immediately reverse the previous slide.')],
-    levels: [level('SD', '6 pasangan · target 4 poin.'), level('SMP', '12 pasangan · target 7 poin.'), level('SMA', '16 pasangan · target 9 poin.'), level('Universitas', '20 pasangan · target 11 poin; kepadatan chip tertinggi.')]
+    levels: [level('SD', '6 pasangan · target 4 poin.'), level('SMP', '12 pasangan · target 7 poin.'), level('SMA', '16 pasangan · target 9 poin.'), level('Univ · Hard', '20 pasangan acak · target 11 · 8 dtk/giliran.'), level('Univ · Very Hard', '30 pasangan acak · target 16 · 7 dtk/giliran.'), level('Univ · Impossible', '45 pasangan acak · target 23 · 5 dtk/giliran.')]
   },
   cube: {
     objective: bi('Hitung seluruh kubus pada tumpukan isometrik, termasuk kubus yang tersembunyi di bawah kubus lain.', 'Count every cube in the isometric stack, including cubes hidden underneath visible cubes.'),
@@ -156,7 +156,7 @@ export const GUIDE_DETAILS = {
       example: bi('Jika tinggi empat kolom adalah [3,1,2,0], lapisan berisi 3 + 2 + 1 kubus = 6 total.', 'If four columns have heights [3,1,2,0], the layers contain 3 + 2 + 1 cubes = 6 total.')
     },
     mistakes: [bi('Menghitung hanya sisi/kubus yang terlihat.', 'Counting only visible cubes/faces.'), bi('Menganggap kubus puncak berdiri sendiri tanpa penopang di bawah.', 'Treating a top cube as standalone without its supporting cubes.'), bi('Menghitung kolom yang sama dua kali saat mengikuti perspektif isometrik.', 'Double-counting a column while following the isometric perspective.')],
-    levels: [level('SD', 'Grid 3×3, tinggi maksimum 2.'), level('SMP', 'Grid 4×4, tinggi maksimum 3.'), level('SMA', 'Grid 5×5, tinggi maksimum 4.'), level('Universitas', 'Grid 5×5, tinggi maksimum 5 dan tumpukan lebih padat.')]
+    levels: [level('SD', 'Grid 3×3, tinggi maksimum 2.'), level('SMP', 'Grid 4×4, tinggi maksimum 3.'), level('SMA', 'Grid 5×5, tinggi maksimum 4.'), level('Univ · Hard', 'Grid 5×5 acak · tinggi maksimum 5.'), level('Univ · Very Hard', 'Grid 6×6 acak · tinggi maksimum 6.'), level('Univ · Impossible', 'Grid 7×7 acak · tinggi maksimum 7 dan timer paling ketat.')]
   },
   rps: {
     objective: bi('Hafalkan jaring-jaring dadu, rencanakan rute, lalu prediksi sisi bawah setelah dadu berguling. Sisi bawah terakhir bertarung dengan simbol petak tujuan.', 'Memorize the die net, plan a route, and predict the bottom face after rolling. The final bottom face battles the destination tile.'),
@@ -182,7 +182,7 @@ export const GUIDE_DETAILS = {
       example: bi('Jika petak tujuan adalah gunting, target ideal untuk sisi bawah adalah batu. Rencanakan rotasi sampai batu berada di Bawah pada langkah terakhir.', 'If the destination tile is scissors, you want rock on the bottom. Plan rotations until rock reaches Bottom on the final move.')
     },
     mistakes: [bi('Hanya melacak sisi atas dan lupa sisi bawah.', 'Tracking only the top face and forgetting the bottom.'), bi('Menganggap orientasi reset saat giliran berganti.', 'Assuming orientation resets between turns.'), bi('Merencanakan rute dulu tanpa melihat simbol target.', 'Planning a route before checking the destination symbol.')],
-    levels: [level('SD', '3 langkah · 25 detik.'), level('SMP', '3–4 langkah · 22 detik.'), level('SMA', '3–5 langkah · 20 detik.'), level('Universitas', '4–5 langkah · 16 detik; waktu berpikir paling ketat.')]
+    levels: [level('SD', '3 langkah · 25 detik.'), level('SMP', '3–4 langkah · 22 detik.'), level('SMA', '3–5 langkah · 20 detik.'), level('Univ · Hard', '4–5 langkah · 16 detik · sisi dadu dan papan acak.'), level('Univ · Very Hard', '5–6 langkah · 12 detik · konfigurasi acak baru.'), level('Univ · Impossible', '6–7 langkah · 9 detik · tekanan perencanaan tertinggi.')]
   },
   minesweeper: {
     objective: bi('Buka semua petak aman tanpa menyentuh ranjau. Angka pada petak menunjukkan jumlah ranjau di delapan tetangganya.', 'Reveal every safe cell without triggering a mine. Each number tells how many mines are in its eight neighboring cells.'),
@@ -208,10 +208,10 @@ export const GUIDE_DETAILS = {
       example: bi('Pola 1–2: jika angka 1 berbagi dua petak tertutup dengan angka 2 dan angka 2 punya satu petak tambahan, petak tambahan itu harus ranjau.', 'Pattern 1–2: if the 1 shares two hidden cells with the 2 and the 2 has one extra hidden cell, that extra cell must be a mine.')
     },
     mistakes: [bi('Memasang bendera karena “terasa” ranjau, bukan karena deduksi.', 'Flagging because a cell “feels” dangerous instead of proving it.'), bi('Menganggap jumlah bendera salah tetap aman untuk chord.', 'Chording with incorrect flags.'), bi('Melompat ke banyak frontier dan lupa asumsi sebelumnya.', 'Jumping across many frontiers and losing track of assumptions.')],
-    levels: [level('SD', '9×9 · 10 ranjau.'), level('SMP', '12×12 · 20 ranjau.'), level('SMA', '16×16 · 40 ranjau.'), level('Universitas', '30×16 · 99 ranjau; cocok untuk teknik subset dan manajemen frontier.')]
+    levels: [level('SD', '9×9 · 10 ranjau.'), level('SMP', '12×12 · 20 ranjau.'), level('SMA', '16×16 · 40 ranjau.'), level('Univ · Hard', '16×30 · 99 ranjau acak.'), level('Univ · Very Hard', '20×30 · 150 ranjau acak.'), level('Univ · Impossible', '24×36 · 240 ranjau acak; first click tetap aman.')]
   },
   maze: {
-    objective: bi('Bawa pemain dari START di kiri atas ke EXIT di kanan bawah melalui perfect maze yang selalu memiliki solusi.', 'Move from START at the top-left to EXIT at the bottom-right through a perfect maze that is always solvable.'),
+    objective: bi('Bawa pemain dari START acak di tepi arena menuju EXIT acak yang jauh melalui perfect maze yang selalu memiliki solusi.', 'Move from a randomized START on the perimeter to a distant randomized EXIT through a perfect maze that is always solvable.'),
     victory: bi('Capai EXIT secepat mungkin. Hanya langkah valid yang dihitung; efisiensi membandingkan langkahmu dengan jalur terpendek.', 'Reach EXIT as fast as possible. Only valid moves count; efficiency compares your route with the shortest path.'),
     facts: [fact('Maze', 'Maze type', 'Perfect maze'), fact('Rute', 'Route', 'Unik antar dua petak', 'Unique between any two cells'), fact('Kontrol', 'Controls', 'WASD / Panah / D-pad', 'WASD / Arrows / D-pad')],
     controls: [bi('Desktop: panah atau WASD.', 'Desktop: Arrow keys or WASD.'), bi('Mobile: gunakan D-pad di bawah papan.', 'Mobile: use the D-pad below the board.'), bi('Menabrak dinding tidak menambah hitungan langkah.', 'Bumping into a wall does not increase the move count.')],
@@ -234,7 +234,7 @@ export const GUIDE_DETAILS = {
       example: bi('Di persimpangan T, jika kanan berakhir buntu, kembali ke T lalu ambil kiri. Tidak ada alasan mencoba kanan lagi.', 'At a T-junction, if right is a dead end, return to the T and take left. There is no reason to try right again.')
     },
     mistakes: [bi('Bergerak terlalu cepat dan lupa percabangan terakhir.', 'Moving too quickly and forgetting the last junction.'), bi('Mengikuti dinding sebagai strategi tercepat; itu aman, tetapi sering bukan rute optimal.', 'Using wall-following as the fastest strategy; it is reliable but rarely optimal.'), bi('Pada papan besar, mencoba mengingat setiap sel alih-alih zona/koridor.', 'On large boards, trying to memorize every cell instead of zones/corridors.')],
-    levels: [level('SD', '7×7.'), level('SMP', '10×10.'), level('SMA', '14×14.'), level('Univ · Hard', '18×18.'), level('Univ · Very Hard', '24×24.'), level('Univ · Extreme', '32×32 · 1.024 sel; gunakan chunking per zona.')]
+    levels: [level('SD', '7×7 · layout dan START/EXIT diacak.'), level('SMP', '10×10 · layout dan START/EXIT diacak.'), level('SMA', '14×14 · layout dan START/EXIT diacak.'), level('Univ · Hard', '18×18 · Arena acak.'), level('Univ · Very Hard', '24×24 · Arena acak.'), level('Univ · Impossible', '32×32 · 1.024 sel · layout serta START/EXIT acak; gunakan chunking per zona.')]
   },
   matrix: {
     objective: bi('Hafalkan petak yang menyala, lalu pilih kembali semua petak tersebut setelah pola disembunyikan.', 'Memorize the highlighted cells, then select all of them after the pattern disappears.'),
@@ -260,12 +260,12 @@ export const GUIDE_DETAILS = {
       example: bi('Jika pola 5×5 terlihat seperti L: tiga petak vertikal di kolom 1 dan tiga petak horizontal di baris 3 dengan satu titik bertumpuk, ingat “L lima petak”, bukan lima koordinat terpisah.', 'If a 5×5 pattern forms an L with three vertical and three horizontal cells sharing one corner, remember “five-cell L” rather than five separate coordinates.')
     },
     mistakes: [bi('Menghafal sel satu per satu tanpa chunking.', 'Memorizing isolated cells without chunking.'), bi('Mengubah arah scanning setiap ronde.', 'Changing your scan direction every round.'), bi('Klik cepat saat ragu karena penalti salah berlaku untuk seluruh run.', 'Clicking while uncertain even though mistakes cost lives for the entire run.')],
-    levels: [level('SD', '3×3 · 5 ronde · mulai 3 target · preview 2,6 dtk.'), level('SMP', '4×4 · 6 ronde · mulai 4 target · preview 2,35 dtk.'), level('SMA', '5×5 · 7 ronde · mulai 5 target · preview 2,1 dtk.'), level('Univ · Hard', '6×6 · 7 ronde · mulai 7 target · preview 1,9 dtk.'), level('Univ · Very Hard', '7×7 · 8 ronde · mulai 9 target · preview 1,65 dtk.'), level('Univ · Extreme', '8×8 · 9 ronde · mulai 12 target · +2 target/ronde · preview 1,4 dtk.')]
+    levels: [level('SD', '3×3 · 5 ronde · mulai 3 target · preview 2,6 dtk.'), level('SMP', '4×4 · 6 ronde · mulai 4 target · preview 2,35 dtk.'), level('SMA', '5×5 · 7 ronde · mulai 5 target · preview 2,1 dtk.'), level('Univ · Hard', '6×6 · 7 ronde · mulai 7 target · preview 1,9 dtk.'), level('Univ · Very Hard', '7×7 · 8 ronde · mulai 9 target · preview 1,65 dtk.'), level('Univ · Impossible', '8×8 · 9 ronde · mulai 12 target · +2 target/ronde · preview 1,4 dtk.')]
   },
   nonogram: {
     objective: bi('Isi petak berdasarkan petunjuk angka pada baris dan kolom sampai gambar tersembunyi terbentuk.', 'Fill cells from row and column number clues until the hidden picture is revealed.'),
     victory: bi('Semua petak yang seharusnya terisi harus tepat, tanpa petak ekstra. Tanda X boleh digunakan untuk menandai petak yang sudah pasti kosong.', 'Every required filled cell must be correct with no extra filled cells. X marks can identify cells proven empty.'),
-    facts: [fact('Papan', 'Board', '5×5 hingga 20×20', '5×5 to 20×20'), fact('Clue', 'Clues', 'Kelompok berurutan', 'Consecutive groups'), fact('Mode Univ', 'University', 'Hard / Very Hard / Extreme')],
+    facts: [fact('Papan', 'Board', '5×5 hingga 20×20', '5×5 to 20×20'), fact('Clue', 'Clues', 'Kelompok berurutan', 'Consecutive groups'), fact('Mode Univ', 'University', 'Hard / Very Hard / Impossible')],
     controls: [bi('Klik/ketuk sesuai mode aktif untuk mengisi atau memberi X.', 'Click/tap using the active mode to fill or mark X.'), bi('Klik kanan di desktop untuk memasang atau melepas X.', 'Right-click on desktop to toggle an X.'), bi('Gunakan tombol Isi/Kosong di mobile sebelum mengetuk petak.', 'Use Fill/Empty mode buttons on mobile before tapping cells.')],
     tutorial: [
       item('Baca semua clue', 'Read every clue', 'Angka menunjukkan panjang kelompok petak terisi dari kiri ke kanan atau atas ke bawah.', 'Numbers show the lengths of filled groups from left to right or top to bottom.'),
@@ -286,7 +286,7 @@ export const GUIDE_DETAILS = {
       example: bi('Pada baris 5 petak dengan clue 4, penempatan 11110 dan 01111 selalu bertumpuk di tiga petak tengah. Tiga petak itu pasti terisi.', 'In a 5-cell line with clue 4, placements 11110 and 01111 always overlap in the middle three cells. Those three are guaranteed filled.')
     },
     mistakes: [bi('Menganggap semua clue harus menempel tanpa jarak.', 'Assuming all clue groups touch with no gaps.'), bi('Mengisi berdasarkan bentuk gambar yang dibayangkan, bukan berdasarkan clue.', 'Filling based on an imagined picture instead of the clues.'), bi('Tidak memberi X pada petak kosong yang sudah pasti sehingga informasi silang terbuang.', 'Failing to mark proven empty cells and losing useful cross-information.')],
-    levels: [level('SD', '5×5 · dasar overlap.'), level('SMP', '8×8 · beberapa kelompok per garis.'), level('SMA', '10×10 · deduksi silang lebih panjang.'), level('Univ · Hard', '12×12.'), level('Univ · Very Hard', '15×15.'), level('Univ · Extreme', '20×20 · perlu disiplin propagasi dan pencatatan X.')]
+    levels: [level('SD', '5×5 · dasar overlap.'), level('SMP', '8×8 · beberapa kelompok per garis.'), level('SMA', '10×10 · deduksi silang lebih panjang.'), level('Univ · Hard', '12×12.'), level('Univ · Very Hard', '15×15.'), level('Univ · Impossible', '20×20 · perlu disiplin propagasi dan pencatatan X.')]
   },
   game2048: {
     objective: bi('Gabungkan ubin bernilai sama untuk membangun ubin target tanpa memenuhi papan.', 'Merge equal tiles to build the target tile without filling the board.'),
@@ -312,7 +312,7 @@ export const GUIDE_DETAILS = {
       example: bi('Jika sudut kanan bawah menyimpan 512, usahakan 256 berada di sebelahnya, lalu 128, 64, dan seterusnya. Rantai ini membuat merger besar lebih terprediksi.', 'If bottom-right holds 512, keep 256 beside it, then 128, 64, and so on. This chain makes large merges more predictable.')
     },
     mistakes: [bi('Menggerakkan semua arah secara acak.', 'Swiping randomly in every direction.'), bi('Mengejar satu merger besar tetapi membiarkan banyak ubin kecil terisolasi.', 'Chasing one big merge while leaving many isolated small tiles.'), bi('Memindahkan ubin terbesar dari sudut utama tanpa jalur untuk mengembalikannya.', 'Pulling the largest tile out of the anchor corner without a way to restore it.')],
-    levels: [level('SD', 'Target 128.'), level('SMP', 'Target 256.'), level('SMA', 'Target 512.'), level('Univ · Hard', 'Target 1024.'), level('Univ · Very Hard', 'Target 2048.'), level('Univ · Extreme', 'Target 4096.')]
+    levels: [level('SD', 'Target 128.'), level('SMP', 'Target 256.'), level('SMA', 'Target 512.'), level('Univ · Hard', 'Target 1024.'), level('Univ · Very Hard', 'Target 2048.'), level('Univ · Impossible', 'Target 4096.')]
   }
 
 };

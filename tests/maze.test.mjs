@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateMaze, moveInMaze, shortestMazePathLength } from '../src/utils/maze.js';
+import { chooseMazeEndpoints, generateMaze, moveInMaze, shortestMazePathLength } from '../src/utils/maze.js';
 
 function seeded(seed = 123456789) {
   return () => { seed = (Math.imul(1664525, seed) + 1013904223) >>> 0; return seed / 4294967296; };
@@ -33,4 +33,33 @@ test('every open maze edge can be traversed and closed walls block movement', ()
 
 test('invalid maze dimensions fail explicitly', () => {
   for (const dims of [[0,3],[3,1],[2.5,4],[65,3]]) assert.throws(() => generateMaze(...dims), RangeError);
+});
+
+
+test('maze endpoints are distinct perimeter cells with a valid route', () => {
+  for (const [rows, cols] of [[7,7],[18,18],[32,32]]) {
+    const maze = generateMaze(rows, cols, seeded(rows * 991 + cols));
+    const endpoints = chooseMazeEndpoints(maze, rows, cols, seeded(cols * 77 + rows));
+    const onBoundary = index => {
+      const r = Math.floor(index / cols), c = index % cols;
+      return r === 0 || c === 0 || r === rows - 1 || c === cols - 1;
+    };
+    assert.equal(onBoundary(endpoints.start), true);
+    assert.equal(onBoundary(endpoints.target), true);
+    assert.notEqual(endpoints.start, endpoints.target);
+    assert.ok(endpoints.distance > 0);
+    assert.equal(shortestMazePathLength(maze, rows, cols, endpoints.start, endpoints.target), endpoints.distance);
+  }
+});
+
+test('different endpoint seeds do not pin START and EXIT to fixed corners', () => {
+  const rows = 18, cols = 18;
+  const maze = generateMaze(rows, cols, seeded(20261001));
+  const samples = new Set();
+  for (let seed = 1; seed <= 16; seed += 1) {
+    const { start, target } = chooseMazeEndpoints(maze, rows, cols, seeded(seed));
+    samples.add(`${start}:${target}`);
+  }
+  assert.ok(samples.size >= 6);
+  assert.ok([...samples].some(pair => pair !== `0:${rows * cols - 1}`));
 });

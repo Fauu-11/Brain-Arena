@@ -6,7 +6,7 @@ import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { readText, writeText } from '../utils/storage.js';
 import { formatMinesweeperTime } from '../utils/minesweeper.js';
-import { generateMaze, moveInMaze, shortestMazePathLength } from '../utils/maze.js';
+import { chooseMazeEndpoints, generateMaze, moveInMaze } from '../utils/maze.js';
 
 const BASE_LEVELS = {
   sd: { rows: 7, cols: 7 },
@@ -16,9 +16,9 @@ const BASE_LEVELS = {
 const UNIVERSITY_LEVELS = {
   hard: { rows: 18, cols: 18 },
   'very-hard': { rows: 24, cols: 24 },
-  extreme: { rows: 32, cols: 32 },
+  impossible: { rows: 32, cols: 32 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', extreme: 'Extreme' };
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 const DIR_KEYS = {
   ArrowUp: 'up', w: 'up', W: 'up',
   ArrowRight: 'right', d: 'right', D: 'right',
@@ -38,8 +38,10 @@ export default function GameMaze({ onBack, onNavigate }) {
   const [schoolLevel, setSchoolLevel] = useState('sd');
   const [universityDifficulty, setUniversityDifficulty] = useState('hard');
   const [maze, setMaze] = useState([]);
+  const [startIndex, setStartIndex] = useState(0);
+  const [target, setTarget] = useState(0);
   const [position, setPosition] = useState(0);
-  const [visited, setVisited] = useState(() => new Set([0]));
+  const [visited, setVisited] = useState(() => new Set());
   const [moves, setMoves] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -47,7 +49,6 @@ export default function GameMaze({ onBack, onNavigate }) {
   const [bestTime, setBestTime] = useState(null);
 
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : BASE_LEVELS[schoolLevel];
-  const target = config.rows * config.cols - 1;
   const recordKey = `maze_best_${difficultyKey(schoolLevel, universityDifficulty)}`;
 
   useEffect(() => {
@@ -106,13 +107,16 @@ export default function GameMaze({ onBack, onNavigate }) {
 
   const startGame = useCallback(() => {
     const nextMaze = generateMaze(config.rows, config.cols);
+    const endpoints = chooseMazeEndpoints(nextMaze, config.rows, config.cols);
     setMaze(nextMaze);
-    setPosition(0);
-    setVisited(new Set([0]));
+    setStartIndex(endpoints.start);
+    setTarget(endpoints.target);
+    setPosition(endpoints.start);
+    setVisited(new Set([endpoints.start]));
     setMoves(0);
     setElapsed(0);
     setPaused(false);
-    setOptimalMoves(shortestMazePathLength(nextMaze, config.rows, config.cols));
+    setOptimalMoves(endpoints.distance);
     setGameState('playing');
   }, [config.rows, config.cols]);
 
@@ -124,17 +128,17 @@ export default function GameMaze({ onBack, onNavigate }) {
   };
 
   const rules = lang === 'en' ? [
-    'Reach the exit in the bottom-right corner from the start in the top-left corner.',
+    'Every new run randomizes both the maze layout and the START/EXIT positions along the outer edge. Reach the flag from the purple start position.',
     'Move with Arrow Keys or WASD on desktop. On touch devices, use the direction pad below the maze.',
     'Walls block movement. Valid steps are counted; bumping into a wall does not add a move.',
     'The maze is generated as a perfect maze, so every board is solvable and has one unique route between any two cells.',
-    'University mode adds Hard, Very Hard, and Extreme sizes. Your fastest clear time is saved separately for each difficulty.',
+    'University Arena Mode adds Hard, Very Hard, and Impossible sizes. Your fastest clear time is saved separately for each difficulty.',
   ] : [
-    'Capai pintu keluar di pojok kanan bawah dari titik mulai di pojok kiri atas.',
+    'Setiap permainan baru mengacak bentuk labirin sekaligus posisi START dan EXIT di sisi luar papan. Capai bendera dari titik mulai ungu.',
     'Gunakan tombol panah atau WASD di desktop. Di layar sentuh, gunakan tombol arah di bawah labirin.',
     'Dinding menghalangi gerakan. Hanya langkah yang berhasil yang dihitung; menabrak dinding tidak menambah langkah.',
     'Labirin dibuat sebagai perfect maze, sehingga setiap papan pasti dapat diselesaikan dan memiliki satu jalur unik antara dua petak.',
-    'Mode Universitas memiliki Hard, Very Hard, dan Extreme. Waktu tercepat disimpan terpisah untuk setiap tingkat.',
+    'Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible. Waktu tercepat disimpan terpisah untuk setiap tingkat.',
   ];
 
   const mazeCells = useMemo(() => maze.map((walls, index) => {
@@ -150,11 +154,11 @@ export default function GameMaze({ onBack, onNavigate }) {
       borderBottom: row === config.rows - 1 && (walls & 4) ? '2px solid #75628a' : '2px solid transparent',
     };
     return <div key={index} className={`maze-cell ${isVisited ? 'visited' : ''} ${isExit ? 'exit' : ''}`} style={style} aria-hidden="true">
-      {index === 0 && !isPlayer && <span className="maze-start-dot"/>}
+      {index === startIndex && !isPlayer && <span className="maze-start-dot"/>}
       {isExit && <Icon name="flag" size={Math.max(8, Math.min(16, 310 / config.cols))}/>} 
       {isPlayer && <span className="maze-player"><span/></span>}
     </div>;
-  }), [maze, config.cols, config.rows, position, target, visited]);
+  }), [maze, config.cols, config.rows, position, startIndex, target, visited]);
 
   const efficiency = optimalMoves > 0 ? Math.max(1, Math.round((optimalMoves / Math.max(moves, 1)) * 100)) : 100;
   const boardWidth = Math.max(310, Math.min(720, config.cols * (schoolLevel === 'universitas' ? 22 : 34)));

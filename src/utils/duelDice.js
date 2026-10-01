@@ -14,6 +14,15 @@ export const LEVELS = {
   sma: { minMoves: 3, maxMoves: 5, seconds: 20 },
   universitas: { minMoves: 4, maxMoves: 5, seconds: 16 },
 };
+export const UNIVERSITY_LEVELS = {
+  hard: { minMoves: 4, maxMoves: 5, seconds: 16 },
+  'very-hard': { minMoves: 5, maxMoves: 6, seconds: 12 },
+  impossible: { minMoves: 6, maxMoves: 7, seconds: 9 },
+};
+export function getDuelConfig(level = 'sma', universityDifficulty = 'hard') {
+  if (level === 'universitas') return UNIVERSITY_LEVELS[universityDifficulty] || UNIVERSITY_LEVELS.hard;
+  return LEVELS[level] || LEVELS.sma;
+}
 export const FACE_THEME = {
   rock: { bg: '#ef4444', id: 'Batu', en: 'Rock' },
   paper: { bg: '#10b981', id: 'Kertas', en: 'Paper' },
@@ -96,11 +105,11 @@ function randomInt(max, random) {
   if (!Number.isFinite(value) || value < 0 || value >= 1) throw new RangeError('Random source must return [0, 1)');
   return Math.floor(value * max);
 }
-export function nextMoveCount(level = 'sma', random = Math.random) {
-  const { minMoves, maxMoves } = LEVELS[level] || LEVELS.sma;
+export function nextMoveCount(level = 'sma', random = Math.random, universityDifficulty = 'hard') {
+  const { minMoves, maxMoves } = getDuelConfig(level, universityDifficulty);
   return minMoves + randomInt(maxMoves - minMoves + 1, random);
 }
-export function createGame(level = 'sma', random = Math.random) {
+export function createGame(level = 'sma', random = Math.random, universityDifficulty = 'hard') {
   if (!Object.hasOwn(LEVELS, level)) throw new RangeError('Unknown school level');
   const pool = [...SYMBOLS, ...SYMBOLS];
   for (let i = pool.length - 1; i > 0; i--) {
@@ -109,12 +118,12 @@ export function createGame(level = 'sma', random = Math.random) {
   }
   const faces = cubeFromNet(pool);
   return {
-    phase: 'setup', status: 'planning', level, paused: false,
+    phase: 'setup', status: 'planning', level, universityDifficulty: level === 'universitas' ? universityDifficulty : 'hard', paused: false,
     board: Array.from({ length: 49 }, () => SYMBOLS[randomInt(3, random)]),
     initialFaces: faces, faces, position: { col: 3, row: 0 },
     planned: [], trail: [], origin: null, rollIndex: 0, rollDir: null, rollStage: null,
     activePlayer: 1, scores: [0, 0], turn: 1, winner: null, battle: null,
-    remainingMs: LEVELS[level].seconds * 1000, movesRequired: nextMoveCount(level, random),
+    remainingMs: getDuelConfig(level, universityDifficulty).seconds * 1000, movesRequired: nextMoveCount(level, random, universityDifficulty),
   };
 }
 export const isPlanning = state => state.phase === 'playing' && state.status === 'planning' && !state.paused;
@@ -164,7 +173,7 @@ export function duelReducer(state, action) {
       const scores = [...state.scores];
       scores[state.activePlayer - 1] += state.battle.delta; // Negative scores match the reference clip.
       if (scores[state.activePlayer - 1] >= WIN_SCORE) return { ...state, phase: 'ended', status: 'ended', battle: null, winner: state.activePlayer, scores };
-      const cfg = LEVELS[state.level];
+      const cfg = getDuelConfig(state.level, state.universityDifficulty);
       const count = Number.isInteger(action.nextMoves) && action.nextMoves >= cfg.minMoves && action.nextMoves <= cfg.maxMoves ? action.nextMoves : cfg.minMoves;
       return { ...state, scores, battle: null, activePlayer: 3 - state.activePlayer, turn: state.turn + 1,
         status: 'planning', remainingMs: cfg.seconds * 1000, movesRequired: count,

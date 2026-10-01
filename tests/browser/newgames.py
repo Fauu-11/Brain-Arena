@@ -14,27 +14,28 @@ with sync_playwright() as p:
             rec={'route':route,'width':width}
             try:
                 mount(page,route)
-                # University always exposes the requested Hard / Very Hard / Extreme selector.
+                # University always exposes the requested Hard / Very Hard / Impossible selector.
                 page.locator('.play-levels button').last.click()
                 page.wait_for_selector('.play-university-difficulty')
                 assert page.locator('.play-university-difficulty button').count()==3
                 labels=page.locator('.play-university-difficulty button').all_text_contents()
                 assert any('Very Hard' in text for text in labels)
-                assert any('Extreme' in text for text in labels)
+                assert any('Impossible' in text for text in labels)
                 page.locator('.play-university-difficulty button').last.click()
                 page.locator('.play-setup-actions .uw-btn-primary').first.click()
                 if route=='maze':
                     page.wait_for_selector('.maze-board')
                     assert page.locator('.maze-cell').count()==32*32
                     before=page.locator('.maze-route-note strong').inner_text()
-                    # From the top-left of a perfect maze, either right or down must be open.
-                    page.keyboard.press('ArrowRight'); page.keyboard.press('ArrowDown')
+                    # START is randomized on the perimeter. Try all directions; at least one adjacent corridor must be open.
+                    for key in ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft']:
+                        page.keyboard.press(key)
                     page.wait_for_timeout(80)
                     after=page.locator('.maze-route-note strong').inner_text()
                     assert int(after)>=int(before)+1
                     page.locator('.maze-toolbar-actions button').first.click()
                     assert page.locator('.maze-pause').count()==1
-                    rec['extremeCells']=1024
+                    rec['impossibleCells']=1024
                     rec['movement']=True
                     rec['pause']=True
                 else:
@@ -50,7 +51,7 @@ with sync_playwright() as p:
                     page.wait_for_timeout(800)
                     assert page.locator('.arena-game').get_attribute('data-state')=='start'
                     assert page.locator('[data-matrix-cell].memory-on').count()==14
-                    rec['extremeCells']=64
+                    rec['impossibleCells']=64
                     rec['roundAdvance']=True
                 rec['documentWidth']=page.evaluate('document.documentElement.scrollWidth')
                 assert rec['documentWidth']<=width

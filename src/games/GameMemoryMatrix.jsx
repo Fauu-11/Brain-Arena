@@ -15,9 +15,9 @@ const BASE_LEVELS = {
 const UNIVERSITY_LEVELS = {
   hard: { size: 6, startTargets: 7, rounds: 7, previewMs: 1900, growth: 1, lives: 3 },
   'very-hard': { size: 7, startTargets: 9, rounds: 8, previewMs: 1650, growth: 1, lives: 3 },
-  extreme: { size: 8, startTargets: 12, rounds: 9, previewMs: 1400, growth: 2, lives: 3 },
+  impossible: { size: 8, startTargets: 12, rounds: 9, previewMs: 1400, growth: 2, lives: 3 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', extreme: 'Extreme' };
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 function difficultyKey(level, universityDifficulty) {
   return level === 'universitas' ? `${level}_${universityDifficulty}` : level;
@@ -152,15 +152,15 @@ export default function GameMemoryMatrix({ onBack, onNavigate }) {
     'Watch the highlighted cells during the memorize phase. When they disappear, rebuild the pattern from memory.',
     'Correct cells stay selected and award 100 points. A wrong cell costs one life and 50 points.',
     'You have three lives for the entire challenge. Lose all lives and the run ends.',
-    'Complete every target cell to advance. The pattern becomes larger each round.',
-    'University mode adds Hard, Very Hard, and Extreme with larger matrices, shorter previews, and denser patterns.',
+    'Complete every target cell to advance. Every round generates a new random pattern that becomes denser over time.',
+    'University Arena Mode adds Hard, Very Hard, and Impossible with larger matrices, shorter previews, and denser patterns.',
     'Your highest score is saved locally for every level and University difficulty.',
   ] : [
     'Amati petak yang menyala pada fase menghafal. Setelah petak menghilang, bangun kembali polanya dari ingatan.',
     'Petak benar tetap terpilih dan memberi 100 poin. Petak salah mengurangi satu nyawa dan 50 poin.',
     'Kamu memiliki tiga nyawa untuk satu tantangan. Jika semua nyawa habis, permainan berakhir.',
-    'Pilih semua petak target untuk lanjut. Pola akan semakin besar setiap ronde.',
-    'Mode Universitas memiliki Hard, Very Hard, dan Extreme dengan matriks lebih besar, waktu hafalan lebih singkat, dan pola lebih padat.',
+    'Pilih semua petak target untuk lanjut. Setiap ronde menghasilkan pola acak baru yang semakin padat.',
+    'Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible dengan matriks lebih besar, waktu hafalan lebih singkat, dan pola lebih padat.',
     'Skor tertinggi disimpan lokal untuk setiap jenjang dan tingkat Universitas.',
   ];
 

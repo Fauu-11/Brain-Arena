@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import Scoreboard from '../components/Scoreboard';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, MultiEndCard } from '../components/GameShell';
+import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Web Audio API Engine
 const playSound = (type) => {
@@ -94,17 +94,23 @@ const playSound = (type) => {
 };
 
 const LEVEL_SPECS = {
-  sd: { cols: 2, chipsPerTile: 4, matchPairs: 6, winScore: 4 },
-  smp: { cols: 3, chipsPerTile: 3, matchPairs: 12, winScore: 7 },
-  sma: { cols: 3, chipsPerTile: 4, matchPairs: 16, winScore: 9 },
-  universitas: { cols: 3, chipsPerTile: 5, matchPairs: 20, winScore: 11 }
+  sd: { cols: 2, chipsPerTile: 4, matchPairs: 6, winScore: 4, turnSeconds: 12 },
+  smp: { cols: 3, chipsPerTile: 3, matchPairs: 12, winScore: 7, turnSeconds: 10 },
+  sma: { cols: 3, chipsPerTile: 4, matchPairs: 16, winScore: 9, turnSeconds: 9 },
 };
+const UNIVERSITY_LEVELS = {
+  hard: { cols: 3, chipsPerTile: 5, matchPairs: 20, winScore: 11, turnSeconds: 8 },
+  'very-hard': { cols: 4, chipsPerTile: 4, matchPairs: 30, winScore: 16, turnSeconds: 7 },
+  impossible: { cols: 4, chipsPerTile: 6, matchPairs: 45, winScore: 23, turnSeconds: 5 },
+};
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 export default function GameMnM({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [phase, setPhase] = useState('setup'); // 'setup', 'start' (memo), 'match', 'mix', 'ended'
   const [schoolLevel, setSchoolLevel] = useState('smp');
+  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
   const [mode, setMode] = useState('pve'); // 'pve' or 'pvp'
 
   // Board state
@@ -129,7 +135,7 @@ export default function GameMnM({ onBack, onNavigate }) {
   const aiMemory = useRef({});
 
   // Active configuration
-  const config = LEVEL_SPECS[schoolLevel] || LEVEL_SPECS.smp;
+  const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_SPECS[schoolLevel] || LEVEL_SPECS.smp);
   const { cols, chipsPerTile, matchPairs, winScore } = config;
 
   // Refs for timer and timeout synchronization
@@ -147,22 +153,22 @@ export default function GameMnM({ onBack, onNavigate }) {
   const rules = lang === 'en' ? [
     "Match & Mix is a tactical turn-based memory game played on a sliding tile puzzle!",
     "Memorization Phase: Review all numbers printed on the chips. Click 'Start Game' when you are ready to conceal them.",
-    "Match Phase: On your turn, you have 10 seconds to flip 2 chips. If they match, you earn 1 point and keep your turn!",
+    "Match Phase: Flip 2 chips before the turn timer expires. University Arena Mode offers Hard, Very Hard, and Impossible with randomized layouts. A match earns 1 point and keeps your turn!",
     "Mix Phase: If you mismatch or run out of time, your turn ends and you MUST slide one adjacent tile into the empty slot.",
     "Tactical Sliding: Swapping a tile relocates all chips on it, disrupting your opponent's memory! You cannot immediately reverse the move just made.",
     "Winning: The first player to reach the target score (or with the most points when all pairs are found) wins!"
   ] : [
     "Match & Mix adalah permainan memori taktis berbasis giliran di atas teka-teki ubin geser!",
     "Fase Memorisasi: Amati dan hafalkan semua angka pada chip. Tekan 'Mulai Game' saat siap menutupnya.",
-    "Fase Mencocokkan: Dalam 10 detik, buka 2 chip. Jika angkanya cocok, Anda mendapat 1 poin dan mempertahankan giliran!",
+    "Fase Mencocokkan: Buka 2 chip sebelum timer habis. Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible dengan susunan acak. Pasangan cocok memberi 1 poin dan mempertahankan giliran!",
     "Fase Menggeser: Jika tidak cocok atau waktu habis, giliran berakhir dan Anda WAJIB menggeser satu ubin terdekat ke slot kosong.",
     "Taktik Geser: Menggeser ubin akan memindahkan semua chip di atasnya untuk mengecoh ingatan lawan! Anda tidak boleh langsung membalikkan geseran yang baru saja terjadi.",
     "Kemenangan: Pemain pertama yang mencapai target poin (atau poin terbanyak saat semua chip habis) menang!"
   ];
 
   // Initialize Board
-  const initBoard = useCallback((level = schoolLevel, chosenMode = mode) => {
-    const currentConf = LEVEL_SPECS[level] || LEVEL_SPECS.smp;
+  const initBoard = useCallback((level = schoolLevel, chosenMode = mode, arenaDifficulty = universityDifficulty) => {
+    const currentConf = level === 'universitas' ? UNIVERSITY_LEVELS[arenaDifficulty] : (LEVEL_SPECS[level] || LEVEL_SPECS.smp);
     const { cols: cCount, chipsPerTile: cpt, matchPairs: pairs } = currentConf;
 
     // Generate pairs 1..N
@@ -199,7 +205,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     setActivePlayer(1);
     setScore1(0);
     setScore2(0);
-    setTimer(10);
+    setTimer(currentConf.turnSeconds);
     setMemoTimer(0);
     setIsTimerActive(false);
     setIsLocked(false);
@@ -208,7 +214,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     setSelectedChipIndexes([]);
     setMode(chosenMode);
     aiMemory.current = {};
-  }, [schoolLevel, mode]);
+  }, [schoolLevel, mode, universityDifficulty]);
 
   // Timers
   useEffect(() => {
@@ -265,7 +271,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     playSound('flip');
     setChips(prev => prev.map(c => ({ ...c, isFlipped: false })));
     setPhase('match');
-    setTimer(10);
+    setTimer(config.turnSeconds);
     setIsTimerActive(true);
   };
 
@@ -293,7 +299,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     setActivePlayer(nextPlayer);
     setSelectedChipIndexes([]);
     setPhase('match');
-    setTimer(10);
+    setTimer(config.turnSeconds);
     setIsTimerActive(true);
 
     if (mode === 'pve' && nextPlayer === 2) {
@@ -352,7 +358,7 @@ export default function GameMnM({ onBack, onNavigate }) {
 
           const isOver = checkWinCondition(nextS1, nextS2, foundChips);
           if (!isOver) {
-            setTimer(10);
+            setTimer(config.turnSeconds);
             setIsTimerActive(true);
             if (mode === 'pve' && curPlayer === 2) {
               setTimeout(() => runAITurn(), 800);
@@ -536,6 +542,16 @@ export default function GameMnM({ onBack, onNavigate }) {
           { gridColumn: 3, gridRow: 3 }
         ][cIdx];
       }
+      if (chipsPerTile === 6) {
+        return [
+          { gridColumn: 1, gridRow: 1 },
+          { gridColumn: 2, gridRow: 1 },
+          { gridColumn: 3, gridRow: 1 },
+          { gridColumn: 1, gridRow: 3 },
+          { gridColumn: 2, gridRow: 3 },
+          { gridColumn: 3, gridRow: 3 }
+        ][cIdx];
+      }
       return [
         { gridColumn: 1, gridRow: 1 },
         { gridColumn: 3, gridRow: 1 },
@@ -637,7 +653,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD: 2×2 Grid (3 Tiles), 4 chips/tile (1–6, 6 pairs). Target: 4 pts.' : 'Level SD: Grid 2×2 (3 Ubin), 4 chip/ubin (1–6, 6 pasang). Target: 4 poin.',
     smpDesc: lang === 'en' ? 'SMP: 3×3 Grid (8 Tiles), 3 chips/tile (1–12, 12 pairs). Target: 7 pts.' : 'Level SMP: Grid 3×3 (8 Ubin), 3 chip/ubin (1–12, 12 pasang). Target: 7 poin.',
     smaDesc: lang === 'en' ? 'SMA: 3×3 Grid (8 Tiles), 4 chips/tile (1–16, 16 pairs). Target: 9 pts.' : 'Level SMA: Grid 3×3 (8 Ubin), 4 chip/ubin (1–16, 16 pasang). Target: 9 poin.',
-    univDesc: lang === 'en' ? 'Universitas: 3×3 Grid (8 Tiles), 5 chips/tile (1–20, 20 pairs). Target: 11 pts.' : 'Level Universitas: Grid 3×3 (8 Ubin), 5 chip/ubin (1–20, 20 pasang). Target: 11 poin.',
+    univDesc: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · ${config.cols}×${config.cols} grid · ${config.matchPairs} randomized pairs · ${config.turnSeconds}s/turn.` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Grid ${config.cols}×${config.cols} · ${config.matchPairs} pasangan acak · ${config.turnSeconds} dtk/giliran.`,
     startChallenge: lang === 'en' ? 'Start Challenge' : 'Mulai Tantangan',
     memoPhase: lang === 'en' ? 'Memorization Phase' : 'Fase Memorisasi',
     memoDesc: lang === 'en'
@@ -678,6 +694,7 @@ export default function GameMnM({ onBack, onNavigate }) {
           }
           lang={lang}
         >
+          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"
@@ -773,7 +790,7 @@ export default function GameMnM({ onBack, onNavigate }) {
             score1={score1}
             score2={score2}
             timer={phase === 'match' ? timer : null}
-            maxTime={10}
+            maxTime={config.turnSeconds}
             winScore={winScore}
             lang={lang}
             mode={mode}

@@ -5,11 +5,11 @@ import RPSHand from '../components/RPSHand.jsx';
 import Dialog from '../components/Dialog.jsx';
 import RulesModal from '../components/RulesModal.jsx';
 import Scoreboard from '../components/Scoreboard.jsx';
-import { SetupCard, TipsButton, MultiEndCard } from '../components/GameShell.jsx';
+import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
-import { DIRECTIONS, FACE_THEME, NET, LEVELS, WIN_SCORE, STEP_MS, STEP_PAUSE_MS, FOLD_MS,
-  createGame, nextMoveCount, duelReducer, canPlan, isPlanning, projectPath, faceRotation } from '../utils/duelDice.js';
+import { DIRECTIONS, FACE_THEME, NET, WIN_SCORE, STEP_MS, STEP_PAUSE_MS, FOLD_MS,
+  createGame, nextMoveCount, duelReducer, canPlan, isPlanning, projectPath, faceRotation, getDuelConfig } from '../utils/duelDice.js';
 
 const ARROWS = { up: '\u2191', down: '\u2193', left: '\u2190', right: '\u2192' };
 const LABELS = { up: ['Atas', 'Up'], down: ['Bawah', 'Down'], left: ['Kiri', 'Left'], right: ['Kanan', 'Right'] };
@@ -123,7 +123,7 @@ export default function GameRPS({ onBack, onNavigate }) {
   const [showRules, setShowRules] = useState(false);
   const resultButtonRef = useRef(null);
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const config = LEVELS[game.level];
+  const config = getDuelConfig(game.level, game.universityDifficulty);
 
   // Pause while a native dialog (including global search) is open or the tab is
   // hidden. Never consume a player's turn while they are reading the rules.
@@ -175,7 +175,7 @@ export default function GameRPS({ onBack, onNavigate }) {
     return () => cancelAnimationFrame(frame);
   }, [game.battle]);
 
-  const acknowledge = useCallback(() => dispatch({ type: 'ACK', nextMoves: nextMoveCount(game.level), turn: game.turn }), [game.level, game.turn]);
+  const acknowledge = useCallback(() => dispatch({ type: 'ACK', nextMoves: nextMoveCount(game.level, Math.random, game.universityDifficulty), turn: game.turn }), [game.level, game.universityDifficulty, game.turn]);
   useEffect(() => {
     const onKey = event => {
       if (!isPlanning(game) || event.ctrlKey || event.metaKey || event.altKey || document.querySelector('dialog[open]')) return;
@@ -194,8 +194,8 @@ export default function GameRPS({ onBack, onNavigate }) {
 
   const rules = lang === 'en' ? [
     'Memorize the six-square net. The CENTER square becomes the top of the die; the last square folds underneath.',
-    'Two players share one die on a 7 by 7 board. From START, the first step must be Down.',
-    `Fill every direction slot before rolling. Your level allows ${config.minMoves}-${config.maxMoves} steps and ${config.seconds} seconds per turn.`,
+    'Two players share one die on a 7 by 7 board. The die faces and every rock-paper-scissors arena tile are randomized for each new match. From START, the first step must be Down.',
+    `Fill every direction slot before rolling. Your level allows ${config.minMoves}-${config.maxMoves} steps and ${config.seconds} seconds per turn. University Arena Mode has Hard, Very Hard, and Impossible.`,
     'You cannot immediately reverse the last planned step, leave the board, or return to START. Undo or Clear edits the route.',
     'The die rolls one square at a time. ONLY the final bottom face battles the tile: rock beats scissors, scissors beat paper, and paper beats rock.',
     'Win: +1 point. Lose: -1 point. Draw: no change. Scores can go below zero. A timeout costs 1 point and does not move the die.',
@@ -203,8 +203,8 @@ export default function GameRPS({ onBack, onNavigate }) {
     'The timer pauses during folding, rolling, results, open dialogs, and while this tab is hidden.',
   ] : [
     'Hafalkan enam sisi pada jaring-jaring. Kotak TENGAH menjadi sisi ATAS dadu; kotak paling ujung terlipat ke BAWAH.',
-    'Dua pemain memakai satu dadu di papan 7 x 7. Langkah pertama dari START wajib ke Bawah.',
-    `Isi seluruh slot arah sebelum menggulirkan dadu. Jenjang ini memakai ${config.minMoves}-${config.maxMoves} langkah dan ${config.seconds} detik per giliran.`,
+    'Dua pemain memakai satu dadu di papan 7 x 7. Susunan sisi dadu dan seluruh ubin gunting-batu-kertas diacak pada setiap pertandingan baru. Langkah pertama dari START wajib ke Bawah.',
+    `Isi seluruh slot arah sebelum menggulirkan dadu. Jenjang ini memakai ${config.minMoves}-${config.maxMoves} langkah dan ${config.seconds} detik per giliran. Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible.`,
     'Tidak boleh langsung membalik arah langkah terakhir, keluar papan, atau kembali ke START. Gunakan Undo atau Clear untuk mengubah rencana.',
     'Dadu berguling per petak. HANYA sisi bawah di petak terakhir yang berduel: batu mengalahkan gunting, gunting mengalahkan kertas, kertas mengalahkan batu.',
     'Menang: +1 poin. Kalah: -1 poin. Seri: tidak berubah. Skor boleh negatif. Waktu habis mengurangi 1 poin tanpa memindahkan dadu.',
@@ -218,14 +218,15 @@ export default function GameRPS({ onBack, onNavigate }) {
   const planning = isPlanning(game);
   const paused = game.paused && game.status === 'planning';
   const timer = Math.ceil(game.remainingMs / 1000);
-  const reset = (level = game.level, phase = 'setup') => dispatch({ type: 'RESET', state: { ...createGame(level), phase } });
+  const reset = (level = game.level, phase = 'setup', universityDifficulty = game.universityDifficulty) => dispatch({ type: 'RESET', state: { ...createGame(level, Math.random, universityDifficulty), phase } });
 
   return <GameScreen gameId="rps" lang={lang} state={game.phase} level={game.level} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
     <RulesModal isOpen={showRules} onClose={() => setShowRules(false)} ruleList={rules} gameName={text('Duel Dadu', 'Dice Duel')}/>
 
     {game.phase === 'setup' && <SetupCard heading={text('Pilih Mode Arena', 'Select Arena Mode')} schoolLevel={game.level} onLevelChange={level => reset(level)} lang={lang}
-      desc={text(`Arena 7\u00d77 \u00b7 ${config.minMoves}-${config.maxMoves} langkah/giliran \u00b7 ${config.seconds} detik \u00b7 Target ${WIN_SCORE} poin`,
-        `7\u00d77 Arena \u00b7 ${config.minMoves}-${config.maxMoves} steps/turn \u00b7 ${config.seconds} seconds \u00b7 First to ${WIN_SCORE} points`)}>
+      desc={text(`Arena 7\u00d77 \u00b7 ${config.minMoves}-${config.maxMoves} langkah/giliran \u00b7 ${config.seconds} detik \u00b7 Target ${WIN_SCORE} poin${game.level === 'universitas' ? ` \u00b7 ${game.universityDifficulty === 'very-hard' ? 'Very Hard' : game.universityDifficulty === 'impossible' ? 'Impossible' : 'Hard'}` : ''}`,
+        `7\u00d77 Arena \u00b7 ${config.minMoves}-${config.maxMoves} steps/turn \u00b7 ${config.seconds} seconds \u00b7 First to ${WIN_SCORE} points${game.level === 'universitas' ? ` \u00b7 ${game.universityDifficulty === 'very-hard' ? 'Very Hard' : game.universityDifficulty === 'impossible' ? 'Impossible' : 'Hard'}` : ''}`)}>
+      {game.level === 'universitas' && <UniversityDifficultySelector value={game.universityDifficulty} onChange={value => reset('universitas', 'setup', value)} lang={lang}/>}
       <button className="uw-btn uw-btn-primary" onClick={() => dispatch({ type: 'NET' })}><Icon name="play" size={16}/>{text('Masuk arena', 'Enter arena')}</button>
       <TipsButton onClick={() => onNavigate?.('tips-rps')} lang={lang}/>
     </SetupCard>}
@@ -312,6 +313,6 @@ export default function GameRPS({ onBack, onNavigate }) {
     </Dialog>
 
     {game.phase === 'ended' && <MultiEndCard winner={game.winner} score1={game.scores[0]} score2={game.scores[1]} lang={lang}
-      onBack={onBack} onPlayAgain={() => reset(game.level, 'planar')}/>}
+      onBack={onBack} onPlayAgain={() => reset(game.level, 'planar', game.universityDifficulty)}/>}
   </GameScreen>;
 }

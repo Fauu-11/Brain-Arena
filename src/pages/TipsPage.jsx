@@ -405,8 +405,8 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
             {
               titleEn: 'Chunk the maze into zones',
               titleId: 'Bagi labirin menjadi beberapa zona',
-              textEn: 'Hard, Very Hard, and Extreme boards are easier to track if you remember progress by regions rather than by individual cells.',
-              textId: 'Papan Hard, Very Hard, dan Extreme lebih mudah diikuti jika kamu mengingat progres per wilayah, bukan per petak satu per satu.'
+              textEn: 'Hard, Very Hard, and Impossible boards are easier to track if you remember progress by regions rather than by individual cells.',
+              textId: 'Papan Hard, Very Hard, dan Impossible lebih mudah diikuti jika kamu mengingat progres per wilayah, bukan per petak satu per satu.'
             }
           ]
         }
@@ -443,8 +443,8 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
             {
               titleEn: 'Anchor the extremes first',
               titleId: 'Jadikan sisi terluar sebagai jangkar',
-              textEn: 'On 6×6 to 8×8 matrices, remember corner and edge cells first, then fill the interior clusters. Extreme mode rewards spatial chunking more than raw repetition.',
-              textId: 'Pada matriks 6×6 hingga 8×8, ingat petak sudut dan tepi terlebih dahulu, lalu isi kelompok bagian dalam. Mode Extreme lebih mengandalkan pengelompokan spasial daripada pengulangan mentah.'
+              textEn: 'On 6×6 to 8×8 matrices, remember corner and edge cells first, then fill the interior clusters. Impossible mode rewards spatial chunking more than raw repetition.',
+              textId: 'Pada matriks 6×6 hingga 8×8, ingat petak sudut dan tepi terlebih dahulu, lalu isi kelompok bagian dalam. Mode Impossible lebih mengandalkan pengelompokan spasial daripada pengulangan mentah.'
             }
           ]
         }

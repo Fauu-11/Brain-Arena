@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import Scoreboard from '../components/Scoreboard';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, MultiEndCard } from '../components/GameShell';
+import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external files needed)
 const playSound = (type) => {
@@ -104,11 +104,20 @@ const getSmallestFactor = (num) => {
   return num;
 };
 
+
+const UNIVERSITY_LEVELS = {
+  hard: { min: 1501, max: 4000, seconds: 24, hitChance: 0.80, hiddenAccuracy: 0.82 },
+  'very-hard': { min: 4001, max: 9000, seconds: 18, hitChance: 0.90, hiddenAccuracy: 0.90 },
+  impossible: { min: 9001, max: 20000, seconds: 12, hitChance: 0.96, hiddenAccuracy: 0.97 },
+};
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+
 export default function GamePrime({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [mode, setMode] = useState(null); // 'pvp' | 'pve'
   const [difficulty, setDifficulty] = useState('smp'); // 'sd', 'smp', 'sma', 'universitas'
+  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing', 'ended'
 
   // Board & Game loop
@@ -122,6 +131,8 @@ export default function GamePrime({ onBack, onNavigate }) {
   const [aiThinking, setAiThinking] = useState(false);
   const [aiTargetIdx, setAiTargetIdx] = useState(null);
   const [actionNotice, setActionNotice] = useState(null);
+  const universityConfig = UNIVERSITY_LEVELS[universityDifficulty];
+  const turnSeconds = difficulty === 'universitas' ? universityConfig.seconds : 30;
 
   // Hidden Cube Modal
   const [hiddenGuessModal, setHiddenGuessModal] = useState(null);
@@ -139,17 +150,23 @@ export default function GamePrime({ onBack, onNavigate }) {
   gameStateRef.current = gameState;
   const modeRef = useRef(mode);
   modeRef.current = mode;
+  const difficultyRef = useRef(difficulty);
+  difficultyRef.current = difficulty;
+  const universityDifficultyRef = useRef(universityDifficulty);
+  universityDifficultyRef.current = universityDifficulty;
+  const turnSecondsRef = useRef(turnSeconds);
+  turnSecondsRef.current = turnSeconds;
 
   const rules = lang === 'en' ? [
     "The board is filled with 25 unique number cubes. The goal is to identify Prime Numbers.",
-    "Players take turns selecting one cube per move within a 30-second time limit.",
+    "Players take turns selecting one cube per move. University Arena Mode uses Hard, Very Hard, and Impossible timers and number ranges.",
     "Selecting a Prime Number scores +1 Point and lets you KEEP your turn for another guess!",
     "Selecting a Composite (Non-Prime) Number reveals its prime factor breakdown and passes the turn to your opponent immediately.",
     "One cube is hidden as '?'. If you choose it and correctly guess whether it is Prime or Not Prime, you earn +3 Points!",
     "First player to reach 6 points wins the match immediately. If the board runs out of primes, the highest score wins."
   ] : [
     "Papan diisi dengan 25 kubus angka unik. Tujuannya adalah menemukan Bilangan Prima.",
-    "Pemain bergantian memilih satu kubus per giliran dalam batas waktu 30 detik.",
+    "Pemain bergantian memilih satu kubus per giliran. Mode Arena Universitas memakai timer dan rentang angka Hard, Very Hard, dan Impossible.",
     "Memilih Bilangan Prima menghasilkan +1 Poin dan Anda MEMPERTAHANKAN giliran untuk menebak lagi!",
     "Memilih Bilangan Komposit (Bukan Prima) akan mengungkap faktor pembaginya dan langsung mengalihkan giliran ke lawan.",
     "Satu kubus disembunyikan sebagai '?'. Jika Anda menebak dengan benar apakah nilainya Prima atau Bukan, Anda mendapat +3 Poin!",
@@ -157,7 +174,7 @@ export default function GamePrime({ onBack, onNavigate }) {
   ];
 
   // Helper: Generate unique numbers
-  const generateUniqueBoard = useCallback((level) => {
+  const generateUniqueBoard = useCallback((level, arenaDifficulty = universityDifficulty) => {
     let min, max;
     if (level === 'sd') {
       min = 2; max = 99;
@@ -166,7 +183,8 @@ export default function GamePrime({ onBack, onNavigate }) {
     } else if (level === 'sma') {
       min = 501; max = 1500;
     } else {
-      min = 1501; max = 4000;
+      const arena = UNIVERSITY_LEVELS[arenaDifficulty] || UNIVERSITY_LEVELS.hard;
+      min = arena.min; max = arena.max;
     }
 
     const usedNumbers = new Set();
@@ -239,16 +257,16 @@ export default function GamePrime({ onBack, onNavigate }) {
     });
 
     return cells;
-  }, []);
+  }, [universityDifficulty]);
 
   // Start game
   const startChallenge = (chosenMode) => {
-    const newBoard = generateUniqueBoard(difficulty);
+    const newBoard = generateUniqueBoard(difficulty, universityDifficulty);
     setBoard(newBoard);
     setScore1(0);
     setScore2(0);
     setActivePlayer(1);
-    setTurnTimer(30);
+    setTurnTimer(turnSecondsRef.current);
     setIsTimerActive(true);
     setWinner(null);
     setAiThinking(false);
@@ -262,7 +280,7 @@ export default function GamePrime({ onBack, onNavigate }) {
   const handleTurnEnd = useCallback(() => {
     if (gameStateRef.current !== 'playing') return;
 
-    setTurnTimer(30);
+    setTurnTimer(turnSecondsRef.current);
     if (modeRef.current === 'pvp') {
       setActivePlayer(prev => (prev === 1 ? 2 : 1));
       setIsTimerActive(true);
@@ -355,7 +373,9 @@ export default function GamePrime({ onBack, onNavigate }) {
 
       let targetIdx;
       // University/SMA AI is sharper (80% / 65% chance of picking a prime if available)
-      const hitChance = difficulty === 'universitas' ? 0.8 : difficulty === 'sma' ? 0.65 : 0.45;
+      const activeDifficulty = difficultyRef.current;
+      const activeArena = UNIVERSITY_LEVELS[universityDifficultyRef.current] || UNIVERSITY_LEVELS.hard;
+      const hitChance = activeDifficulty === 'universitas' ? activeArena.hitChance : activeDifficulty === 'sma' ? 0.65 : 0.45;
 
       if (hiddenAvailable.length > 0 && Math.random() < 0.25) {
         targetIdx = hiddenAvailable[0];
@@ -385,7 +405,9 @@ export default function GamePrime({ onBack, onNavigate }) {
 
     if (cell.isHidden) {
       // AI guesses prime vs not-prime
-      const aiAccuracy = difficulty === 'universitas' ? 0.8 : 0.6;
+      const activeDifficulty = difficultyRef.current;
+      const activeArena = UNIVERSITY_LEVELS[universityDifficultyRef.current] || UNIVERSITY_LEVELS.hard;
+      const aiAccuracy = activeDifficulty === 'universitas' ? activeArena.hiddenAccuracy : 0.6;
       const guessedPrime = Math.random() < aiAccuracy ? cell.isPrime : !cell.isPrime;
       const isCorrect = guessedPrime === cell.isPrime;
 
@@ -399,7 +421,7 @@ export default function GamePrime({ onBack, onNavigate }) {
         });
 
         if (!checkGameConditions(currentBoard, score1Ref.current, newScore2)) {
-          setTurnTimer(30);
+          setTurnTimer(turnSecondsRef.current);
           scheduleAITurn();
         }
       } else {
@@ -421,7 +443,7 @@ export default function GamePrime({ onBack, onNavigate }) {
         });
 
         if (!checkGameConditions(currentBoard, score1Ref.current, newScore2)) {
-          setTurnTimer(30);
+          setTurnTimer(turnSecondsRef.current);
           scheduleAITurn();
         }
       } else {
@@ -464,7 +486,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       });
 
       if (!checkGameConditions(newBoard, activePlayer === 1 ? nextScore : score1, activePlayer === 2 ? nextScore : score2)) {
-        setTurnTimer(30);
+        setTurnTimer(turnSecondsRef.current);
       }
     } else {
       playSound('wrong');
@@ -503,7 +525,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       });
 
       if (!checkGameConditions(newBoard, activePlayer === 1 ? nextScore : score1, activePlayer === 2 ? nextScore : score2)) {
-        setTurnTimer(30);
+        setTurnTimer(turnSecondsRef.current);
       }
     } else {
       playSound('wrong');
@@ -522,7 +544,7 @@ export default function GamePrime({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD Level: Numbers 2 – 99 (Fundamentals)' : 'Level SD: Angka 2 – 99 (Dasar)',
     smpDesc: lang === 'en' ? 'SMP Level: Numbers 101 – 500 (Intermediate)' : 'Level SMP: Angka 101 – 500 (Menengah)',
     smaDesc: lang === 'en' ? 'SMA Level: Numbers 501 – 1500 (Advanced divisibility)' : 'Level SMA: Angka 501 – 1500 (Keterbagian lanjutan)',
-    univDesc: lang === 'en' ? 'Universitas Level: Numbers 1501 – 4000 (Challenging primes)' : 'Level Universitas: Angka 1501 – 4000 (Tantangan tinggi)',
+    univDesc: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · Numbers ${universityConfig.min}–${universityConfig.max} · ${turnSeconds}s turns · randomized board` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Angka ${universityConfig.min}–${universityConfig.max} · ${turnSeconds} dtk/giliran · papan acak`,
     pvp: lang === 'en' ? 'Local 1v1 Hotseat' : 'Duel 1v1 Lokal',
     pve: lang === 'en' ? 'vs AI Bot' : 'Lawan AI Bot',
     passTurn: lang === 'en' ? 'Skip / Pass Turn' : 'Lewati Giliran',
@@ -565,6 +587,7 @@ export default function GamePrime({ onBack, onNavigate }) {
           desc={difficulty === 'sd' ? t.sdDesc : difficulty === 'smp' ? t.smpDesc : difficulty === 'sma' ? t.smaDesc : t.univDesc}
           lang={lang}
         >
+          {difficulty === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
           <div style={{ display: 'flex', gap: 'var(--uw-space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"
@@ -598,7 +621,7 @@ export default function GamePrime({ onBack, onNavigate }) {
             score1={score1}
             score2={score2}
             timer={turnTimer}
-            maxTime={30}
+            maxTime={turnSeconds}
             lang={lang}
             mode={mode}
           />

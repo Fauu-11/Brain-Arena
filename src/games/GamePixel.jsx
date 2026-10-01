@@ -5,7 +5,7 @@ import { readText, writeText } from '../utils/storage.js';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell';
+import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Digital numbers 0-9 in a 3x5 grid (15 boolean values)
 const DIGIT_TEMPLATES = [
@@ -96,11 +96,20 @@ const playSound = (type) => {
   }
 };
 
+
+const UNIVERSITY_LEVELS = {
+  hard: { targets: 3, cards: 15, splitMin: 3, splitMax: 4 },
+  'very-hard': { targets: 4, cards: 20, splitMin: 3, splitMax: 4 },
+  impossible: { targets: 5, cards: 26, splitMin: 4, splitMax: 5 },
+};
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+
 export default function GamePixel({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing', 'ended'
   const [schoolLevel, setSchoolLevel] = useState('universitas');
+  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
 
   // Game states
   const [targets, setTargets] = useState([]);
@@ -115,11 +124,13 @@ export default function GamePixel({ onBack, onNavigate }) {
   const [hintActive, setHintActive] = useState(false);
   const [shakePreview, setShakePreview] = useState(false);
 
+  const recordKey = schoolLevel === 'universitas' ? `pixel_best_${schoolLevel}_${universityDifficulty}` : `pixel_best_${schoolLevel}`;
+
   // Load best time on level change
   useEffect(() => {
-    const saved = readText(`pixel_best_${schoolLevel}`);
+    const saved = readText(recordKey);
     setBestTime(saved !== null && Number.isFinite(Number(saved)) && Number(saved) >= 0 ? Number(saved) : null);
-  }, [schoolLevel]);
+  }, [recordKey]);
 
   const rules = lang === 'en' ? [
     "Pixel Number is a visual logic puzzle where you combine fragmented cards without overlaps to reconstruct digital numbers.",
@@ -128,6 +139,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     "Click cards on the board to stack them into the Live Preview area.",
     "Look at the Live Preview: if any pixels clash, they will glow red with an overlap alert.",
     "When you have assembled the exact shape of an unsolved target, press 'Check Selection' (or Space/Enter) to claim it!",
+    "University Arena Mode adds Hard, Very Hard, and Impossible with more randomized target digits, more cards, and finer fragments.",
     "Clear all target digits in the fastest time to record a high score!"
   ] : [
     "Piksel Angka adalah teka-teki logika visual di mana Anda menggabungkan pecahan kartu tanpa tumpang tindih untuk merekonstruksi angka digital.",
@@ -136,6 +148,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     "Klik kartu di papan untuk menumpuknya ke area Pratinjau Langsung.",
     "Perhatikan Pratinjau: jika ada piksel yang bentrok, piksel tersebut akan menyala merah sebagai peringatan overlap.",
     "Setelah bentuknya cocok persis dengan salah satu target yang belum selesai, tekan 'Periksa Terpilih' (atau Spasi/Enter)!",
+    "Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible dengan lebih banyak digit target acak, kartu, dan pecahan.",
     "Selesaikan semua angka target secepat mungkin untuk mencatatkan rekor waktu terbaik!"
   ];
 
@@ -154,8 +167,9 @@ export default function GamePixel({ onBack, onNavigate }) {
 
   // Guaranteed robust board generator
   const initGame = useCallback((level = schoolLevel) => {
-    const targetsCount = level === 'sd' ? 1 : level === 'smp' ? 2 : 3;
-    const totalCardsCount = level === 'sd' ? 6 : level === 'smp' ? 10 : level === 'sma' ? 12 : 15;
+    const arena = level === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : null;
+    const targetsCount = level === 'sd' ? 1 : level === 'smp' ? 2 : level === 'sma' ? 3 : arena.targets;
+    const totalCardsCount = level === 'sd' ? 6 : level === 'smp' ? 10 : level === 'sma' ? 12 : arena.cards;
 
     // Pick random unique digits
     const digitsPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
@@ -176,10 +190,13 @@ export default function GamePixel({ onBack, onNavigate }) {
 
       // Determine split count based on difficulty and number of pixels available
       let splitsCount = 2;
-      if (activeIndices.length >= 10) {
-        if (level === 'smp' || level === 'sma') splitsCount = Math.random() < 0.5 ? 2 : 3;
-        else if (level === 'universitas') splitsCount = Math.random() < 0.6 ? 3 : 4;
-      } else if (activeIndices.length >= 7 && (level === 'sma' || level === 'universitas')) {
+      if (level === 'universitas') {
+        const upper = Math.min(arena.splitMax, activeIndices.length);
+        const lower = Math.min(arena.splitMin, upper);
+        splitsCount = lower + Math.floor(Math.random() * (upper - lower + 1));
+      } else if (activeIndices.length >= 10 && (level === 'smp' || level === 'sma')) {
+        splitsCount = Math.random() < 0.5 ? 2 : 3;
+      } else if (activeIndices.length >= 7 && level === 'sma') {
         splitsCount = Math.random() < 0.5 ? 2 : 3;
       }
 
@@ -207,7 +224,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     });
 
     // Generate balanced distractor cards
-    const neededDistractors = totalCardsCount - generatedCards.length;
+    const neededDistractors = Math.max(0, totalCardsCount - generatedCards.length);
     for (let d = 0; d < neededDistractors; d++) {
       const distGrid = Array(15).fill(false);
       const activeCount = Math.floor(Math.random() * 3) + 2; // 2 to 4 pixels
@@ -236,7 +253,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     setAttempts(0);
     setHintActive(false);
     setGameState('playing');
-  }, [schoolLevel, lang]);
+  }, [schoolLevel, universityDifficulty, lang]);
 
   // Timer
   useEffect(() => {
@@ -327,7 +344,7 @@ export default function GamePixel({ onBack, onNavigate }) {
         playSound('win');
         const finalTime = elapsedTime;
         if (bestTime === null || finalTime < bestTime) {
-          writeText(`pixel_best_${schoolLevel}`, finalTime.toString());
+          writeText(recordKey, finalTime.toString());
           setBestTime(finalTime);
         }
         setTimeout(() => {
@@ -421,7 +438,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD Level: 1 Target Number, 6 cards pool' : 'Level SD: 1 Digit Target, pool 6 kartu',
     smpDesc: lang === 'en' ? 'SMP Level: 2 Target Numbers, 10 cards pool' : 'Level SMP: 2 Digit Target, pool 10 kartu',
     smaDesc: lang === 'en' ? 'SMA Level: 3 Target Numbers, 12 cards pool' : 'Level SMA: 3 Digit Target, pool 12 kartu',
-    univDesc: lang === 'en' ? 'Universitas Level: 3 Target Numbers, 15 cards pool (Complex splits)' : 'Level Universitas: 3 Digit Target, pool 15 kartu (Pecahan kompleks)',
+    univDesc: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} random target digits · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} cards` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} digit target acak · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} kartu`,
     startPuzzle: lang === 'en' ? 'Start Puzzle' : 'Mulai Teka-Teki',
     targetDigits: lang === 'en' ? 'TARGET DIGITS' : 'DIGIT TARGET',
     stackArea: lang === 'en' ? 'STACKING SYNTHESIZER' : 'SINTESIS TUMPUKAN',
@@ -459,6 +476,7 @@ export default function GamePixel({ onBack, onNavigate }) {
           desc={schoolLevel === 'sd' ? t.sdDesc : schoolLevel === 'smp' ? t.smpDesc : schoolLevel === 'sma' ? t.smaDesc : t.univDesc}
           lang={lang}
         >
+          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
           <div style={{ display: 'flex', gap: 'var(--uw-space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"

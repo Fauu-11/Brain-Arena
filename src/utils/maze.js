@@ -59,6 +59,44 @@ export function moveInMaze(maze, rows, cols, index, direction) {
   return r * cols + c;
 }
 
+
+export function chooseMazeEndpoints(maze, rows, cols, rng = Math.random) {
+  assertSize(rows, cols);
+  if (!Array.isArray(maze) || maze.length !== rows * cols) throw new RangeError('Maze data does not match its dimensions.');
+  if (typeof rng !== 'function') throw new TypeError('rng must be a function.');
+
+  const boundary = [];
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      if (r === 0 || c === 0 || r === rows - 1 || c === cols - 1) boundary.push(r * cols + c);
+    }
+  }
+  const raw = Number(rng());
+  const normalized = Number.isFinite(raw) ? Math.max(0, Math.min(0.999999999, raw)) : 0;
+  const start = boundary[Math.floor(normalized * boundary.length)];
+
+  const distance = Array(maze.length).fill(-1);
+  const queue = [start];
+  distance[start] = 0;
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    const current = queue[cursor];
+    for (const name of Object.keys(MAZE_DIRECTIONS)) {
+      const next = moveInMaze(maze, rows, cols, current, name);
+      if (next !== current && distance[next] === -1) {
+        distance[next] = distance[current] + 1;
+        queue.push(next);
+      }
+    }
+  }
+
+  const ranked = boundary.filter(index => index !== start).sort((a, b) => distance[b] - distance[a]);
+  const candidateCount = Math.max(1, Math.ceil(ranked.length * 0.2));
+  const rawTarget = Number(rng());
+  const normalizedTarget = Number.isFinite(rawTarget) ? Math.max(0, Math.min(0.999999999, rawTarget)) : 0;
+  const target = ranked[Math.floor(normalizedTarget * candidateCount)];
+  return { start, target, distance: distance[target] };
+}
+
 export function shortestMazePathLength(maze, rows, cols, start = 0, target = rows * cols - 1) {
   assertSize(rows, cols);
   if (!Array.isArray(maze) || maze.length !== rows * cols) throw new RangeError('Maze data does not match its dimensions.');

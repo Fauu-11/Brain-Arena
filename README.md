@@ -1,6 +1,43 @@
-# Brain Arena v1.9 — Season, Events, Mastery & New Games
+# Brain Arena v1.10 — Random Arena & Impossible Mode
 
-Brain Arena v1.9 melanjutkan seluruh fitur v1.8 tanpa menghapus progres lama. Achievement, Daily/Weekly Mission, Leaderboard lokal, PWA, Arena Rank, Profile Customization, Advanced Statistics, Daily Challenge, XP/Level, panduan lengkap, dan 10 game sebelumnya tetap dipertahankan.
+Brain Arena v1.10 melanjutkan seluruh fitur v1.9. Pembaruan ini menstandarkan **Mode Arena Universitas** dan memastikan konten permainan berubah pada sesi baru, sehingga pemain tidak menghafal satu papan atau satu set soal yang sama.
+
+## Pembaruan v1.10 — Random Arena
+
+Semua **12 game** sekarang menampilkan Mode Arena Universitas dengan tiga tingkat yang sama:
+
+```text
+Hard
+Very Hard
+Impossible
+```
+
+Nama lama **Extreme** dimigrasikan menjadi **Impossible**. Record Maze/Memory Matrix versi lama tetap dapat dibaca sebagai kompatibilitas legacy.
+
+Randomisasi per game:
+
+| Game | Yang diacak pada sesi baru |
+| --- | --- |
+| Blitz Aritmatika | angka, operator, kategori aktif, variasi faktorial/eksponen/akar/basis |
+| Perburuan Prima | 25 angka papan dan kubus misteri |
+| Digit Piksel | digit target, pecahan kartu, distractor, urutan kartu |
+| Match & Mix | pasangan angka dan posisi chip |
+| Hitung Kubus | tinggi tumpukan dan orientasi susunan |
+| Duel Dadu | simbol sisi dadu dan isi arena gunting-batu-kertas |
+| Sudoku Buta | solusi Sudoku dan mask sel tersembunyi |
+| Minesweeper | posisi ranjau setelah klik pertama aman |
+| Maze Escape | struktur labirin **serta posisi START dan EXIT di perimeter** |
+| Memory Matrix | pola target baru pada setiap ronde |
+| Nonogram | pola tersembunyi dan clue yang dihasilkan |
+| 2048 | posisi dua ubin awal dan spawn 2/4 setelah gerakan valid |
+
+Maze tidak lagi selalu dimulai di kiri atas dan selesai di kanan bawah. Generator memilih START acak di tepi arena, lalu memilih EXIT jauh yang juga berada di tepi, sambil mempertahankan jaminan maze dapat diselesaikan.
+
+### Mode Arena Universitas
+
+Hard, Very Hard, dan Impossible bukan hanya label. Setiap game menaikkan satu atau beberapa parameter seperti ukuran papan, rentang angka, jumlah target, kepadatan pola, jumlah langkah, bantuan, atau timer. Detail lengkap tersedia di Panduan Game.
+
+## Fitur v1.9 yang tetap tersedia
 
 Fokus v1.9:
 
@@ -71,7 +108,7 @@ Mastery tidak menggantikan Level atau Arena Rank; ketiganya mengukur progres yan
 
 Setup setiap game dapat menampilkan rekomendasi jenjang berdasarkan jumlah sesi dan mastery pemain. Rekomendasi bergerak dari SD → SMP → SMA → Universitas dan tetap bersifat saran; pemain bebas memilih tingkat apa pun.
 
-Untuk pemain berprogres tinggi, sistem juga menghitung rekomendasi Universitas Hard / Very Hard / Extreme. Pilihan advanced tetap ditentukan pemain pada selector Universitas masing-masing game.
+Untuk pemain berprogres tinggi, sistem juga menghitung rekomendasi Universitas Hard / Very Hard / Impossible. Pilihan advanced tetap ditentukan pemain pada selector Universitas masing-masing game.
 
 ## Export / Import Progress
 
@@ -142,7 +179,7 @@ Tingkat:
 | SMA | 10×10 |
 | Universitas Hard | 12×12 |
 | Universitas Very Hard | 15×15 |
-| Universitas Extreme | 20×20 |
+| Universitas Impossible | 20×20 |
 
 Fitur:
 - clue baris dan kolom;
@@ -170,7 +207,7 @@ Target:
 | SMA | 512 |
 | Universitas Hard | 1024 |
 | Universitas Very Hard | 2048 |
-| Universitas Extreme | 4096 |
+| Universitas Impossible | 4096 |
 
 Kontrol:
 - Arrow Keys / WASD;
@@ -250,7 +287,7 @@ Untuk update repository:
 
 ```bash
 git add .
-git commit -m "Upgrade Brain Arena v1.9 season mastery accessibility and new games"
+git commit -m "Upgrade Brain Arena to v1.10 Random Arena"
 git push origin main
 ```
 
@@ -259,21 +296,22 @@ git push origin main
 PWA dari v1.7 tetap dipertahankan. Cache service worker sekarang:
 
 ```text
-brain-arena-v1.9.0
+brain-arena-v1.10.0
 ```
 
 Shortcut manifest diperbarui untuk Season, Live Events, Game Mastery, dan Player Statistics.
 
-## Pengujian v1.9
+## Pengujian v1.10
 
-- **83/83 unit test lulus**.
-- Portable build: **67 module source**.
-- HTTP verification: **86 checks lulus**.
-- Browser QA khusus v1.9 pada 1440 px dan 390 px untuk Season, Events, Mastery, Settings, Nonogram, dan 2048.
-- Interaksi Accessibility diuji pada mobile: reduced motion, high contrast, larger text, dan dark theme.
-- Result Screen v2 diuji melalui penyelesaian Hitung Kubus dan menghasilkan Account XP, +50 MXP, +40 SXP, serta bonus event yang sesuai.
-- Home dan Profile juga diverifikasi ulang pada desktop/mobile setelah penambahan fitur v1.9.
-- Tidak ditemukan uncaught JavaScript error pada skenario QA v1.9 yang dijalankan.
+- **88/88 unit test lulus**.
+- Portable build: **68 module source**.
+- HTTP verification: **87 checks lulus**.
+- Semua **12 game** diverifikasi menampilkan selector Arena Universitas **Hard / Very Hard / Impossible**.
+- Impossible-mode smoke test lulus untuk 12/12 game pada mobile 390 px tanpa uncaught JavaScript error atau page-level horizontal overflow.
+- Maze diuji dengan enam restart berurutan; enam pasangan START/EXIT berbeda dihasilkan pada skenario QA tersebut.
+- Unit test Maze memverifikasi START/EXIT selalu berbeda, berada di perimeter, terhubung oleh jalur valid, dan tidak dipatok pada sudut yang sama.
+- Maze Escape dan Memory Matrix Impossible juga diverifikasi pada 1440, 390, dan 320 px.
+- Record legacy `extreme` tetap dapat dibaca oleh halaman Activity saat nama aktif berubah menjadi `Impossible`.
 
 Lihat `TEST_REPORT.md` untuk detail dan batas pengujian.
 

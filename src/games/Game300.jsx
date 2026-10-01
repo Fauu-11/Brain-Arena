@@ -3,7 +3,7 @@ import Icon from '../components/Icon.jsx';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, SoloEndCard } from '../components/GameShell';
+import { SetupCard, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Normalisasi jawaban untuk toleransi format (koma/titik desimal, pemisah ribuan, spasi, huruf besar/kecil)
 const normalizeAns = (val) => {
@@ -28,7 +28,8 @@ export default function Game300({ onBack, onNavigate }) {
   const [mode, setMode] = useState(null); // null, 'practice_setup', 'war_setup', 'practice', 'war'
   const [schoolLevel, setSchoolLevel] = useState('universitas'); // 'sd', 'smp', 'sma', 'universitas'
   const [showRules, setShowRules] = useState(false);
-  const [difficulty, setDifficulty] = useState('medium'); // 'easy', 'medium', 'hard', 'impossible'
+  const [difficulty, setDifficulty] = useState('medium'); // non-University scale
+  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
   const [warPagesCount, setWarPagesCount] = useState(10); // 1 to 10 pages (30 to 300 questions)
   const [practiceQuestionsCount, setPracticeQuestionsCount] = useState(30);
 
@@ -148,9 +149,13 @@ export default function Game300({ onBack, onNavigate }) {
   const generateEquation = useCallback(
     (lvl = schoolLevel) => {
       let multiplier = 1;
-      if (difficulty === 'easy') multiplier = 0.5;
-      else if (difficulty === 'hard') multiplier = 1.6;
-      else if (difficulty === 'impossible') multiplier = 3.0;
+      if (lvl === 'universitas') {
+        multiplier = universityDifficulty === 'impossible' ? 3.4 : universityDifficulty === 'very-hard' ? 2.25 : 1.6;
+      } else {
+        if (difficulty === 'easy') multiplier = 0.5;
+        else if (difficulty === 'hard') multiplier = 1.6;
+        else if (difficulty === 'impossible') multiplier = 3.0;
+      }
 
       // 1. SD (SEKOLAH DASAR)
       if (lvl === 'sd') {
@@ -415,33 +420,27 @@ export default function Game300({ onBack, onNavigate }) {
         const c = Math.floor(Math.random() * 15) + 3;
         return { equation: `${a} + ${b} × ${c}`, answer: (a + b * c).toString() };
       } else if (cat === 'factorial') {
-        const options = [
-          { eq: '5! - 4!', ans: 96 },
-          { eq: '6! - 5!', ans: 600 },
-          { eq: '7! - 6!', ans: 4320 },
-          { eq: '5! ÷ 3!', ans: 20 },
-          { eq: '6! ÷ 4!', ans: 30 },
-          { eq: '4! × 3', ans: 72 },
-          { eq: '5! + 4!', ans: 144 },
-        ];
-        const pick = options[Math.floor(Math.random() * options.length)];
-        return { equation: pick.eq, answer: pick.ans.toString() };
+        const factorial = (n) => { let out = 1; for (let i = 2; i <= n; i++) out *= i; return out; };
+        const minN = universityDifficulty === 'impossible' ? 8 : universityDifficulty === 'very-hard' ? 7 : 6;
+        const maxN = universityDifficulty === 'impossible' ? 10 : universityDifficulty === 'very-hard' ? 9 : 8;
+        const n = minN + Math.floor(Math.random() * (maxN - minN + 1));
+        const style = Math.floor(Math.random() * 3);
+        if (style === 0) return { equation: `${n}! - ${n - 1}!`, answer: (factorial(n) - factorial(n - 1)).toString() };
+        if (style === 1) return { equation: `${n}! ÷ ${n - 2}!`, answer: (factorial(n) / factorial(n - 2)).toString() };
+        return { equation: `${n - 1}! + ${n - 2}!`, answer: (factorial(n - 1) + factorial(n - 2)).toString() };
       } else if (cat === 'exponentiation') {
-        const options = [
-          { eq: '3⁴ - 2⁵ + 5³', ans: 174 },
-          { eq: '4³ - 3³ + 2⁶', ans: 101 },
-          { eq: '9³ - 8³ + 3⁴', ans: 298 },
-          { eq: '5³ - 4³ + 2⁸', ans: 317 },
-          { eq: '2⁷ + 3⁴ - 4³', ans: 145 },
-          { eq: '6³ - 5³ + 2⁵', ans: 123 },
-        ];
-        const pick = options[Math.floor(Math.random() * options.length)];
-        return { equation: pick.eq, answer: pick.ans.toString() };
+        const baseA = Math.floor(Math.random() * (universityDifficulty === 'impossible' ? 7 : 5)) + 3;
+        const baseB = Math.floor(Math.random() * 4) + 2;
+        const powA = universityDifficulty === 'impossible' ? Math.floor(Math.random() * 3) + 4 : Math.floor(Math.random() * 2) + 3;
+        const powB = universityDifficulty === 'hard' ? 3 : Math.floor(Math.random() * 2) + 3;
+        const bonus = Math.floor(Math.random() * 80 * multiplier) + 20;
+        const answer = (baseA ** powA) - (baseB ** powB) + bonus;
+        return { equation: `${baseA}^${powA} - ${baseB}^${powB} + ${bonus}`, answer: answer.toString() };
       } else if (cat === 'root') {
         const x = Math.floor(Math.random() * 80 + 30);
         return { equation: `√${x * x}`, answer: x.toString() };
       } else {
-        const val = Math.floor(Math.random() * 120) + 20;
+        const val = Math.floor(Math.random() * Math.round(120 * multiplier)) + 20;
         const bases = [
           { name: lang === 'en' ? 'bin' : 'biner', b: 2 },
           { name: lang === 'en' ? 'oct' : 'oktal', b: 8 },
@@ -452,7 +451,7 @@ export default function Game300({ onBack, onNavigate }) {
         return { equation: `${val} → ${base.name}`, answer: ans };
       }
     },
-    [categories, difficulty, lang, schoolLevel]
+    [categories, difficulty, universityDifficulty, lang, schoolLevel]
   );
 
   // ─── PEMBERSIHAN MEMORY SAAT UNMOUNT ────────────────────────────────────────
@@ -645,6 +644,7 @@ export default function Game300({ onBack, onNavigate }) {
           `The test is split into ${warPagesCount} page(s) with exactly 30 questions per page.`,
           'You can only advance to the next page once ALL 30 questions on the current page are 100% correct.',
           'Submitting incorrect answers locks the inputs for a 10-second penalty.',
+          'Every new session regenerates the numbers, operators, and University question variants. University Arena Mode has Hard, Very Hard, and Impossible.',
           'Use the Enter or Arrow keys to quickly jump between question inputs.',
         ]
       : [
@@ -652,6 +652,7 @@ export default function Game300({ onBack, onNavigate }) {
           `Ujian dibagi menjadi ${warPagesCount} halaman dengan tepat 30 soal per halaman.`,
           'Anda hanya dapat melanjutkan ke halaman berikutnya jika seluruh 30 soal di halaman tersebut 100% benar.',
           'Jika terdapat jawaban salah saat mengirim halaman, input akan terkunci selama 10 detik sebagai penalti.',
+          'Setiap sesi baru mengacak kembali angka, operator, dan variasi soal Universitas. Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible.',
           'Gunakan tombol Enter atau tombol Panah pada keyboard untuk berpindah soal secara cepat.',
         ];
 
@@ -845,32 +846,36 @@ export default function Game300({ onBack, onNavigate }) {
             )}
 
             {/* Tingkat Kesulitan */}
-            <div style={{ borderTop: '1px solid var(--uw-border)', paddingTop: '12px' }}>
-              <span style={{ display: 'block', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '8px' }}>
-                ⚡ {lang === 'en' ? 'Difficulty Scale:' : 'Tingkat Kesulitan:'}
-              </span>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {['easy', 'medium', 'hard', 'impossible'].map((diff) => (
-                  <button
-                    key={diff}
-                    type="button"
-                    onClick={() => setDifficulty(diff)}
-                    style={{
-                      flex: 1,
-                      padding: '8px 4px',
-                      fontSize: '0.9rem',
-                      backgroundColor: difficulty === diff ? 'var(--uw-secondary)' : 'var(--uw-bg)',
-                      color: difficulty === diff ? '#ffffff' : 'var(--uw-text)',
-                      border: '1px solid var(--uw-border)',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {diff.toUpperCase()}
-                  </button>
-                ))}
+            {schoolLevel === 'universitas' ? (
+              <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>
+            ) : (
+              <div style={{ borderTop: '1px solid var(--uw-border)', paddingTop: '12px' }}>
+                <span style={{ display: 'block', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '8px' }}>
+                  ⚡ {lang === 'en' ? 'Difficulty Scale:' : 'Tingkat Kesulitan:'}
+                </span>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {['easy', 'medium', 'hard', 'impossible'].map((diff) => (
+                    <button
+                      key={diff}
+                      type="button"
+                      onClick={() => setDifficulty(diff)}
+                      style={{
+                        flex: 1,
+                        padding: '8px 4px',
+                        fontSize: '0.9rem',
+                        backgroundColor: difficulty === diff ? 'var(--uw-secondary)' : 'var(--uw-bg)',
+                        color: difficulty === diff ? '#ffffff' : 'var(--uw-text)',
+                        border: '1px solid var(--uw-border)',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {diff.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>

@@ -6,7 +6,7 @@ import { readText, writeText } from '../utils/storage.js';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell';
+import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external sound files required)
 const playSound = (type) => {
@@ -98,14 +98,20 @@ const LEVEL_CONFIG = {
   sd: { size: 4, boxRows: 2, boxCols: 2, hiddenMin: 4, hiddenMax: 6, maxPeeks: 3 },
   smp: { size: 6, boxRows: 2, boxCols: 3, hiddenMin: 10, hiddenMax: 14, maxPeeks: 2 },
   sma: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 22, hiddenMax: 26, maxPeeks: 2 },
-  universitas: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 34, hiddenMax: 40, maxPeeks: 1 }
 };
+const UNIVERSITY_LEVELS = {
+  hard: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 34, hiddenMax: 40, maxPeeks: 1 },
+  'very-hard': { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 44, hiddenMax: 50, maxPeeks: 1 },
+  impossible: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 52, hiddenMax: 58, maxPeeks: 0 },
+};
+const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 export default function GameSudoku({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [phase, setPhase] = useState('setup'); // 'setup', 'start' (memo), 'playing', 'ended'
   const [schoolLevel, setSchoolLevel] = useState('smp');
+  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
 
   // Sudoku Board Data
   const [solution, setSolution] = useState([]);
@@ -119,18 +125,19 @@ export default function GameSudoku({ onBack, onNavigate }) {
   const [isPeeking, setIsPeeking] = useState(false);
   const [bestTime, setBestTime] = useState(null);
 
-  const activeConfig = LEVEL_CONFIG[schoolLevel] || LEVEL_CONFIG.smp;
+  const activeConfig = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_CONFIG[schoolLevel] || LEVEL_CONFIG.smp);
+  const recordKey = schoolLevel === 'universitas' ? `blind_sudoku_best_${schoolLevel}_${universityDifficulty}` : `blind_sudoku_best_${schoolLevel}`;
   const { size, boxRows, boxCols } = activeConfig;
 
   // Load best time from localStorage
   useEffect(() => {
-    const saved = readText(`blind_sudoku_best_${schoolLevel}`);
+    const saved = readText(recordKey);
     setBestTime(saved !== null && Number.isFinite(Number(saved)) && Number(saved) >= 0 ? Number(saved) : null);
-  }, [schoolLevel]);
+  }, [recordKey]);
 
   const rules = lang === 'en' ? [
     "Blind Sudoku tests your visual memory and logical deduction combined!",
-    "Format Levels: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Classic), Universitas (9×9 Master).",
+    "Format Levels: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Classic), University Arena (9×9 Hard, Very Hard, or Impossible).",
     "Memorization Phase: A completed solution grid is revealed. Take your time to study and memorize the layout.",
     "Active Play Phase: Hidden cells are masked. Rely on your memory and standard Sudoku rules (no duplicate numbers in any row, column, or block).",
     "Controls: Tap any editable cell, then use the on-screen keypad (or physical keyboard 1–9, Arrow Keys, Backspace) to enter digits.",
@@ -138,7 +145,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
     "Submit your board once filled to claim victory and set a new personal record!"
   ] : [
     "Sudoku Buta memadukan daya ingat visual dengan logika deduktif angka!",
-    "Format Grid: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Klasik), Universitas (9×9 Master).",
+    "Format Grid: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Klasik), Arena Universitas (9×9 Hard, Very Hard, atau Impossible).",
     "Fase Memorisasi: Papan solusi penuh ditampilkan. Gunakan waktu Anda untuk menghafal pola angka di dalamnya.",
     "Fase Bermain: Sel rahasia ditutup. Isi sel kosong dari ingatan dan logika Sudoku (tidak boleh ada angka kembar dalam baris, kolom, atau blok).",
     "Kontrol: Ketuk sel kosong, lalu gunakan keypad angka di layar (atau keyboard fisik 1–9, tombol panah, Backspace).",
@@ -148,7 +155,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
 
   // Initialize Puzzle
   const startNewSudoku = useCallback((lvl = schoolLevel) => {
-    const conf = LEVEL_CONFIG[lvl] || LEVEL_CONFIG.smp;
+    const conf = lvl === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_CONFIG[lvl] || LEVEL_CONFIG.smp);
     const fullGrid = generateSudokuMatrix(conf.size, conf.boxRows, conf.boxCols);
     const totalCells = conf.size * conf.size;
 
@@ -177,7 +184,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
     setElapsedTime(0);
     setMemoTime(0);
     setPhase('start');
-  }, [schoolLevel]);
+  }, [schoolLevel, universityDifficulty]);
 
   // Timers
   useEffect(() => {
@@ -288,7 +295,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
       // Update best time
       const finalTime = elapsedTime;
       if (bestTime === null || finalTime < bestTime) {
-        writeText(`blind_sudoku_best_${schoolLevel}`, finalTime.toString());
+        writeText(recordKey, finalTime.toString());
         setBestTime(finalTime);
       }
 
@@ -310,7 +317,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD: 4×4 Mini Grid (Quick memory intro)' : 'Level SD: Grid 4×4 Mini (Pengenalan memori)',
     smpDesc: lang === 'en' ? 'SMP: 6×6 Midi Grid (Moderate logic & recall)' : 'Level SMP: Grid 6×6 Midi (Logika & ingatan seimbang)',
     smaDesc: lang === 'en' ? 'SMA: 9×9 Classic Grid (Challenging full Sudoku)' : 'Level SMA: Grid 9×9 Klasik (Sudoku standar menantang)',
-    univDesc: lang === 'en' ? 'Universitas: 9×9 Master Grid (Extreme blind challenge)' : 'Level Universitas: Grid 9×9 Master (Tantangan hafalan ekstrem)',
+    univDesc: lang === 'en' ? `University Arena: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} hidden cells · ${activeConfig.maxPeeks} peek` : `Arena Universitas: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} sel tersembunyi · ${activeConfig.maxPeeks} intip`,
     startSetup: lang === 'en' ? 'Generate Puzzle' : 'Buat Teka-Teki',
     memoPhase: lang === 'en' ? 'Memorization Phase' : 'Fase Memorisasi',
     memoDesc: lang === 'en'
@@ -381,6 +388,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
           }
           lang={lang}
         >
+          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"

@@ -37,10 +37,10 @@ export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
   const levels = [
     { id:'hard', label:'Hard', note:{ id:'Sulit', en:'Hard' } },
     { id:'very-hard', label:'Very Hard', note:{ id:'Sangat sulit', en:'Very hard' } },
-    { id:'extreme', label:'Extreme', note:{ id:'Ekstrem', en:'Extreme' } },
+    { id:'impossible', label:'Impossible', note:{ id:'Mustahil', en:'Impossible' } },
   ];
   return <div className="play-university-block">
-    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University challenge' : 'Tantangan Universitas'}</span><small>{lang === 'en' ? 'Choose an advanced difficulty' : 'Pilih tingkat lanjutan'}</small></div>
+    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University Arena Mode' : 'Mode Arena Universitas'}</span><small>{lang === 'en' ? 'Hard · Very Hard · Impossible' : 'Hard · Very Hard · Impossible'}</small></div>
     <div className="play-university-difficulty" role="group" aria-label={lang === 'en' ? 'University difficulty' : 'Tingkat kesulitan Universitas'}>
       {levels.map((item,index)=><button type="button" key={item.id} className={value===item.id?'selected':''} aria-pressed={value===item.id} onClick={()=>onChange(item.id)}><span>{item.label}</span><small>{item.note[lang]}</small><i aria-hidden="true" style={{ width:`${34 + index*22}%` }}/></button>)}
     </div>

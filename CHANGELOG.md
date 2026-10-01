@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.10.0 - Random Arena, Impossible Mode & Random Maze Endpoints
+- Standardized **University Arena Mode** across all 12 games with exactly **Hard, Very Hard, and Impossible**.
+- Renamed the active University label `Extreme` to `Impossible`; legacy `extreme` data is normalized where needed for compatibility.
+- Audited every game so a new run creates fresh randomized content instead of replaying one fixed board/question set.
+- Maze Escape now randomizes both the perfect-maze layout and the START/EXIT perimeter cells; START is no longer pinned to top-left and EXIT is no longer pinned to bottom-right.
+- Added distinct University Arena scaling to Blitz Aritmatika, Perburuan Prima, Digit Piksel, Match & Mix, Hitung Kubus, Duel Dadu, Sudoku Buta, and Minesweeper.
+- Expanded University Minesweeper through 24×36 / 240 mines, Hitung Kubus through 7×7, and Match & Mix through 45 randomized pairs on Impossible.
+- Updated guides, quick-help text, adaptive difficulty naming, record activity lookup, and mobile copy for Impossible mode.
+- Added v1.10 unit coverage for Maze endpoint randomization and source-level checks that all 12 games expose the University Arena selector.
+- Added responsive browser QA for all 12 University Arena selectors plus Impossible-mode smoke coverage at 390 px.
+- Updated PWA cache and progress backup metadata to v1.10.0.
+
 ## v1.9.0 - Season, Events, Mastery, Accessibility & 12 Games
 - Added Season System with the Mind Explorer season, Season XP, season levels, six reward milestones, and one-time account-XP claims.
 - Added weekly Event System rotating Logic, Memory, Mathematics, and Strategy categories with +50% base-session XP for eligible games.

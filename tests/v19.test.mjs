@@ -46,13 +46,13 @@ test('Game Mastery and adaptive difficulty advance from novice toward university
   assert.equal(masteryFromProfile(profile,'maze').xp,5000);
   const rec=adaptiveRecommendation(profile,'maze');
   assert.equal(rec.level,'universitas');
-  assert.ok(['hard','very-hard','extreme'].includes(rec.universityDifficulty));
+  assert.ok(['hard','very-hard','impossible'].includes(rec.universityDifficulty));
 });
 
 test('Progress backup exports only Brain Arena keys and imports safely', () => {
   const source = new FakeStorage({ ba_profile_v1:'{"xp":120}', maze_best_sd:'42', unrelated_secret:'nope' });
   const backup = createProgressBackup(source);
-  assert.equal(backup.appVersion,'1.9.0');
+  assert.equal(backup.appVersion,'1.10.0');
   assert.equal(backup.data.unrelated_secret,undefined);
   assert.equal(validateProgressBackup(backup),true);
   const target = new FakeStorage({ ba_old:'remove-me', other:'keep-me' });

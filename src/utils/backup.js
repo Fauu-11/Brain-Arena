@@ -13,7 +13,7 @@ export function createProgressBackup(storage = window.localStorage) {
     const value = storage.getItem(key);
     if (typeof value === 'string' && value.length <= MAX_VALUE) data[key] = value;
   }
-  return { format:'brain-arena-backup',version:1,appVersion:'1.9.0',exportedAt:new Date().toISOString(),data };
+  return { format:'brain-arena-backup',version:1,appVersion:'1.10.0',exportedAt:new Date().toISOString(),data };
 }
 
 export function validateProgressBackup(raw) {

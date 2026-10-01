@@ -18,409 +18,415 @@
     "contentType": "image/png"
   },
   {
-    "asset": "assets/arena-652355278713/App.js",
+    "asset": "assets/arena-00db40b64090/App.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/Artwork.js",
+    "asset": "assets/arena-00db40b64090/components/Artwork.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/Dialog.js",
+    "asset": "assets/arena-00db40b64090/components/Dialog.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/ErrorBoundary.js",
+    "asset": "assets/arena-00db40b64090/components/ErrorBoundary.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/GameCard.js",
+    "asset": "assets/arena-00db40b64090/components/GameCard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/GameScreen.js",
+    "asset": "assets/arena-00db40b64090/components/GameScreen.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/GameShell.js",
+    "asset": "assets/arena-00db40b64090/components/GameShell.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/Icon.js",
+    "asset": "assets/arena-00db40b64090/components/Icon.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/Layout.js",
+    "asset": "assets/arena-00db40b64090/components/Layout.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/PwaInstallButton.js",
+    "asset": "assets/arena-00db40b64090/components/PwaInstallButton.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/RPSHand.js",
+    "asset": "assets/arena-00db40b64090/components/RPSHand.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/RulesModal.js",
+    "asset": "assets/arena-00db40b64090/components/RulesModal.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/components/Scoreboard.js",
+    "asset": "assets/arena-00db40b64090/components/Scoreboard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/context/ArenaContext.js",
+    "asset": "assets/arena-00db40b64090/context/ArenaContext.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/context/LanguageContext.js",
+    "asset": "assets/arena-00db40b64090/context/LanguageContext.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/data/achievements.js",
+    "asset": "assets/arena-00db40b64090/data/achievements.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/data/customization.js",
+    "asset": "assets/arena-00db40b64090/data/customization.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/data/games.js",
+    "asset": "assets/arena-00db40b64090/data/games.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/data/guideDetails.js",
+    "asset": "assets/arena-00db40b64090/data/guideDetails.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/Game2048.js",
+    "asset": "assets/arena-00db40b64090/games/Game2048.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/Game300.js",
+    "asset": "assets/arena-00db40b64090/games/Game300.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameCube.js",
+    "asset": "assets/arena-00db40b64090/games/GameCube.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameMaze.js",
+    "asset": "assets/arena-00db40b64090/games/GameMaze.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameMemoryMatrix.js",
+    "asset": "assets/arena-00db40b64090/games/GameMemoryMatrix.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameMinesweeper.js",
+    "asset": "assets/arena-00db40b64090/games/GameMinesweeper.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameMnM.js",
+    "asset": "assets/arena-00db40b64090/games/GameMnM.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameNonogram.js",
+    "asset": "assets/arena-00db40b64090/games/GameNonogram.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GamePixel.js",
+    "asset": "assets/arena-00db40b64090/games/GamePixel.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GamePrime.js",
+    "asset": "assets/arena-00db40b64090/games/GamePrime.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameRPS.js",
+    "asset": "assets/arena-00db40b64090/games/GameRPS.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/games/GameSudoku.js",
+    "asset": "assets/arena-00db40b64090/games/GameSudoku.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/main.js",
+    "asset": "assets/arena-00db40b64090/main.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Achievements.js",
+    "asset": "assets/arena-00db40b64090/pages/Achievements.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Activity.js",
+    "asset": "assets/arena-00db40b64090/pages/Activity.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Cast.js",
+    "asset": "assets/arena-00db40b64090/pages/Cast.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/CustomizeProfile.js",
+    "asset": "assets/arena-00db40b64090/pages/CustomizeProfile.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/DailyChallenge.js",
+    "asset": "assets/arena-00db40b64090/pages/DailyChallenge.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Events.js",
+    "asset": "assets/arena-00db40b64090/pages/Events.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Guides.js",
+    "asset": "assets/arena-00db40b64090/pages/Guides.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Home.js",
+    "asset": "assets/arena-00db40b64090/pages/Home.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Leaderboard.js",
+    "asset": "assets/arena-00db40b64090/pages/Leaderboard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Mastery.js",
+    "asset": "assets/arena-00db40b64090/pages/Mastery.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Missions.js",
+    "asset": "assets/arena-00db40b64090/pages/Missions.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Profile.js",
+    "asset": "assets/arena-00db40b64090/pages/Profile.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Rank.js",
+    "asset": "assets/arena-00db40b64090/pages/Rank.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Season.js",
+    "asset": "assets/arena-00db40b64090/pages/Season.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Settings.js",
+    "asset": "assets/arena-00db40b64090/pages/Settings.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/Statistics.js",
+    "asset": "assets/arena-00db40b64090/pages/Statistics.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/pages/TipsPage.js",
+    "asset": "assets/arena-00db40b64090/pages/TipsPage.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/adaptive.js",
+    "asset": "assets/arena-00db40b64090/utils/adaptive.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/audio.js",
+    "asset": "assets/arena-00db40b64090/utils/audio.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/backup.js",
+    "asset": "assets/arena-00db40b64090/utils/backup.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/duelDice.js",
+    "asset": "assets/arena-00db40b64090/utils/duelDice.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/events.js",
+    "asset": "assets/arena-00db40b64090/utils/events.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/game2048.js",
+    "asset": "assets/arena-00db40b64090/utils/game2048.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/mastery.js",
+    "asset": "assets/arena-00db40b64090/utils/mastery.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/maze.js",
+    "asset": "assets/arena-00db40b64090/utils/maze.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/memoryMatrix.js",
+    "asset": "assets/arena-00db40b64090/utils/memoryMatrix.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/minesweeper.js",
+    "asset": "assets/arena-00db40b64090/utils/minesweeper.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/missions.js",
+    "asset": "assets/arena-00db40b64090/utils/missions.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/nonogram.js",
+    "asset": "assets/arena-00db40b64090/utils/nonogram.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/progression.js",
+    "asset": "assets/arena-00db40b64090/utils/progression.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/rank.js",
+    "asset": "assets/arena-00db40b64090/utils/rank.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/season.js",
+    "asset": "assets/arena-00db40b64090/utils/season.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/statistics.js",
+    "asset": "assets/arena-00db40b64090/utils/statistics.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/storage.js",
+    "asset": "assets/arena-00db40b64090/utils/storage.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-652355278713/utils/sudoku.js",
+    "asset": "assets/arena-00db40b64090/utils/sudoku.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/style-652355278713.css",
+    "asset": "assets/arena-00db40b64090/utils/universityArena.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/style-00db40b64090.css",
     "passed": true,
     "status": 200,
     "contentType": "text/css; charset=utf-8"
