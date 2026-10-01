@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.15.0 - Sharing, Stability & Onboarding
+## v1.15.1 - Sharing, Stability & Onboarding
 
 - Added Challenge Link & QR route for seeded challenges.
 - Added Custom Arena Builder for 3-12 selected games with mode, level, university difficulty, and order controls.
@@ -12,7 +12,7 @@
 - Upgraded feedback diagnostics to include seed/mode/difficulty/PWA/last actions while excluding local-storage contents.
 - Added Personal Goal System for sessions, XP, Ranked matches, and Daily completions.
 - Added v15 data migration defaults for new local-first features.
-- Updated PWA cache and app version to `1.15.0`.
+- Updated PWA cache and app version to `1.15.1`.
 - Added v1.15 utility/unit QA and responsive browser QA.
 
 ## v1.13.1 - Player Feedback & Suggestions
@@ -171,3 +171,7 @@
 - Sidebar preference is saved in localStorage and restored on reload.
 - Mobile keeps the existing hamburger drawer and hides the desktop toggle.
 - Preserved the v1.13 red visual system and all gameplay/progression features.
+## v1.15.1 - SetupCard hotfix
+- Fixed `ReferenceError: cardRef is not defined` when opening game setup screens.
+- Moved `cardRef` to `SetupCard`, where it is actually used for autosave/session recovery.
+- Updated PWA cache version so deployed clients can receive the corrected build.

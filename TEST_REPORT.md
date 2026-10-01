@@ -1,4 +1,4 @@
-# Laporan Pengujian Brain Arena v1.15.0
+# Laporan Pengujian Brain Arena v1.15.1
 
 ## Ringkasan
 

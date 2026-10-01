@@ -39,7 +39,6 @@ export function TipsButton({ onClick, lang, label }) {
 export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
   const { setSessionUniversityDifficulty } = useArena();
   const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
-  const cardRef=useRef(null);
   useEffect(()=>{ if (gameById(gameId)) setSessionUniversityDifficulty(gameId,value); },[gameId,value,setSessionUniversityDifficulty]);
   const levels = [
     { id:'hard', label:'Hard', note:{ id:'Sulit', en:'Hard' } },
@@ -55,6 +54,7 @@ export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
 }
 
 export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, children, badge, bestRecord = null }) {
+  const cardRef = useRef(null);
   const { adaptiveForGame,competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,beginGameSession,personalBestFor,setNotice,recoverySession,resumeRequestedId,resumeRecovery,discardRecovery } = useArena();
   const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
   const recommendation = gameById(gameId) ? adaptiveForGame(gameId) : null;
