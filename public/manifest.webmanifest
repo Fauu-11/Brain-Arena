@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Brain Arena v1.17 - 12 game otak dengan multi local profile, Player Showcase, Result Card, Arena Cup, Practice Lab, Save Slot, Storage Center, Diagnostics v3, controller support, dan release rollback.",
+  "description": "Brain Arena v1.18 Stability Release - 12 game otak dengan backup aman, recovery crash, migrasi data, PWA offline, accessibility, competitive mode, dan progress lokal.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

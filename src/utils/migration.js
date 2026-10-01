@@ -1,6 +1,6 @@
 import { createReleaseRollback, restoreReleaseRollback } from './releaseSafety.js';
 
-export const DATA_SCHEMA_VERSION = 17;
+export const DATA_SCHEMA_VERSION = 18;
 export const DATA_SCHEMA_KEY = 'ba_data_schema';
 export const MIGRATION_LOG_KEY = 'ba_migration_log_v1';
 
@@ -46,7 +46,22 @@ function performMigration(storage,current){
     if (!readRaw(storage,'ba_release_migration_v17')) {writeRaw(storage,'ba_release_migration_v17',JSON.stringify({migratedAt:Date.now(),from:current,to:17}));steps.push('release-safety-v1');}
   }
 
-  writeRaw(storage,DATA_SCHEMA_KEY,String(DATA_SCHEMA_VERSION));
+  if (current < 18) {
+    const health=readJSON(storage,'ba_runtime_health_v1',{});
+    if (!readRaw(storage,'ba_runtime_health_v1')) {
+      writeRaw(storage,'ba_runtime_health_v1',JSON.stringify({starts:0,issues:0,lastStartAt:null,lastCleanExitAt:null,lastIssueAt:null,appVersion:'1.18.0'}));
+      steps.push('runtime-health-v1');
+    } else if (health && typeof health==='object') {
+      writeRaw(storage,'ba_runtime_health_v1',JSON.stringify({starts:0,issues:0,lastStartAt:null,lastCleanExitAt:null,lastIssueAt:null,...health,appVersion:'1.18.0'}));
+      steps.push('runtime-health-normalize');
+    }
+    if (!readRaw(storage,'ba_stability_release_v18')) {
+      writeRaw(storage,'ba_stability_release_v18',JSON.stringify({migratedAt:Date.now(),from:current,to:18,transactionalBackup:true,pwaCache:'v1.18.0'}));
+      steps.push('stability-release-v18');
+    }
+  }
+
+  if (!writeRaw(storage,DATA_SCHEMA_KEY,String(DATA_SCHEMA_VERSION))) throw new Error('schema-write-failed');
   const log=readJSON(storage,MIGRATION_LOG_KEY,[]);
   const entry={from:current,to:DATA_SCHEMA_VERSION,time:Date.now(),steps,status:'ok'};
   writeRaw(storage,MIGRATION_LOG_KEY,JSON.stringify([entry,...(Array.isArray(log)?log:[])].slice(0,20)));

@@ -18,7 +18,7 @@ function slotKey(id){return `${SLOT_PREFIX}${id}`;}
 function readSlot(storage,id){return safeJson(storage.getItem(slotKey(id)),null);}
 function writeSlot(storage,id,payload){storage.setItem(slotKey(id),JSON.stringify(payload));return payload;}
 function blankPayload(name){
-  return {format:'brain-arena-backup',version:1,appVersion:'1.17.0',exportedAt:new Date().toISOString(),data:{
+  return {format:'brain-arena-backup',version:1,appVersion:'1.18.0',exportedAt:new Date().toISOString(),data:{
     ba_profile_v1:JSON.stringify({name:normalizeName(name),xp:0,rankedPoints:0,completions:0,playDates:[],perGame:{},xpEvents:[],completionEvents:[]}),
     ba_favorites_v2:'[]',ba_pinned_games_v2:'[]',ba_recent_v2:'[]',ba_daily_v1:JSON.stringify({completedByDate:{}}),ba_match_history_v1:'[]',ba_personal_bests_v1:'{}',ba_game_completion_v1:'{}',ba_notifications_v1:JSON.stringify({read:{}}),ba_personal_goals_v1:'[]'
   }};

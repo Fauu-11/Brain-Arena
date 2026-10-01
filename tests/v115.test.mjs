@@ -16,6 +16,6 @@ test('personal goals measure sessions',()=>{const goal=createGoal({type:'session
 
 test('data health detects and repairs invalid Brain Arena JSON only',()=>{const storage=new MemoryStorage({'ba_good':'{"a":1}','ba_bad':'{oops','other':'{oops'});const report=inspectDataHealth(storage);assert.equal(report.invalid.length,1);assert.equal(repairInvalidData(storage),1);assert.equal(storage.getItem('ba_bad'),null);assert.equal(storage.getItem('other'),'{oops')});
 
-test('v1.15 migration advances schema and adds accessibility v2 safely',()=>{const storage=new MemoryStorage({'ba_data_schema':'14','ba_accessibility_v1':JSON.stringify({theme:'dark',largeText:true})});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,17);assert.equal(result.to,17);const a11y=JSON.parse(storage.getItem('ba_accessibility_v1'));assert.equal(a11y.theme,'dark');assert.equal(a11y.largeText,true);assert.equal(a11y.colorVision,'default')});
+test('v1.15 migration advances schema and adds accessibility v2 safely',()=>{const storage=new MemoryStorage({'ba_data_schema':'14','ba_accessibility_v1':JSON.stringify({theme:'dark',largeText:true})});const result=migrateProgressData(storage);assert.equal(DATA_SCHEMA_VERSION,18);assert.equal(result.to,18);const a11y=JSON.parse(storage.getItem('ba_accessibility_v1'));assert.equal(a11y.theme,'dark');assert.equal(a11y.largeText,true);assert.equal(a11y.colorVision,'default')});
 
 test('catalog still contains 12 games after v1.15 UX additions',()=>assert.equal(GAMES.length,12));

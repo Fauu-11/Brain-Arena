@@ -1,0 +1,1 @@
+12/12 game setup smoke passed at 1280px. Responsive stability QA passed at 390px and 768px. No page errors observed in successful runs.

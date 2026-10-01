@@ -8,15 +8,19 @@ const EXCLUDED_PREFIXES = ['ba_local_profile_slot_'];
 const allowedKey = key => { const value=String(key); return !EXCLUDED_KEYS.has(value) && !EXCLUDED_PREFIXES.some(prefix=>value.startsWith(prefix)) && (SAFE_EXACT.has(value) || SAFE_PREFIXES.some(prefix=>value.startsWith(prefix))); };
 export const isBackupKeyAllowed = allowedKey;
 
-export function createProgressBackup(storage = window.localStorage) {
+function allowedStorageSnapshot(storage) {
   const data = {};
   for (let i=0;i<storage.length && Object.keys(data).length<MAX_KEYS;i+=1) {
-    const key = storage.key(i);
+    const key=storage.key(i);
     if (!key || !allowedKey(key)) continue;
-    const value = storage.getItem(key);
-    if (typeof value === 'string' && value.length <= MAX_VALUE) data[key] = value;
+    const value=storage.getItem(key);
+    if (typeof value === 'string' && value.length <= MAX_VALUE) data[key]=value;
   }
-  return { format:'brain-arena-backup',version:1,appVersion:'1.17.0',exportedAt:new Date().toISOString(),data };
+  return data;
+}
+
+export function createProgressBackup(storage = window.localStorage) {
+  return { format:'brain-arena-backup',version:1,appVersion:'1.18.0',exportedAt:new Date().toISOString(),data:allowedStorageSnapshot(storage) };
 }
 
 export function validateProgressBackup(raw) {
@@ -29,13 +33,28 @@ export function validateProgressBackup(raw) {
   return true;
 }
 
+function restoreSnapshot(snapshot, storage) {
+  const existing=[];
+  for (let i=0;i<storage.length;i+=1) { const key=storage.key(i); if (key && allowedKey(key)) existing.push(key); }
+  for (const key of existing) storage.removeItem(key);
+  for (const [key,value] of Object.entries(snapshot)) storage.setItem(key,value);
+}
+
 export function importProgressBackup(raw, storage = window.localStorage, replace = false) {
   validateProgressBackup(raw);
-  if (replace) {
-    const toRemove=[];
-    for (let i=0;i<storage.length;i+=1) { const key=storage.key(i); if (key && allowedKey(key)) toRemove.push(key); }
-    toRemove.forEach(key=>storage.removeItem(key));
+  const before = allowedStorageSnapshot(storage);
+  try {
+    if (replace) {
+      const toRemove=[];
+      for (let i=0;i<storage.length;i+=1) { const key=storage.key(i); if (key && allowedKey(key)) toRemove.push(key); }
+      toRemove.forEach(key=>storage.removeItem(key));
+    }
+    for (const [key,value] of Object.entries(raw.data)) storage.setItem(key,value);
+    return Object.keys(raw.data).length;
+  } catch (error) {
+    try { restoreSnapshot(before, storage); } catch {}
+    const wrapped = new Error('backup-import-rolled-back');
+    wrapped.cause = error;
+    throw wrapped;
   }
-  for (const [key,value] of Object.entries(raw.data)) storage.setItem(key,value);
-  return Object.keys(raw.data).length;
 }

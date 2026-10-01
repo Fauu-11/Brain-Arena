@@ -1,3 +1,31 @@
+# Brain Arena v1.18 — Stability Release
+
+Brain Arena v1.18 adalah release stabilitas dari v1.17. Tidak ada game baru atau perubahan besar pada aturan 12 game. Fokus versi ini adalah **keamanan progress lokal, recovery saat error, migrasi schema, PWA/cache, performa, responsive layout, dan accessibility**.
+
+## Fokus utama v1.18
+
+- **Transactional Backup Import**: import backup sekarang memakai snapshot sebelum menulis. Jika browser/storage gagal di tengah proses, data sebelumnya dicoba dipulihkan otomatis.
+- **Runtime Crash Guard**: error React, error global, dan unhandled promise rejection dicatat sebagai metadata teknis ringan untuk membantu diagnostics tanpa menyimpan password atau isi progress.
+- **Safer Data Migration v18**: schema lokal naik ke v18, membuat rollback point sebelum migrasi, dan menambahkan stability marker tanpa mereset XP, Rank, record, profile, Mastery, Achievement, atau history.
+- **Corrupt Data Quarantine**: Data Health menyimpan salinan raw JSON rusak ke quarantine sebelum key bermasalah dibersihkan.
+- **PWA Cache Hardening**: core cache dan runtime cache dipisah, cache versi lama dibersihkan, navigation memakai network-first dengan fallback offline, dan asset statis memakai stale-while-revalidate.
+- **Bounded Runtime Cache**: runtime cache dibatasi agar tidak terus bertambah tanpa kendali.
+- **Diagnostics Upgrade**: System Diagnostics sekarang ikut melaporkan Data Health dan Runtime Health.
+- **Error Recovery UI**: Error Boundary memberi pilihan kembali ke Beranda atau reload aplikasi, bukan hanya satu tombol reload.
+- **Mobile / Tablet Polish**: safe-area, touch target, overflow handling, layout 390 px / 768 px, dan loading-state diperkuat.
+- **Accessibility Hardening**: forced-colors/high-contrast compatibility dan reduced-motion behavior diperbaiki.
+
+## Kompatibilitas
+
+- 12 game tetap dipertahankan.
+- Tema merah, sidebar full/compact, Arena Run, Arena Cup, Ranked, Replay v2, Brain Coach v2, Multi Local Profile, Save Slot, PWA, dan seluruh progression v1.17 tetap tersedia.
+- Data lama v1.17 dimigrasikan ke **Schema v18**.
+- Brain Arena tetap **local-first**; v1.18 belum menggunakan Supabase/backend online.
+
+Lihat `RELEASE_NOTES_v1.18.md` dan `TEST_REPORT.md` untuk detail release dan QA.
+
+---
+
 # Brain Arena v1.17 - Player Experience & Release Hardening
 
 Brain Arena v1.17 melanjutkan v1.16 dengan fokus pada **multi-player lokal, showcase, hasil yang bisa dibagikan, tournament bracket, practice drill, pengelolaan backup/storage, diagnostics, controller, dan release safety**. Seluruh 12 game, tema merah, sidebar full/compact, Ranked, Arena Run, Replay v2, Brain Coach v2, analytics, PWA, progression, challenge sharing, dan sistem local-first tetap dipertahankan.

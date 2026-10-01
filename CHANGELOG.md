@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.18.0 — Stability Release
+
+- Added transactional backup import with rollback on partial storage-write failure.
+- Added runtime health tracking for app starts, clean exits, React errors, global errors, and unhandled promise rejections.
+- Added safer Schema v18 migration markers and release rollback metadata.
+- Added corrupt-JSON quarantine before Data Health repair removes broken Brain Arena entries.
+- Hardened PWA caching with separate versioned core/runtime caches, bounded runtime cache size, network-first navigation, and stale-while-revalidate static assets.
+- Improved PWA update flow to avoid duplicate reloads and retry update checks when connectivity returns.
+- Upgraded System Diagnostics with Data Health and Runtime Health summaries.
+- Improved Error Boundary recovery actions.
+- Added mobile/tablet safe-area, touch-target, overflow, reduced-motion, and forced-colors accessibility polish.
+- Updated app version, manifest metadata, theme color, local data schema, and PWA cache to v1.18.0.
+
 ## v1.17.0 - Player Experience & Release Hardening
 
 - Added Multi Local Profile with isolated local progress slots and profile switching.

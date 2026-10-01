@@ -1,7 +1,7 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.17.0",
+  "version": "1.18.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,7 +26,7 @@
     "oxlint": "^1.71.0",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena v1.17 - player experience and release hardening with multi local profiles, player showcase, shareable result cards, Arena Cup, Practice Lab, named save slots, storage optimization, diagnostics, controller support and release rollback",
+  "description": "Brain Arena v1.18 - stability release with transactional backups, runtime crash guards, safer migrations, data-corruption quarantine, hardened PWA caching, accessibility fixes, and mobile/tablet polish",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }
