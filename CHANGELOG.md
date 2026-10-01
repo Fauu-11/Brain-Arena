@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.12.0 - Player Feedback & Suggestions
+- Added a dedicated **Feedback & Saran** page at `#/feedback` with Indonesian and English copy.
+- Added **Feedback & Saran** to the desktop sidebar and the shared mobile navigation drawer.
+- Added feedback categories for feature suggestions, bugs, gameplay, UI/UX, content/guides, and other topics.
+- Added optional game/area targeting, 1-5 experience rating, subject, detailed message, player name, and optional reply email.
+- Added optional lightweight diagnostics: Brain Arena version, viewport size, browser user agent, interface language, online state, and source route.
+- Added a privacy reminder that players should not submit passwords, tokens, identity numbers, or other sensitive information.
+- Added local submission receipts so the player can see recent messages sent from the current device without storing the message body locally.
+- Added validation, honeypot anti-spam field, sending/success/error states, and duplicate-click protection while a request is in flight.
+- Added a static-host-compatible AJAX form relay to deliver feedback to the developer while keeping the developer address out of the visible interface.
+- Updated the PWA cache to `brain-arena-v1.12.0` and added a Feedback app shortcut.
+- Added v1.12 unit tests and responsive browser QA at 1440 px and 390 px.
+
 ## v1.11.0 - Competitive Arena, Seed Challenges & Replay
 - Added deterministic **Seed & Challenge Code** support across all 12 games so the same game/code combination can reproduce the same random sequence.
 - Added **Practice / Ranked** setup on every game, with Ranked RP progression and a two-hint Brain Coach limit.

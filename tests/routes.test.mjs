@@ -21,7 +21,7 @@ for (const game of GAMES) {
 }
 test('Pages and aliases', () => {
   for (const value of ['', '#', '#/', '#/home']) assert.equal(resolveRoute(value), 'home');
-  for (const [alias, expected] of Object.entries({ permainan:'games', favorit:'favorites', aktivitas:'activity', panduan:'guides', tips:'guides', musim:'season', event:'events', penguasaan:'mastery', pengaturan:'settings' })) {
+  for (const [alias, expected] of Object.entries({ permainan:'games', favorit:'favorites', aktivitas:'activity', panduan:'guides', tips:'guides', musim:'season', event:'events', penguasaan:'mastery', pengaturan:'settings', saran:'feedback', masukan:'feedback', feedback:'feedback' })) {
     assert.equal(resolveRoute(`#/${alias}`), expected);
   }
 });

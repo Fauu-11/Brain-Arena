@@ -1,3 +1,26 @@
+# Laporan pengujian Brain Arena v1.12.0
+
+Tanggal: 1 Oktober 2026.
+
+## Ringkasan v1.12
+
+| Kelompok | Hasil | Cakupan |
+| --- | --- | --- |
+| Unit seluruh proyek | **102/102 lulus** | logic lama + feedback v1.12 |
+| Feedback routes | **Lulus** | `#/feedback`, `#/saran`, `#/masukan` |
+| Validation | **Lulus** | subject, message, email, rating bounds |
+| Relay payload | **Lulus** | JSON payload + context + diagnostics |
+| Browser desktop | **Lulus** | 1440 px, no horizontal overflow, no JS error |
+| Browser mobile | **Lulus** | 390 px, no horizontal overflow, no JS error |
+| Feedback UI privacy | **Lulus** | developer email tidak tampil pada visible page text |
+| Submit flow QA | **Lulus** | fetch di-mock; success state + local receipt |
+| Portable build | **Lulus** | **76 modules** |
+| HTTP verification | **95 checks lulus** | 91 assets + 4 response/security checks |
+
+Browser QA sengaja me-mock request submit sehingga pengujian tidak mengirim email sungguhan ke developer. Pengiriman produksi menggunakan relay FormSubmit.
+
+---
+
 # Laporan pengujian Brain Arena v1.11.0
 
 Tanggal: 1 Oktober 2026.

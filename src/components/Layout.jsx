@@ -28,6 +28,7 @@ function Navigation({ currentView, onNavigate }) {
     { id:'completion', icon:'medal', label:copy('Game Completion','Game Completion') },
     { id:'statistics', icon:'activity', label:copy('Statistik','Statistics') },
     { id:'settings', icon:'sliders', label:copy('Pengaturan','Settings') },
+    { id:'feedback', icon:'message', label:copy('Feedback & Saran','Feedback & Suggestions') },
     { id:'profile', icon:'user', label:copy('Profil pemain','Player profile') },
   ];
   return <>
@@ -57,7 +58,7 @@ export default function Layout({ children, currentView, onViewChange }) {
     };
     window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey);
   }, [navigate, toggleLang, toggleSound]);
-  const names = { home:copy('Beranda','Overview'), daily:copy('Daily Challenge','Daily Challenge'), games:copy('Semua permainan','All games'), favorites:copy('Favorit','Favorites'), activity:copy('Aktivitas saya','My activity'), guides:copy('Panduan bermain','Game guides'), achievements:copy('Achievement & Badge','Achievements & Badges'), missions:copy('Mission / Quest','Missions / Quests'), leaderboard:copy('Leaderboard','Leaderboard'), rank:copy('Arena Rank','Arena Rank'), customize:copy('Kustomisasi profil','Profile customization'), statistics:copy('Statistik lanjutan','Advanced statistics'), season:copy('Season','Season'), events:copy('Event','Events'), mastery:copy('Game Mastery','Game Mastery'), 'arena-run':copy('Arena Run','Arena Run'), history:copy('Match History','Match History'), replay:copy('Replay','Replay'), completion:copy('Game Completion','Game Completion'), settings:copy('Pengaturan & Data','Settings & Data'), profile:copy('Profil pemain','Player profile') };
+  const names = { home:copy('Beranda','Overview'), daily:copy('Daily Challenge','Daily Challenge'), games:copy('Semua permainan','All games'), favorites:copy('Favorit','Favorites'), activity:copy('Aktivitas saya','My activity'), guides:copy('Panduan bermain','Game guides'), achievements:copy('Achievement & Badge','Achievements & Badges'), missions:copy('Mission / Quest','Missions / Quests'), leaderboard:copy('Leaderboard','Leaderboard'), rank:copy('Arena Rank','Arena Rank'), customize:copy('Kustomisasi profil','Profile customization'), statistics:copy('Statistik lanjutan','Advanced statistics'), season:copy('Season','Season'), events:copy('Event','Events'), mastery:copy('Game Mastery','Game Mastery'), 'arena-run':copy('Arena Run','Arena Run'), history:copy('Match History','Match History'), replay:copy('Replay','Replay'), completion:copy('Game Completion','Game Completion'), settings:copy('Pengaturan & Data','Settings & Data'), feedback:copy('Feedback & Saran','Feedback & Suggestions'), profile:copy('Profil pemain','Player profile') };
   const currentName = activeGame?.title[lang] || (currentView.startsWith('tips-') ? `${copy('Panduan','Guide')} / ${gameById(currentView.slice(5))?.title[lang] || ''}` : names[currentView] || copy('Halaman tidak ditemukan','Page not found'));
   const results = GAMES.filter(g => `${g.title.id} ${g.title.en} ${CATEGORIES[g.category][lang]}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   const activeSession=activeGame&&currentSession?.gameId===activeGame.id?currentSession:null;

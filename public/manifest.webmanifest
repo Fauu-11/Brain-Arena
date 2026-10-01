@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Arena 12 permainan matematika, logika, memori, dan strategi dengan Seed & Challenge Code, Arena Run, Ranked, Match History, Replay, Personal Best, Brain Coach, Performance Rating, Game Completion, Season, Mastery, XP, rank, dan PWA.",
+  "description": "Arena 12 permainan matematika, logika, memori, dan strategi dengan competitive play, feedback pemain, Season, Mastery, XP, rank, dan PWA.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -69,6 +69,18 @@
       "name": "Player Statistics",
       "short_name": "Statistics",
       "url": "./#/statistics",
+      "icons": [
+        {
+          "src": "./pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Feedback & Suggestions",
+      "short_name": "Feedback",
+      "url": "./#/feedback",
       "icons": [
         {
           "src": "./pwa-192.png",

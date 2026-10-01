@@ -1,4 +1,34 @@
-# Brain Arena v1.11 — Competitive Arena
+# Brain Arena v1.12 - Player Feedback
+
+Brain Arena v1.12 melanjutkan seluruh fitur competitive v1.11 dan menambahkan kanal **Feedback & Saran** untuk pemain. Katalog tetap berisi 12 game, seluruh progression/competitive system tetap kompatibel, dan project tetap dapat di-host di GitHub Pages.
+
+## Feedback & Saran v1.12
+
+Route baru:
+
+```text
+#/feedback
+#/saran
+#/masukan
+```
+
+Menu **Feedback & Saran** tersedia di sidebar desktop serta navigation drawer mobile. Form mendukung:
+
+- kategori saran fitur, bug, gameplay, UI/UX, konten/panduan, dan lainnya;
+- pemilihan game/area yang terkait;
+- rating pengalaman 1-5;
+- subjek dan pesan sampai 3.000 karakter;
+- nama pemain;
+- email pemain opsional jika ingin dibalas;
+- info teknis ringan yang bisa dimatikan pemain;
+- status sending, success, dan error;
+- receipt lokal untuk submission terbaru dari perangkat tersebut.
+
+Alamat email developer **tidak dirender di UI**. Pada hosting statis, pengiriman menggunakan FormSubmit AJAX relay. Recipient di-obfuscate di bundle agar tidak muncul sebagai alamat telanjang pada tampilan/source sederhana, tetapi ini bukan mekanisme secret yang setara backend: pengguna teknis masih dapat menginspeksi request jaringan. Jika alamat harus benar-benar dirahasiakan, gunakan server/serverless proxy pada versi backend berikutnya.
+
+FormSubmit membutuhkan konfirmasi penerima pada penggunaan pertama. Setelah form pertama dikirim, buka inbox developer dan selesaikan aktivasi dari email FormSubmit. Sesudah itu submission berikutnya akan diteruskan ke inbox developer.
+
+Jangan gunakan form untuk password, token, data identitas, atau informasi sensitif.
 
 Brain Arena v1.11 melanjutkan seluruh fitur v1.10 dan menambahkan lapisan kompetitif yang tetap **local-first** serta kompatibel dengan GitHub Pages. Katalog tetap berisi **12 game**, seluruh University Arena tetap menggunakan **Hard / Very Hard / Impossible**, dan puzzle/soal tetap diacak.
 
