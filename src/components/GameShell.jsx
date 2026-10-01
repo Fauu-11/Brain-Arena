@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Icon from './Icon.jsx';
 import Dialog from './Dialog.jsx';
+import { useArena } from '../context/ArenaContext.jsx';
+import { gameById, resolveRoute } from '../data/games.js';
 
 export function StatBadge({ label, value, color = 'var(--uw-primary)' }) {
   return <div className="play-stat"><span>{label}</span><strong style={{ color }}>{value}</strong></div>;
@@ -57,13 +59,36 @@ export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, chi
   </div>;
 }
 
+function useCompletionReward() {
+  const { recordGameCompletion } = useArena();
+  const [reward, setReward] = useState(null);
+  useEffect(() => {
+    const gameId = resolveRoute(window.location.hash);
+    if (!gameById(gameId)) return;
+    setReward(recordGameCompletion(gameId));
+  }, [recordGameCompletion]);
+  return reward;
+}
+
+function XpRewardPanel({ reward, lang }) {
+  if (!reward) return null;
+  const leveledUp = reward.levelAfter > reward.levelBefore;
+  return <div className={`play-xp-reward ${reward.dailyCompleted ? 'daily' : ''}`} aria-live="polite">
+    <span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span>
+    <div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : (lang === 'en' ? 'SESSION REWARD' : 'HADIAH SESI')}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}`}</p></div>
+    {leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}
+  </div>;
+}
+
 export function MultiEndCard({ winner, score1, score2, p1Label, p2Label, onBack, onPlayAgain, lang }) {
+  const reward = useCompletionReward();
   const draw = winner === 'draw';
   const p1 = p1Label || (lang === 'en' ? 'Player 1' : 'Pemain 1');
   const p2 = p2Label || (lang === 'en' ? 'Player 2' : 'Pemain 2');
   const title = draw ? (lang === 'en' ? 'A well-matched duel!' : 'Pertandingan berakhir seri!') : `${winner === 1 ? p1 : p2} ${lang === 'en' ? 'wins!' : 'menang!'}`;
   return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'FINAL RESULT' : 'HASIL AKHIR'}</p><h2>{title}</h2><p>{lang === 'en' ? 'Every round is another chance to improve.' : 'Setiap ronde adalah kesempatan untuk jadi lebih baik.'}</p>
     <div className="play-result-scores">{[{ name: p1, score: score1 }, { name: p2, score: score2 }].map((p, i) => <div key={i} className={winner === i + 1 ? 'winner' : ''}><span>{p.name}{winner === i + 1 && <Icon name="trophy" size={13}/>}</span><strong>{p.score}</strong><small>{lang === 'en' ? 'points' : 'poin'}</small></div>)}</div>
+    <XpRewardPanel reward={reward} lang={lang}/>
     <ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang}/>
   </div>;
 }
@@ -73,7 +98,8 @@ function ResultActions({ onBack, onPlayAgain, lang, label }) {
 }
 
 export function SoloEndCard({ heading, subtext, onBack, onPlayAgain, playAgainLabel, lang, stats = null, children }) {
-  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'CHALLENGE COMPLETE' : 'TANTANGAN SELESAI'}</p><h2>{heading}</h2>{subtext && <p>{subtext}</p>}{Array.isArray(stats) && stats.length > 0 && <div className="play-result-scores">{stats.map((stat, i) => <div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<ResultActions onBack={onBack} onPlayAgain={onPlayAgain} label={playAgainLabel} lang={lang}/></div>;
+  const reward = useCompletionReward();
+  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'CHALLENGE COMPLETE' : 'TANTANGAN SELESAI'}</p><h2>{heading}</h2>{subtext && <p>{subtext}</p>}{Array.isArray(stats) && stats.length > 0 && <div className="play-result-scores">{stats.map((stat, i) => <div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<XpRewardPanel reward={reward} lang={lang}/><ResultActions onBack={onBack} onPlayAgain={onPlayAgain} label={playAgainLabel} lang={lang}/></div>;
 }
 
 export function ConfirmModal({ isOpen, title, message, confirmText, cancelText, onConfirm, onCancel, lang, isDangerous = false }) {

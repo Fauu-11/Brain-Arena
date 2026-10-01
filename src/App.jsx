@@ -19,6 +19,8 @@ const GameMemoryMatrix = lazy(() => import('./games/GameMemoryMatrix.jsx'));
 const TipsPage = lazy(() => import('./pages/TipsPage.jsx'));
 const Activity = lazy(() => import('./pages/Activity.jsx'));
 const Guides = lazy(() => import('./pages/Guides.jsx'));
+const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
 const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix };
 function AppContent() {
   const { lang } = useLanguage(); const { recordVisit } = useArena();
@@ -45,6 +47,8 @@ function AppContent() {
   else if (['home','games','favorites'].includes(view)) content=<Home view={view} onSelectGame={navigate}/>;
   else if (view==='activity') content=<Activity onNavigate={navigate}/>;
   else if (view==='guides') content=<Guides onNavigate={navigate}/>;
+  else if (view==='daily') content=<DailyChallenge onNavigate={navigate}/>;
+  else if (view==='profile') content=<Profile onNavigate={navigate}/>;
   else if (view.startsWith('tips-')) content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
   else content=<div className="empty-state not-found"><span className="not-found-code">404</span><h1>{lang==='id'?'Arena tidak ditemukan.':'This arena is missing.'}</h1><p>{lang==='id'?'Tautan ini tidak tersedia. Tantangan lainnya menantimu di beranda.':'That page is unavailable. More challenges are waiting on the home page.'}</p><button className="ba-button primary" onClick={back}>{lang==='id'?'Kembali ke beranda':'Back to home'}<Icon name="arrow" size={17}/></button></div>;
   return <Layout currentView={view} onViewChange={navigate}><ErrorBoundary key={view} lang={lang}><Suspense fallback={<div className="loading-state" role="status"><span className="loading-spinner"/>{lang==='id'?'Menyiapkan arena...':'Preparing your arena...'}</div>}>{content}</Suspense></ErrorBoundary></Layout>;

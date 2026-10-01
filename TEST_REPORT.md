@@ -1,4 +1,4 @@
-# Laporan pengujian Brain Arena v1.5.0
+# Laporan pengujian Brain Arena v1.6.0
 
 Tanggal: 30 September 2026.
 
@@ -6,24 +6,41 @@ Tanggal: 30 September 2026.
 
 | Kelompok | Hasil | Cakupan |
 | --- | --- | --- |
-| Unit seluruh proyek | **60/60 lulus** | Duel Dadu, route, Sudoku, Minesweeper, Maze, Matrix, dan guide data |
-| Guide data | **2/2 lulus** | semua 10 game memiliki tutorial/pemecahan bilingual lengkap |
-| Browser panduan desktop | **Lulus** | 1440 px, render, tab, checklist, perpindahan game |
-| Browser panduan mobile | **Lulus** | 390 px, responsive, tab, checklist, perpindahan game |
-| Learning Hub | **10/10 card tampil** | halaman daftar panduan pada mobile |
-| JavaScript runtime | **0 uncaught error** | seluruh skenario QA panduan |
-| Build portable | **Lulus** | source React ditranspilasi dan import lokal diverifikasi |
+| Unit seluruh proyek | **66/66 lulus** | Duel Dadu, routes, Sudoku, Minesweeper, Maze, Matrix, guide data, progression |
+| Daily Challenge | **Lulus** | pemilihan harian deterministik, bonus +150 XP, completion per tanggal, streak |
+| XP & Level | **Lulus** | +60 sesi, +25 first play, progressive level, rank, anti-double-award |
+| Profil pemain | **Lulus** | ubah nama, total XP, session count, per-game stats, riwayat XP |
+| Browser desktop | **Lulus** | Home, Daily Challenge, Profile, result XP pada 1440 px |
+| Browser mobile | **Lulus** | Home, Daily Challenge, Profile pada 390 px tanpa page overflow |
+| JavaScript runtime | **0 uncaught error** | seluruh skenario progression QA |
+| Build portable | **Lulus** | 42 module source ditranspilasi dan import lokal diverifikasi |
 
-## Yang diverifikasi pada panduan
+## Daily Challenge yang diverifikasi
 
-- `#/tips-minesweeper` merender hero, tujuan, cara menang, kontrol, tingkat, dan CTA;
-- tab **Tutorial langkah** dapat dibuka dan checklist mengubah progres dari 0% ke 20%;
-- tab **Cara memecahkan** menampilkan flow metode, worked example, dan kesalahan umum;
-- selector panduan dapat berpindah dari Minesweeper ke Maze Escape tanpa reload;
-- konten metode Maze berubah sesuai game aktif;
-- halaman `#/panduan` menampilkan 10 kartu panduan;
-- desktop 1440 px dan mobile 390 px tidak menghasilkan JavaScript exception;
-- konten guide data untuk seluruh katalog tersedia dalam Bahasa Indonesia dan English.
+- challenge harian dipilih deterministik dari 10 game berdasarkan tanggal lokal;
+- challenge tanggal yang sama selalu memilih game yang sama;
+- variasi 60 tanggal mencakup sedikitnya 7 game berbeda;
+- penyelesaian game challenge memberi +60 XP sesi +25 XP main pertama +150 XP Daily = **+235 XP** pada skenario bersih;
+- status completion disimpan pada `ba_daily_v1` dengan game dan tanggal yang benar;
+- daily bonus hanya diberikan satu kali per tanggal;
+- streak mempertahankan hari sebelumnya selama hari berjalan dan putus setelah melewatkan satu hari penuh.
+
+## XP & Level yang diverifikasi
+
+- profile baru mulai pada Level 1 / 0 XP;
+- Level 2 dimulai pada 250 XP dan requirement berikutnya meningkat progresif;
+- penyelesaian sesi non-daily pertama hari itu menghasilkan **+85 XP** (+60 dasar +25 first play);
+- rerender result screen / pergantian bahasa tidak menggandakan XP;
+- result screen menampilkan breakdown XP dan status level-up jika threshold dilewati;
+- per-game completion dan XP diperbarui pada profil.
+
+## Profil & responsive QA
+
+- nama pemain dapat diubah dan tersimpan lokal;
+- halaman Profile menampilkan level, rank, total XP, sesi selesai, game dijelajahi, streak, per-game progress, Daily status, dan XP history;
+- halaman Home menampilkan Daily Challenge serta ringkasan level pemain;
+- route `#/daily`, `#/harian`, `#/profile`, dan `#/profil` tervalidasi;
+- desktop 1440 px dan mobile 390 px tidak menghasilkan horizontal page overflow.
 
 ## Unit test
 
@@ -33,16 +50,7 @@ Perintah:
 npm test
 ```
 
-Hasil: **60 test lulus, 0 gagal**.
-
-Test baru `tests/guides.test.mjs` memastikan setiap game memiliki:
-
-- objective dan cara menang bilingual;
-- minimal tiga kontrol/fakta;
-- minimal empat langkah tutorial;
-- metode pemecahan dan contoh;
-- minimal tiga kesalahan umum;
-- informasi tingkat kesulitan.
+Hasil: **66 test lulus, 0 gagal**.
 
 ## Build
 
@@ -52,12 +60,10 @@ Build portable:
 npm run build:portable
 ```
 
-berhasil. Build Vite standar tidak diverifikasi di runtime pengerjaan karena proses
-instalasi dependency tidak selesai; workflow GitHub Pages tetap menggunakan `npm ci`
-dan `npm run build`.
+berhasil dan menghasilkan build ESM portable v1.6.0.
+
+Build Vite standar belum diverifikasi di runtime pengerjaan karena `npm ci` mengalami timeout jaringan pada environment ini. Workflow GitHub Pages tetap menggunakan `npm ci` dan `npm run build`, dan source memakai dependency React/Vite yang sudah tercatat di `package-lock.json`.
 
 ## Batas pengujian
 
-Belum diverifikasi menyeluruh pada Safari/Firefox, perangkat fisik Android/iOS,
-screen reader, serta build Vite standar pada runtime pengerjaan ini. Gameplay game
-lama tidak diubah dalam v1.5 dan unit regression seluruh proyek tetap lulus.
+Belum diverifikasi menyeluruh pada Safari/Firefox, perangkat fisik Android/iOS, screen reader, serta sinkronisasi lintas perangkat. XP/profil bersifat local-first: menghapus site data atau memakai browser/perangkat lain akan membuat progres lokal terpisah.

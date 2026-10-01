@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.6.0 - Daily Challenge & Player Progression
+- Added a deterministic Daily Challenge that rotates one Brain Arena game every local calendar day.
+- Completing the featured game once per day awards +150 bonus XP and extends the daily streak.
+- Added XP progression: +60 XP for each completed session and +25 XP for the first completion of the day.
+- Added 99-level progression with progressive XP requirements and rank titles.
+- Added an editable local player profile with level progress, total XP, session count, game completion stats, streaks, and recent XP history.
+- Added Daily Challenge and Player Profile navigation, home dashboard cards, and compact level status in the top bar/sidebar.
+- Result screens now show XP earned, daily bonuses, and level-up feedback automatically.
+- All progression data is stored locally in the browser so GitHub Pages remains backend-free.
+
+
 ## 1.5.0 — Complete Game Guides
 
 - Mendesain ulang halaman **Panduan Bermain** menjadi Brain Arena Learning Hub.

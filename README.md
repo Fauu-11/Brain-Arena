@@ -1,8 +1,6 @@
-# Brain Arena v1.5 — Complete Game Guides
+# Brain Arena v1.6 — Daily Challenge & Player Progression
 
-Brain Arena v1.5 memperbarui **Panduan Bermain** untuk seluruh **10 game** agar lebih
-informatif, terstruktur, dan mudah dipakai sebelum maupun saat belajar strategi.
-Gameplay game tidak diubah pada versi ini.
+Brain Arena v1.6 menambahkan **Daily Challenge**, **XP**, **Level**, dan **Profil Pemain** di atas fondasi 10 game serta panduan lengkap v1.5. Progres tetap lokal sehingga project dapat berjalan penuh di GitHub Pages tanpa backend.
 
 ## Isi panduan baru
 
@@ -127,3 +125,13 @@ Detail ada di `TEST_REPORT.md`.
 
 Favorit, riwayat, rekor, bahasa, dan mute tetap tersimpan di browser (`localStorage`).
 Belum ada backend atau akun online.
+
+## Daily Challenge, XP, Level, and Player Profile (v1.6)
+Brain Arena now includes local progression without requiring a backend:
+- Every completed game session grants **60 XP**.
+- The first completed session each day grants an extra **25 XP**.
+- A deterministic **Daily Challenge** selects one game per local calendar day; finishing that game once grants an extra **150 XP** and extends the daily streak.
+- The **Player Profile** shows level, rank, XP progress, sessions completed, games explored, daily streaks, per-game completion stats, and recent XP rewards.
+- The player display name can be edited locally.
+
+Progress is stored in browser `localStorage`. Clearing site data or using another browser/device starts a separate local profile.
