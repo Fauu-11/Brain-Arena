@@ -7,7 +7,7 @@ const project=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const root=path.join(project,'dist');
 const port=Number(process.env.PORT || 4173);
 if(!fs.existsSync(path.join(root,'index.html'))) { console.error('Folder dist tidak ditemukan. Jalankan npm run build terlebih dahulu.');process.exit(1); }
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.txt':'text/plain; charset=utf-8','.ico':'image/x-icon'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.txt':'text/plain; charset=utf-8','.ico':'image/x-icon'};
 const server=http.createServer((req,res)=>{
  if(req.method!=='GET' && req.method!=='HEAD') { res.writeHead(405,{'Allow':'GET, HEAD'});res.end();return; }
  let requestPath;

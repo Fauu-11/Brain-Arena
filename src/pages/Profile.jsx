@@ -6,7 +6,7 @@ import Icon from '../components/Icon.jsx';
 
 export default function Profile({ onNavigate }) {
   const { lang } = useLanguage();
-  const { profile, levelInfo, updatePlayerName, currentStreak, bestStreak, dailyCompleted, todayChallenge } = useArena();
+  const { profile, levelInfo, updatePlayerName, currentStreak, bestStreak, dailyCompleted, todayChallenge, selectedBadge, achievements, achievementList, missionCards } = useArena();
   const copy = (id, en) => lang === 'id' ? id : en;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(profile.name || '');
@@ -18,8 +18,8 @@ export default function Profile({ onNavigate }) {
 
   return <div className="profile-page">
     <section className="profile-hero">
-      <div className="profile-avatar-large"><Icon name="user" size={34}/><span>Lv. {levelInfo.level}</span></div>
-      <div className="profile-identity"><span className="eyebrow">{copy('PROFIL PEMAIN', 'PLAYER PROFILE')}</span>{editing ? <form className="profile-name-form" onSubmit={saveName}><input autoFocus maxLength={24} value={draft} onChange={e => setDraft(e.target.value)} aria-label={copy('Nama pemain', 'Player name')}/><button className="ba-button primary" type="submit">{copy('Simpan', 'Save')}</button><button className="ba-button outline" type="button" onClick={() => { setDraft(profile.name || ''); setEditing(false); }}>{copy('Batal', 'Cancel')}</button></form> : <div className="profile-name-row"><h1>{displayName}</h1><button className="profile-edit" onClick={() => setEditing(true)}><Icon name="sliders" size={14}/>{copy('Ubah nama', 'Edit name')}</button></div>}<p>{copy('Semua progres tersimpan di browser perangkat ini. Terus main untuk menaikkan level dan membangun streak.', 'All progress is stored in this browser. Keep playing to level up and build your streak.')}</p></div>
+      <div className="profile-avatar-large"><Icon name="user" size={34}/><span>Lv. {levelInfo.level}</span>{selectedBadge&&<i className={`profile-equipped-badge color-${selectedBadge.color}`} title={selectedBadge.title[lang]}><Icon name={selectedBadge.icon} size={13}/></i>}</div>
+      <div className="profile-identity"><span className="eyebrow">{copy('PROFIL PEMAIN', 'PLAYER PROFILE')}</span>{editing ? <form className="profile-name-form" onSubmit={saveName}><input autoFocus maxLength={24} value={draft} onChange={e => setDraft(e.target.value)} aria-label={copy('Nama pemain', 'Player name')}/><button className="ba-button primary" type="submit">{copy('Simpan', 'Save')}</button><button className="ba-button outline" type="button" onClick={() => { setDraft(profile.name || ''); setEditing(false); }}>{copy('Batal', 'Cancel')}</button></form> : <div className="profile-name-row"><h1>{displayName}</h1><button className="profile-edit" onClick={() => setEditing(true)}><Icon name="sliders" size={14}/>{copy('Ubah nama', 'Edit name')}</button></div>}<p>{copy('Semua progres tersimpan di browser perangkat ini. Terus main untuk menaikkan level dan membangun streak.', 'All progress is stored in this browser. Keep playing to level up and build your streak.')}</p>{selectedBadge&&<button className="profile-badge-chip" onClick={()=>onNavigate('achievements')}><Icon name={selectedBadge.icon} size={13}/>{selectedBadge.title[lang]}</button>}</div>
       <div className="profile-level-card"><div><small>{copy('LEVEL', 'LEVEL')}</small><strong>{levelInfo.level}</strong><span>{levelInfo.rank[lang]}</span></div><p>{levelInfo.currentXp} / {levelInfo.neededXp} XP</p><div className="profile-xp-bar"><i style={{ width:`${levelInfo.progress}%` }}/></div><em>{copy(`${levelInfo.neededXp - levelInfo.currentXp} XP lagi ke level berikutnya`, `${levelInfo.neededXp - levelInfo.currentXp} XP to next level`)}</em></div>
     </section>
 
@@ -28,6 +28,13 @@ export default function Profile({ onNavigate }) {
       <article><span><Icon name="gamepad" size={20}/></span><small>{copy('SESI SELESAI', 'SESSIONS')}</small><strong>{profile.completions}</strong><p>{copy('Permainan dituntaskan', 'Games completed')}</p></article>
       <article><span><Icon name="bolt" size={20}/></span><small>{copy('DAILY STREAK', 'DAILY STREAK')}</small><strong>{currentStreak}</strong><p>{copy(`Terbaik ${bestStreak} hari`, `Best ${bestStreak} days`)}</p></article>
       <article><span><Icon name="grid" size={20}/></span><small>{copy('GAME DIJELAJAHI', 'GAMES EXPLORED')}</small><strong>{activeGames}/{GAMES.length}</strong><p>{topGame ? `${copy('Teraktif', 'Most played')}: ${topGame.game.title[lang]}` : copy('Mulai game pertamamu', 'Start your first game')}</p></article>
+    </section>
+
+
+    <section className="profile-progression-links">
+      <button onClick={()=>onNavigate('achievements')}><span><Icon name="medal" size={20}/></span><div><small>{copy('ACHIEVEMENT','ACHIEVEMENTS')}</small><strong>{Object.keys(achievements.unlocked||{}).length}/{achievementList.length} {copy('badge terbuka','badges unlocked')}</strong></div><Icon name="chevron" size={14}/></button>
+      <button onClick={()=>onNavigate('missions')}><span><Icon name="checklist" size={20}/></span><div><small>{copy('MISSION / QUEST','MISSIONS / QUESTS')}</small><strong>{missionCards.filter(item=>item.complete&&!item.claimed).length} {copy('siap diklaim','ready to claim')}</strong></div><Icon name="chevron" size={14}/></button>
+      <button onClick={()=>onNavigate('leaderboard')}><span><Icon name="trophy" size={20}/></span><div><small>{copy('LEADERBOARD','LEADERBOARD')}</small><strong>{copy('Lihat posisi latihanmu','View your practice rank')}</strong></div><Icon name="chevron" size={14}/></button>
     </section>
 
     <section className="profile-columns">
@@ -45,7 +52,7 @@ export default function Profile({ onNavigate }) {
 
     <section className="profile-panel profile-xp-history">
       <header><div><span className="eyebrow">{copy('RIWAYAT XP', 'XP HISTORY')}</span><h2>{copy('XP terbaru yang kamu dapatkan', 'Your latest XP rewards')}</h2></div></header>
-      {profile.xpEvents.length ? <div className="xp-event-list">{profile.xpEvents.slice(0,8).map(event => { const game=gameById(event.gameId); const time = new Intl.DateTimeFormat(lang === 'id' ? 'id-ID' : 'en-US', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(event.time)); return <div key={event.id}><span className={`mini-game-icon color-${game?.color || 'purple'}`}><Icon name={game?.icon || 'grid'} size={15}/></span><span><strong>{game?.title[lang] || event.gameId}</strong><small>{time}{event.dailyBonus ? ` · ${copy('Daily Challenge', 'Daily Challenge')}` : ''}</small></span><b>+{event.amount} XP</b></div>; })}</div> : <div className="profile-empty"><Icon name="spark" size={24}/><strong>{copy('Belum ada XP.', 'No XP yet.')}</strong><p>{copy('Selesaikan game untuk memulai progresmu.', 'Complete a game to start your progression.')}</p><button className="ba-button primary" onClick={() => onNavigate('games')}>{copy('Pilih game', 'Choose a game')}<Icon name="arrow" size={15}/></button></div>}
+      {profile.xpEvents.length ? <div className="xp-event-list">{profile.xpEvents.slice(0,8).map(event => { const game=gameById(event.gameId); const time = new Intl.DateTimeFormat(lang === 'id' ? 'id-ID' : 'en-US', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(event.time)); return <div key={event.id}><span className={`mini-game-icon color-${game?.color || 'purple'}`}><Icon name={game?.icon || 'grid'} size={15}/></span><span><strong>{game?.title[lang] || (event.source==='achievement'?copy('Achievement terbuka','Achievement unlocked'):event.source==='mission'?copy('Hadiah misi','Mission reward'):copy('Bonus XP','XP bonus'))}</strong><small>{time}{event.dailyBonus ? ` · ${copy('Daily Challenge', 'Daily Challenge')}` : ''}</small></span><b>+{event.amount} XP</b></div>; })}</div> : <div className="profile-empty"><Icon name="spark" size={24}/><strong>{copy('Belum ada XP.', 'No XP yet.')}</strong><p>{copy('Selesaikan game untuk memulai progresmu.', 'Complete a game to start your progression.')}</p><button className="ba-button primary" onClick={() => onNavigate('games')}>{copy('Pilih game', 'Choose a game')}<Icon name="arrow" size={15}/></button></div>}
     </section>
   </div>;
 }

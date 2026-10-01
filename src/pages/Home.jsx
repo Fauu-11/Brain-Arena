@@ -6,7 +6,7 @@ import Icon from '../components/Icon.jsx';
 import GameCard from '../components/GameCard.jsx';
 import { HeroArtwork } from '../components/Artwork.jsx';
 export default function Home({ onSelectGame, view = 'home' }) {
-  const { lang } = useLanguage(); const { favorites, history, profile, levelInfo, todayChallenge, dailyCompleted, currentStreak } = useArena();
+  const { lang } = useLanguage(); const { favorites, history, profile, levelInfo, todayChallenge, dailyCompleted, currentStreak, achievements, achievementList, missionCards } = useArena();
   const [season, setSeason] = useState('all'); const [category, setCategory] = useState('all'); const [query, setQuery] = useState('');
   const catalog = useRef(null); const home = view === 'home'; const favoriteView = view === 'favorites';
   const copy = (id, en) => lang === 'id' ? id : en;
@@ -23,6 +23,11 @@ export default function Home({ onSelectGame, view = 'home' }) {
         <div className="home-daily-reward"><span><Icon name="bolt" size={15}/>{copy('Streak', 'Streak')} <strong>{currentStreak}</strong></span><span><Icon name="spark" size={15}/><strong>+{todayChallenge.rewardXp} XP</strong></span></div>
         <button className={`ba-button ${dailyCompleted ? 'outline' : 'primary'}`} onClick={() => onSelectGame(dailyCompleted ? 'daily' : dailyGame.id)}>{dailyCompleted ? copy('Lihat Daily', 'View Daily') : copy('Mulai sekarang', 'Start now')}<Icon name="arrow" size={15}/></button>
         <button className="home-level-mini" onClick={() => onSelectGame('profile')}><span className="profile-avatar"><Icon name="user" size={16}/></span><span><small>{profile.name || copy('Pemain Lokal', 'Local Player')}</small><strong>Lv. {levelInfo.level} · {levelInfo.rank[lang]}</strong></span><i><b style={{ width:`${levelInfo.progress}%` }}/></i></button>
+      </section>
+      <section className="home-progression-strip">
+        <button onClick={()=>onSelectGame('achievements')}><span><Icon name="medal" size={20}/></span><div><small>{copy('ACHIEVEMENT','ACHIEVEMENTS')}</small><strong>{Object.keys(achievements.unlocked||{}).length}/{achievementList.length} {copy('badge terbuka','badges unlocked')}</strong></div><Icon name="chevron" size={14}/></button>
+        <button onClick={()=>onSelectGame('missions')}><span><Icon name="checklist" size={20}/></span><div><small>{copy('MISSION / QUEST','MISSIONS / QUESTS')}</small><strong>{missionCards.filter(item=>item.complete&&!item.claimed).length} {copy('hadiah siap diklaim','rewards ready')}</strong></div><Icon name="chevron" size={14}/></button>
+        <button onClick={()=>onSelectGame('leaderboard')}><span><Icon name="trophy" size={20}/></span><div><small>{copy('LEADERBOARD','LEADERBOARD')}</small><strong>{copy('Bandingkan progres XP','Compare your XP progress')}</strong></div><Icon name="chevron" size={14}/></button>
       </section>
       <div className="category-strip">{['math','logic','memory','strategy'].map((key,i) => <button key={key} onClick={() => { setCategory(category === key ? 'all' : key); catalog.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className={category === key ? 'selected' : ''} aria-pressed={category === key}><span className={`category-icon category-${key}`}><Icon name={['bolt','cube','brain','dice'][i]} size={21}/></span><span><strong>{CATEGORIES[key][lang]}</strong><small>{[copy('Kecepatan berhitung', 'Fast thinking'),copy('Ketajaman analisis', 'Clear reasoning'),copy('Kekuatan ingatan', 'Stronger recall'),copy('Langkah penuh taktik', 'Smarter moves')][i]}</small></span><Icon name="chevron" size={16}/></button>)}</div>
     </>}

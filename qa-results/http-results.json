@@ -12,235 +12,301 @@
     "contentType": "text/plain; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/App.js",
+    "asset": "apple-touch-icon.png",
+    "passed": true,
+    "status": 200,
+    "contentType": "image/png"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/App.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/Artwork.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/Artwork.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/Dialog.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/Dialog.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/ErrorBoundary.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/ErrorBoundary.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/GameCard.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/GameCard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/GameScreen.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/GameScreen.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/GameShell.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/GameShell.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/Icon.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/Icon.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/Layout.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/Layout.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/RPSHand.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/PwaInstallButton.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/RulesModal.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/RPSHand.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/components/Scoreboard.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/RulesModal.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/context/ArenaContext.js",
+    "asset": "assets/arena-7fa3d7d72c0a/components/Scoreboard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/context/LanguageContext.js",
+    "asset": "assets/arena-7fa3d7d72c0a/context/ArenaContext.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/data/games.js",
+    "asset": "assets/arena-7fa3d7d72c0a/context/LanguageContext.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/Game300.js",
+    "asset": "assets/arena-7fa3d7d72c0a/data/achievements.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameCube.js",
+    "asset": "assets/arena-7fa3d7d72c0a/data/games.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameMaze.js",
+    "asset": "assets/arena-7fa3d7d72c0a/data/guideDetails.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameMemoryMatrix.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/Game300.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameMinesweeper.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameCube.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameMnM.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameMaze.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GamePixel.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameMemoryMatrix.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GamePrime.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameMinesweeper.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameRPS.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameMnM.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/games/GameSudoku.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GamePixel.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/main.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GamePrime.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/pages/Activity.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameRPS.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/pages/Cast.js",
+    "asset": "assets/arena-7fa3d7d72c0a/games/GameSudoku.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/pages/Guides.js",
+    "asset": "assets/arena-7fa3d7d72c0a/main.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/pages/Home.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Achievements.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/pages/TipsPage.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Activity.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/audio.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Cast.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/duelDice.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/DailyChallenge.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/maze.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Guides.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/memoryMatrix.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Home.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/minesweeper.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Leaderboard.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/storage.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Missions.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/arena-d689ae06eaef/utils/sudoku.js",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/Profile.js",
     "passed": true,
     "status": 200,
     "contentType": "text/javascript; charset=utf-8"
   },
   {
-    "asset": "assets/style-d689ae06eaef.css",
+    "asset": "assets/arena-7fa3d7d72c0a/pages/TipsPage.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/audio.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/duelDice.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/maze.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/memoryMatrix.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/minesweeper.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/missions.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/progression.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/storage.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/arena-7fa3d7d72c0a/utils/sudoku.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
+  },
+  {
+    "asset": "assets/style-7fa3d7d72c0a.css",
     "passed": true,
     "status": 200,
     "contentType": "text/css; charset=utf-8"
@@ -286,6 +352,30 @@
     "passed": true,
     "status": 200,
     "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "asset": "manifest.webmanifest",
+    "passed": true,
+    "status": 200,
+    "contentType": "application/manifest+json; charset=utf-8"
+  },
+  {
+    "asset": "pwa-192.png",
+    "passed": true,
+    "status": 200,
+    "contentType": "image/png"
+  },
+  {
+    "asset": "pwa-512.png",
+    "passed": true,
+    "status": 200,
+    "contentType": "image/png"
+  },
+  {
+    "asset": "service-worker.js",
+    "passed": true,
+    "status": 200,
+    "contentType": "text/javascript; charset=utf-8"
   },
   {
     "check": "gzip-index",

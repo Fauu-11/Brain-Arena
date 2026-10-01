@@ -1,69 +1,75 @@
-# Laporan pengujian Brain Arena v1.6.0
+# Laporan pengujian Brain Arena v1.7.0
 
-Tanggal: 30 September 2026.
+Tanggal: 1 Oktober 2026.
 
 ## Ringkasan
 
 | Kelompok | Hasil | Cakupan |
 | --- | --- | --- |
-| Unit seluruh proyek | **66/66 lulus** | Duel Dadu, routes, Sudoku, Minesweeper, Maze, Matrix, guide data, progression |
-| Daily Challenge | **Lulus** | pemilihan harian deterministik, bonus +150 XP, completion per tanggal, streak |
-| XP & Level | **Lulus** | +60 sesi, +25 first play, progressive level, rank, anti-double-award |
-| Profil pemain | **Lulus** | ubah nama, total XP, session count, per-game stats, riwayat XP |
-| Browser desktop | **Lulus** | Home, Daily Challenge, Profile, result XP pada 1440 px |
-| Browser mobile | **Lulus** | Home, Daily Challenge, Profile pada 390 px tanpa page overflow |
-| JavaScript runtime | **0 uncaught error** | seluruh skenario progression QA |
-| Build portable | **Lulus** | 42 module source ditranspilasi dan import lokal diverifikasi |
+| Unit seluruh proyek | **70/70 lulus** | game logic, routes, guide data, progression, achievements, missions |
+| Achievement | **Lulus** | katalog unik, progress, auto-complete, badge persistence model |
+| Mission / Quest | **Lulus** | daily/weekly window, sessions, distinct games, claim key per periode |
+| Leaderboard | **Lulus** | overall/per-game local XP board, ranking current player, simulated-rival labeling |
+| PWA files | **Lulus** | manifest, icons 192/512, service worker, install UI, portable copy |
+| Browser desktop | **Lulus** | Achievements, Missions, Leaderboard, Profile pada 1440 px |
+| Browser mobile | **Lulus** | empat halaman progression pada 390 px tanpa horizontal overflow |
+| JavaScript runtime | **0 uncaught error** | skenario browser QA v1.7 |
+| Build portable | **Lulus** | 48 module source ditranspilasi |
+| HTTP checks | **67 lulus** | 63 asset + gzip/security response checks |
 
-## Daily Challenge yang diverifikasi
+## Achievement & Badge
 
-- challenge harian dipilih deterministik dari 10 game berdasarkan tanggal lokal;
-- challenge tanggal yang sama selalu memilih game yang sama;
-- variasi 60 tanggal mencakup sedikitnya 7 game berbeda;
-- penyelesaian game challenge memberi +60 XP sesi +25 XP main pertama +150 XP Daily = **+235 XP** pada skenario bersih;
-- status completion disimpan pada `ba_daily_v1` dengan game dan tanggal yang benar;
-- daily bonus hanya diberikan satu kali per tanggal;
-- streak mempertahankan hari sebelumnya selama hari berjalan dan putus setelah melewatkan satu hari penuh.
+Diverifikasi:
+- katalog achievement memiliki ID unik;
+- progress completion/XP/level/game/streak dibatasi ke target;
+- achievement yang memenuhi syarat dapat ditemukan tanpa membuka ulang achievement yang sudah tersimpan;
+- badge terpilih hanya berasal dari achievement yang telah terbuka;
+- bonus XP achievement dicatat sebagai XP event non-game.
 
-## XP & Level yang diverifikasi
+## Mission / Quest
 
-- profile baru mulai pada Level 1 / 0 XP;
-- Level 2 dimulai pada 250 XP dan requirement berikutnya meningkat progresif;
-- penyelesaian sesi non-daily pertama hari itu menghasilkan **+85 XP** (+60 dasar +25 first play);
-- rerender result screen / pergantian bahasa tidak menggandakan XP;
-- result screen menampilkan breakdown XP dan status level-up jika threshold dilewati;
-- per-game completion dan XP diperbarui pada profil.
+Diverifikasi:
+- quest harian menghitung aktivitas pada tanggal yang benar;
+- quest mingguan dimulai Senin dan berakhir Minggu;
+- session count dan jumlah game berbeda dihitung dari completion events;
+- claim key berubah pada reset harian/mingguan;
+- tombol claim menaikkan XP pada QA browser dan state claim tersimpan.
 
-## Profil & responsive QA
+## Leaderboard
 
-- nama pemain dapat diubah dan tersimpan lokal;
-- halaman Profile menampilkan level, rank, total XP, sesi selesai, game dijelajahi, streak, per-game progress, Daily status, dan XP history;
-- halaman Home menampilkan Daily Challenge serta ringkasan level pemain;
-- route `#/daily`, `#/harian`, `#/profile`, dan `#/profil` tervalidasi;
-- desktop 1440 px dan mobile 390 px tidak menghasilkan horizontal page overflow.
+Leaderboard v1.7 tidak mengklaim data pemain online. Rival ditampilkan sebagai **simulated rival / rival simulasi**. Ranking pemain sendiri menggunakan Total XP atau XP per game yang tersimpan lokal. Ini mempertahankan fungsi leaderboard pada deployment statis GitHub Pages tanpa backend.
 
-## Unit test
+## PWA
 
-Perintah:
+Build menyertakan:
+
+```text
+manifest.webmanifest
+service-worker.js
+pwa-192.png
+pwa-512.png
+apple-touch-icon.png
+```
+
+Service worker menggunakan cache versi `brain-arena-v1.7.0`, cache shell saat install, cache asset same-origin ketika dibuka, dan fallback ke `index.html` untuk navigasi offline.
+
+## Perintah pengujian
 
 ```bash
 npm test
-```
-
-Hasil: **66 test lulus, 0 gagal**.
-
-## Build
-
-Build portable:
-
-```bash
 npm run build:portable
 ```
 
-berhasil dan menghasilkan build ESM portable v1.6.0.
+Hasil unit: **70 lulus, 0 gagal**.
 
-Build Vite standar belum diverifikasi di runtime pengerjaan karena `npm ci` mengalami timeout jaringan pada environment ini. Workflow GitHub Pages tetap menggunakan `npm ci` dan `npm run build`, dan source memakai dependency React/Vite yang sudah tercatat di `package-lock.json`.
+Portable build: **48 module**.
+
+HTTP check dijalankan terhadap `node scripts/serve.mjs`: **67 check lulus**.
+
+## Catatan build
+
+Build Vite standar tidak berhasil diverifikasi di runtime pengerjaan karena instalasi dependency lokal terhenti sebelum binary Vite tersedia. Build portable berhasil dan telah digunakan untuk browser QA. Workflow GitHub Pages tetap memakai dependency yang tercatat di `package-lock.json` melalui `npm ci` dan `npm run build`.
 
 ## Batas pengujian
 
-Belum diverifikasi menyeluruh pada Safari/Firefox, perangkat fisik Android/iOS, screen reader, serta sinkronisasi lintas perangkat. XP/profil bersifat local-first: menghapus site data atau memakai browser/perangkat lain akan membuat progres lokal terpisah.
+Belum diverifikasi menyeluruh pada perangkat fisik Android/iOS, Safari/Firefox, install prompt seluruh vendor browser, serta perilaku offline setelah eviction cache. Karena local-first, menghapus site data atau memakai perangkat lain akan membuat progres terpisah.

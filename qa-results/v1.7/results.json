@@ -1,0 +1,50 @@
+[
+  {
+    "route": "achievements",
+    "width": 1440,
+    "documentWidth": 1440,
+    "passed": true
+  },
+  {
+    "route": "missions",
+    "width": 1440,
+    "documentWidth": 1440,
+    "passed": true
+  },
+  {
+    "route": "leaderboard",
+    "width": 1440,
+    "documentWidth": 1440,
+    "passed": true
+  },
+  {
+    "route": "profile",
+    "width": 1440,
+    "documentWidth": 1440,
+    "passed": true
+  },
+  {
+    "route": "achievements",
+    "width": 390,
+    "documentWidth": 390,
+    "passed": true
+  },
+  {
+    "route": "missions",
+    "width": 390,
+    "documentWidth": 390,
+    "passed": true
+  },
+  {
+    "route": "leaderboard",
+    "width": 390,
+    "documentWidth": 390,
+    "passed": true
+  },
+  {
+    "route": "profile",
+    "width": 390,
+    "documentWidth": 390,
+    "passed": true
+  }
+]

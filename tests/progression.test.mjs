@@ -49,3 +49,12 @@ test('Daily and profile routes resolve with Indonesian aliases', () => {
   assert.equal(resolveRoute('#/profile'), 'profile');
   assert.equal(resolveRoute('#/profil'), 'profile');
 });
+
+test('Progression feature routes resolve in English and Indonesian', () => {
+  assert.equal(resolveRoute('#/achievements'), 'achievements');
+  assert.equal(resolveRoute('#/pencapaian'), 'achievements');
+  assert.equal(resolveRoute('#/missions'), 'missions');
+  assert.equal(resolveRoute('#/misi'), 'missions');
+  assert.equal(resolveRoute('#/leaderboard'), 'leaderboard');
+  assert.equal(resolveRoute('#/peringkat'), 'leaderboard');
+});

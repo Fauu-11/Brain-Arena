@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.7.0 - Achievements, Missions, Leaderboard & PWA
+- Added 12 automatic achievements with equippable profile badges and one-time XP rewards.
+- Added Daily and Weekly Mission / Quest pages with progress tracking and claim-once XP rewards.
+- Added an offline practice leaderboard for overall XP and per-game XP, clearly labeled with simulated rivals so it works without a backend.
+- Added profile and home shortcuts for achievements, missions, and leaderboard.
+- Added PWA manifest, 192/512 icons, install controls, service worker caching, offline navigation fallback, and app shortcuts.
+- Added bilingual routes and navigation for `#/achievements`, `#/missions`, and `#/leaderboard` plus Indonesian aliases.
+- Extended local progression migration with completion events so new quests can track daily/weekly activity without changing existing game rules.
+- Added progression tests and responsive browser QA for desktop 1440 px and mobile 390 px.
+
 ## v1.6.0 - Daily Challenge & Player Progression
 - Added a deterministic Daily Challenge that rotates one Brain Arena game every local calendar day.
 - Completing the featured game once per day awards +150 bonus XP and extends the daily streak.

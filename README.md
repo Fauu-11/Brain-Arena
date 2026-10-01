@@ -1,20 +1,40 @@
-# Brain Arena v1.6 — Daily Challenge & Player Progression
+# Brain Arena v1.7 — Achievements, Missions, Leaderboard & PWA
 
-Brain Arena v1.6 menambahkan **Daily Challenge**, **XP**, **Level**, dan **Profil Pemain** di atas fondasi 10 game serta panduan lengkap v1.5. Progres tetap lokal sehingga project dapat berjalan penuh di GitHub Pages tanpa backend.
+Brain Arena v1.7 melanjutkan 10 game, panduan lengkap, Daily Challenge, XP, Level, dan Profil Pemain dengan empat sistem baru: **Achievement & Badge**, **Mission / Quest**, **Leaderboard**, dan **PWA / Installable App**.
 
-## Isi panduan baru
+Semua progres masih local-first sehingga project tetap dapat berjalan di GitHub Pages tanpa backend.
 
-Setiap game sekarang mempunyai empat bagian utama:
+## Fitur v1.7
 
-1. **Ringkasan** — tujuan permainan, cara menang, kontrol, fakta cepat, dan perubahan tiap tingkat.
-2. **Tutorial langkah** — tutorial dari awal sampai siap bermain dengan checklist interaktif.
-3. **Cara memecahkan** — metode keputusan langkah demi langkah, contoh pemecahan, dan kesalahan umum.
-4. **Strategi & trik** — strategi lanjutan, rumus/pola, filter SD–Universitas, dan pencarian tips.
+### Achievement & Badge
+- 12 achievement otomatis dengan progres yang terlihat.
+- Badge untuk milestone sesi, level, XP, seluruh game, Daily Streak, Minesweeper, Maze Escape, dan Memory Matrix.
+- Reward XP diberikan satu kali saat achievement terbuka.
+- Badge yang sudah terbuka dapat dipasang atau dilepas dari profil pemain.
+- Halaman: `#/achievements` atau `#/pencapaian`.
 
-Panduan tersedia dalam **Bahasa Indonesia dan English** mengikuti pengaturan bahasa
-Brain Arena.
+### Mission / Quest
+- 3 misi harian dan 3 misi mingguan.
+- Daily quest direset per tanggal lokal; weekly quest memakai minggu Senin–Minggu.
+- Progress berdasarkan sesi selesai, variasi game, kategori, dan Daily Challenge.
+- XP hanya dapat diklaim sekali untuk setiap periode quest.
+- Halaman: `#/missions` atau `#/misi`.
 
-## Game yang memiliki panduan lengkap
+### Leaderboard
+- Ranking Total XP dan XP per game.
+- Bekerja sepenuhnya offline untuk GitHub Pages.
+- Rival diberi label **simulasi latihan**, bukan pemain sungguhan.
+- Skor pemain berasal dari progres lokal pada browser.
+- Halaman: `#/leaderboard` atau `#/peringkat`.
+
+### PWA / Installable App
+- `manifest.webmanifest` dengan icon 192 dan 512 px.
+- Service worker untuk cache shell dan asset yang sudah dibuka.
+- Offline fallback untuk navigasi Brain Arena setelah asset tersimpan.
+- Tombol **Install aplikasi** di sidebar / toolbar saat browser mendukung instalasi.
+- Shortcut PWA menuju Daily Challenge, Missions, dan Achievements.
+
+## Game
 
 1. Blitz Aritmatika
 2. Perburuan Prima
@@ -27,33 +47,11 @@ Brain Arena.
 9. Maze Escape
 10. Memory Matrix
 
-Panduan Maze Escape dan Memory Matrix juga menjelaskan sub-level Universitas
-**Hard, Very Hard, dan Extreme**.
-
-## Tampilan Panduan
-
-Halaman `#/panduan` sekarang memiliki Learning Hub baru dengan:
-
-- learning path empat tahap;
-- indikator kategori dan musim;
-- penanda bahwa tiap panduan berisi Tutorial, Pemecahan, dan Strategi;
-- kartu responsive yang tetap mengikuti UI Brain Arena.
-
-Halaman detail, contoh:
-
-```text
-#/tips-minesweeper
-#/tips-maze
-#/tips-matrix
-#/tips-rps
-```
-
-memiliki selector 10 game, tab panduan, checklist tutorial, worked example, daftar
-kesalahan, pencarian strategi, dan tombol langsung kembali bermain.
+Maze Escape dan Memory Matrix tetap memiliki mode Universitas **Hard, Very Hard, dan Extreme**.
 
 ## Menjalankan source
 
-Gunakan Node.js sesuai `engines` di `package.json`.
+Gunakan Node.js sesuai `engines` pada `package.json`.
 
 ```bash
 npm ci
@@ -67,9 +65,9 @@ npm run build
 npm run preview
 ```
 
-## Build portable yang disertakan
+## Preview portable yang disertakan
 
-Versi ZIP menyertakan build ESM portable untuk preview lokal:
+ZIP menyertakan build ESM portable:
 
 ```bash
 node scripts/serve.mjs
@@ -78,60 +76,48 @@ node scripts/serve.mjs
 Lalu buka:
 
 ```text
-http://localhost:4173/#/panduan
+http://localhost:4173
 ```
 
-Pada Windows dapat memakai `JALANKAN-WINDOWS.bat`.
+Pada Windows juga tersedia `JALANKAN-WINDOWS.bat`.
 
 ## GitHub Pages
 
-Workflow otomatis tetap berada di:
+Workflow berada di:
 
 ```text
 .github/workflows/deploy.yml
 ```
 
-Di GitHub pilih **Settings → Pages → Source → GitHub Actions**.
+Pada GitHub pilih **Settings → Pages → Source → GitHub Actions**.
 
-Untuk mengunggah pembaruan dari Zed:
+Kemudian update dari Zed:
 
 ```bash
 git add .
-git commit -m "Upgrade complete game guides"
+git commit -m "Add achievements missions leaderboard and PWA"
 git push origin main
 ```
 
-## Berkas utama pembaruan v1.5
+GitHub Actions menjalankan `npm ci` dan `npm run build`, lalu mengirim folder `dist` ke GitHub Pages.
 
-| Berkas | Fungsi |
-| --- | --- |
-| `src/pages/Guides.jsx` | Learning Hub / daftar seluruh panduan |
-| `src/pages/TipsPage.jsx` | UI detail panduan, tab, checklist, pencarian strategi |
-| `src/data/guideDetails.js` | Tutorial lengkap, metode pemecahan, kontrol, tingkat, kesalahan |
-| `src/arena.css` | Tampilan responsive panduan baru |
-| `tests/guides.test.mjs` | Validasi kelengkapan panduan untuk semua game |
+## Penyimpanan lokal
+
+Data berikut tersimpan di browser:
+- favorit dan riwayat;
+- record game;
+- XP, level, profil, dan Daily Challenge;
+- achievement, badge aktif, dan claim misi;
+- completion events yang dipakai untuk menghitung quest.
+
+Karena belum ada backend, progres tidak otomatis tersinkron ke browser/perangkat lain. Leaderboard v1.7 adalah **papan latihan offline** dengan rival simulasi yang diberi label secara eksplisit.
 
 ## Pengujian
 
-```bash
-npm test
-npm run build:portable
-```
+- 70 unit test lulus.
+- Browser QA: Achievements, Missions, Leaderboard, dan Profile pada 1440 px dan 390 px.
+- Tidak ada horizontal overflow pada skenario QA tersebut.
+- Portable build berhasil: 48 module source.
+- HTTP asset check: 67 check lulus.
 
-QA browser juga memeriksa halaman panduan pada 1440 px dan 390 px, interaksi tab,
-checklist tutorial, perpindahan antar-game, dan halaman Learning Hub.
-
-Detail ada di `TEST_REPORT.md`.
-
-Favorit, riwayat, rekor, bahasa, dan mute tetap tersimpan di browser (`localStorage`).
-Belum ada backend atau akun online.
-
-## Daily Challenge, XP, Level, and Player Profile (v1.6)
-Brain Arena now includes local progression without requiring a backend:
-- Every completed game session grants **60 XP**.
-- The first completed session each day grants an extra **25 XP**.
-- A deterministic **Daily Challenge** selects one game per local calendar day; finishing that game once grants an extra **150 XP** and extends the daily streak.
-- The **Player Profile** shows level, rank, XP progress, sessions completed, games explored, daily streaks, per-game completion stats, and recent XP rewards.
-- The player display name can be edited locally.
-
-Progress is stored in browser `localStorage`. Clearing site data or using another browser/device starts a separate local profile.
+Lihat `TEST_REPORT.md` untuk detail.

@@ -25,7 +25,7 @@ export function resolveRoute(hash = '') {
   try { path = decodeURIComponent(hash.replace(/^#\/?/, '').split('?')[0]).replace(/\/+$/, ''); }
   catch { return 'not-found'; }
   if (!path || path === 'home') return 'home';
-  const pages = { games: 'games', permainan: 'games', favorites: 'favorites', favorit: 'favorites', activity: 'activity', aktivitas: 'activity', guides: 'guides', panduan: 'guides', tips: 'guides', daily: 'daily', harian: 'daily', profile: 'profile', profil: 'profile' };
+  const pages = { games:'games', permainan:'games', favorites:'favorites', favorit:'favorites', activity:'activity', aktivitas:'activity', guides:'guides', panduan:'guides', tips:'guides', daily:'daily', harian:'daily', profile:'profile', profil:'profile', achievements:'achievements', pencapaian:'achievements', badges:'achievements', missions:'missions', misi:'missions', quests:'missions', leaderboard:'leaderboard', peringkat:'leaderboard' };
   if (Object.hasOwn(pages, path)) return pages[path];
   if (path.startsWith('tips-')) {
     const game = GAMES.find(g => g.id === path.slice(5) || g.slug === path.slice(5));
