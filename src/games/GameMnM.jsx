@@ -1,7 +1,7 @@
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useEffectEvent } from 'react';
 import RulesModal from '../components/RulesModal';
 import Scoreboard from '../components/Scoreboard';
 import { useLanguage } from '../context/LanguageContext';
@@ -133,6 +133,20 @@ export default function GameMnM({ onBack, onNavigate }) {
 
   // AI Memory Map: number -> chip index
   const aiMemory = useRef({});
+  const pendingActions = useRef(new Set());
+  const scheduleAction = useCallback((callback, delay) => {
+    const id = setTimeout(() => {
+      pendingActions.current.delete(id);
+      callback();
+    }, delay);
+    pendingActions.current.add(id);
+    return id;
+  }, []);
+  const clearPendingActions = useCallback(() => {
+    pendingActions.current.forEach(clearTimeout);
+    pendingActions.current.clear();
+  }, []);
+  useEffect(() => clearPendingActions, [clearPendingActions]);
 
   // Active configuration
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_SPECS[schoolLevel] || LEVEL_SPECS.smp);
@@ -168,8 +182,9 @@ export default function GameMnM({ onBack, onNavigate }) {
 
   // Initialize Board
   const initBoard = useCallback((level = schoolLevel, chosenMode = mode, arenaDifficulty = universityDifficulty) => {
+    clearPendingActions();
     const currentConf = level === 'universitas' ? UNIVERSITY_LEVELS[arenaDifficulty] : (LEVEL_SPECS[level] || LEVEL_SPECS.smp);
-    const { cols: cCount, chipsPerTile: cpt } = currentConf;
+    const { cols: cCount, chipsPerTile: cpt, matchPairs: pairs } = currentConf;
 
     // Generate pairs 1..N
     const numberPool = [];
@@ -214,7 +229,9 @@ export default function GameMnM({ onBack, onNavigate }) {
     setSelectedChipIndexes([]);
     setMode(chosenMode);
     aiMemory.current = {};
-  }, [schoolLevel, mode, universityDifficulty]);
+  }, [schoolLevel, mode, universityDifficulty, clearPendingActions]);
+
+  const onTimerExpired = useEffectEvent(() => handleTimeoutMismatch());
 
   // Timers
   useEffect(() => {
@@ -228,8 +245,8 @@ export default function GameMnM({ onBack, onNavigate }) {
           return t - 1;
         });
       }, 1000);
-    } else if (timer === 0 && phase === 'match') {
-      handleTimeoutMismatch();
+    } else if (isTimerActive && timer === 0 && phase === 'match') {
+      onTimerExpired();
     }
     return () => clearInterval(timerId);
   }, [isTimerActive, timer, phase]);
@@ -277,12 +294,13 @@ export default function GameMnM({ onBack, onNavigate }) {
 
   // Handle Timeout Mismatch
   const handleTimeoutMismatch = () => {
+    clearPendingActions();
     playSound('mismatch');
     setIsLocked(true);
     setIsTimerActive(false);
 
     const currentSelected = selectedRef.current;
-    setTimeout(() => {
+    scheduleAction(() => {
       setChips(prev => prev.map((c, idx) => {
         if (currentSelected.includes(idx)) return { ...c, isFlipped: false };
         return c;
@@ -301,10 +319,6 @@ export default function GameMnM({ onBack, onNavigate }) {
     setPhase('match');
     setTimer(config.turnSeconds);
     setIsTimerActive(true);
-
-    if (mode === 'pve' && nextPlayer === 2) {
-      runAITurn();
-    }
   };
 
   // User Chip Flip
@@ -340,7 +354,7 @@ export default function GameMnM({ onBack, onNavigate }) {
 
       if (firstChip.number === secondChip.number) {
         // MATCH!
-        setTimeout(() => {
+        scheduleAction(() => {
           playSound('match');
           const foundChips = [...nextChips];
           foundChips[newSelected[0]] = { ...foundChips[newSelected[0]], isFound: true };
@@ -360,14 +374,11 @@ export default function GameMnM({ onBack, onNavigate }) {
           if (!isOver) {
             setTimer(config.turnSeconds);
             setIsTimerActive(true);
-            if (mode === 'pve' && curPlayer === 2) {
-              setTimeout(() => runAITurn(), 800);
-            }
           }
         }, 500);
       } else {
         // MISMATCH!
-        setTimeout(() => {
+        scheduleAction(() => {
           playSound('mismatch');
           const unFlipped = [...nextChips];
           unFlipped[newSelected[0]] = { ...unFlipped[newSelected[0]], isFlipped: false };
@@ -377,10 +388,6 @@ export default function GameMnM({ onBack, onNavigate }) {
           setSelectedChipIndexes([]);
           setIsLocked(false);
           setPhase('mix');
-
-          if (mode === 'pve' && activePlayerRef.current === 2) {
-            setTimeout(() => runAIMixSlide(), 900);
-          }
         }, 800);
       }
     }
@@ -390,7 +397,8 @@ export default function GameMnM({ onBack, onNavigate }) {
   const runAITurn = () => {
     if (phaseRef.current !== 'match' || activePlayerRef.current !== 2) return;
 
-    setTimeout(() => {
+    scheduleAction(() => {
+      if (phaseRef.current !== 'match' || activePlayerRef.current !== 2) return;
       const currentChips = chipsRef.current;
       const unfoundIndices = currentChips
         .map((c, i) => (!c.isFound && c.number !== 0 ? i : -1))
@@ -431,8 +439,8 @@ export default function GameMnM({ onBack, onNavigate }) {
       processChipFlip(firstPick);
 
       // Flip second after natural delay
-      setTimeout(() => {
-        if (phaseRef.current === 'match') {
+      scheduleAction(() => {
+        if (phaseRef.current === 'match' && activePlayerRef.current === 2) {
           processChipFlip(secondPick);
         }
       }, 700);
@@ -496,6 +504,16 @@ export default function GameMnM({ onBack, onNavigate }) {
     // Switch turn
     switchTurnAfterSlide();
   };
+
+  const onAIFlip = useEffectEvent(runAITurn);
+  const onAISlide = useEffectEvent(runAIMixSlide);
+
+  // Start AI work after the new player/phase is committed, not during a turn switch.
+  useEffect(() => {
+    if (mode !== 'pve' || activePlayer !== 2 || isLocked) return;
+    if (phase === 'match' && selectedChipIndexes.length === 0) onAIFlip();
+    else if (phase === 'mix') scheduleAction(onAISlide, 900);
+  }, [mode, activePlayer, phase, isLocked, selectedChipIndexes.length, scheduleAction]);
 
   // Tile Component
   const Tile = ({ tileIdx, slotIdx }) => {

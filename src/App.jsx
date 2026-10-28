@@ -6,6 +6,8 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext.jsx';
 import { ArenaProvider, useArena } from './context/ArenaContext.jsx';
 import { gameById, resolveRoute, routeHash } from './data/games.js';
 const Home = lazy(() => import('./pages/Home.jsx'));
+const Challenges = lazy(() => import('./pages/Challenges.jsx'));
+const Progress = lazy(() => import('./pages/Progress.jsx'));
 const Game300 = lazy(() => import('./games/Game300.jsx'));
 const GamePrime = lazy(() => import('./games/GamePrime.jsx'));
 const GamePixel = lazy(() => import('./games/GamePixel.jsx'));
@@ -91,6 +93,8 @@ function AppContent() {
   let content;
   if (Game) content=<Game onBack={back} onNavigate={navigate}/>;
   else if (['home','games','favorites'].includes(view)) content=<Home view={view} onSelectGame={navigate}/>;
+  else if (view==='challenges') content=<Challenges onNavigate={navigate}/>;
+  else if (view==='progress') content=<Progress onNavigate={navigate}/>;
   else if (view==='activity') content=<Activity onNavigate={navigate}/>;
   else if (view==='guides') content=<Guides onNavigate={navigate}/>;
   else if (view==='daily') content=<DailyChallenge onNavigate={navigate}/>;

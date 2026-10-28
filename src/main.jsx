@@ -6,6 +6,8 @@ import './game-theme.css';
 import './theme.css';
 import './page-dark.css';
 import './game-dark.css';
+import './navigation.css';
+import './dashboard.css';
 import App from './App.jsx';
 import { migrateProgressData } from './utils/migration.js';
 import { ensureLocalProfiles, saveActiveLocalProfile } from './utils/localProfiles.js';

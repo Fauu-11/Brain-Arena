@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
 import { GAMES, CATEGORIES, gameById } from '../data/games.js';
+import { PRIMARY_NAVIGATION, FOOTER_NAVIGATION, NAVIGATION_DESTINATIONS, isNavActive } from '../data/navigation.js';
 import Icon from './Icon.jsx';
 import Dialog from './Dialog.jsx';
 import PwaInstallButton from './PwaInstallButton.jsx';
@@ -9,90 +11,104 @@ import PwaUpdateManager from './PwaUpdateManager.jsx';
 import OnboardingTour from './OnboardingTour.jsx';
 import ControllerBridge from './ControllerBridge.jsx';
 
-function isNavActive(itemId,currentView){ return currentView===itemId || (itemId==='guides'&&currentView.startsWith('tips-')) || (itemId==='profile'&&currentView==='customize'); }
-function buildNav(copy,dailyCompleted,favoritesLength){ return [
-  {id:'home',icon:'home',label:copy('Beranda','Overview'),group:'arena'},
-  {id:'daily',icon:'spark',label:'Daily Challenge',count:dailyCompleted?'✓':null,group:'arena'},
-  {id:'daily-archive',icon:'clock',label:copy('Daily Archive','Daily Archive'),group:'arena'},
-  {id:'games',icon:'grid',label:copy('Semua permainan','All games'),count:GAMES.length,group:'arena'},
-  {id:'favorites',icon:'star',label:copy('Favorit','Favorites'),count:favoritesLength||null,group:'arena'},
-  {id:'activity',icon:'activity',label:copy('Aktivitas saya','My activity'),group:'arena'},
-  {id:'guides',icon:'book',label:copy('Panduan bermain','Game guides'),group:'arena'},
-  {id:'arena-run',icon:'gamepad',label:'Arena Run',group:'competitive'},
-  {id:'arena-builder',icon:'sliders',label:copy('Arena Builder','Arena Builder'),group:'competitive'},
-  {id:'arena-cup',icon:'trophy',label:'Arena Cup',group:'competitive'},
-  {id:'practice-lab',icon:'brain',label:copy('Practice Lab','Practice Lab'),group:'competitive'},
-  {id:'history',icon:'clock',label:'Match History',group:'competitive'},
-  {id:'leaderboard',icon:'trophy',label:'Leaderboard',group:'competitive'},
-  {id:'season',icon:'spark',label:'Season',group:'competitive'},
-  {id:'events',icon:'bolt',label:copy('Event','Events'),group:'competitive'},
-  {id:'achievements',icon:'medal',label:copy('Achievement & Badge','Achievements & Badges'),group:'progress'},
-  {id:'missions',icon:'checklist',label:copy('Mission / Quest','Missions / Quests'),group:'progress'},
-  {id:'rank',icon:'shield',label:'Arena Rank',group:'progress'},
-  {id:'mastery',icon:'trophy',label:'Game Mastery',group:'progress'},
-  {id:'completion',icon:'medal',label:'Game Completion',group:'progress'},
-  {id:'statistics',icon:'activity',label:copy('Statistik','Statistics'),group:'progress'},
-  {id:'activity-calendar',icon:'clock',label:copy('Kalender Aktivitas','Activity Calendar'),group:'progress'},
-  {id:'goals',icon:'flag',label:copy('Target Personal','Personal Goals'),group:'progress'},
-  {id:'profiles',icon:'users',label:copy('Profil lokal','Local profiles'),group:'other'},
-  {id:'showcase',icon:'medal',label:copy('Player Showcase','Player Showcase'),group:'other'},
-  {id:'save-slots',icon:'shield',label:copy('Save Slot','Save Slots'),group:'other'},
-  {id:'storage-center',icon:'layers',label:copy('Storage Center','Storage Center'),group:'other'},
-  {id:'diagnostics',icon:'activity',label:copy('Diagnostics','Diagnostics'),group:'other'},
-  {id:'cloud-readiness',icon:'layers',label:copy('Cloud Readiness','Cloud Readiness'),group:'other'},
-  {id:'controls',icon:'gamepad',label:copy('Kontrol','Controls'),group:'other'},
-  {id:'settings',icon:'sliders',label:copy('Pengaturan','Settings'),group:'other'},
-  {id:'data-health',icon:'shield',label:copy('Data Health','Data Health'),group:'other'},
-  {id:'offline',icon:'download',label:copy('Offline Manager','Offline Manager'),group:'other'},
-  {id:'feedback',icon:'message',label:copy('Feedback & Saran','Feedback & Suggestions'),group:'other'},
-  {id:'profile',icon:'user',label:copy('Profil pemain','Player profile'),group:'other'},
-]; }
-
-function readSidebarGroups(){ try { const raw=JSON.parse(localStorage.getItem('ba_sidebar_layout_v2')||'null'); return raw?.groups||{arena:true,competitive:true,progress:true,other:true,games:false}; } catch { return {arena:true,competitive:true,progress:true,other:true,games:false}; } }
-function Navigation({currentView,onNavigate}){
-  const {lang}=useLanguage();
-  const {favorites,pinnedGames,togglePinnedGame,movePinnedGame,profile,levelInfo,dailyCompleted,rankInfo,avatarOption,frameOption}=useArena();
-  const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
-  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[copy,dailyCompleted,favorites.length]);
-  const [groups,setGroups]=useState(readSidebarGroups);
-  const groupInfo=[
-    ['arena',copy('ARENA','ARENA')],['competitive',copy('KOMPETITIF','COMPETITIVE')],['progress',copy('PROGRES','PROGRESS')],['other',copy('LAINNYA','OTHER')]
-  ];
-  const toggleGroup=id=>setGroups(prev=>{ const next={...prev,[id]:!prev[id]}; try { const old=JSON.parse(localStorage.getItem('ba_sidebar_layout_v2')||'{}'); localStorage.setItem('ba_sidebar_layout_v2',JSON.stringify({...old,groups:next})); } catch {} return next; });
-  const renderItem=item=><button className={`nav-item ${isNavActive(item.id,currentView)?'active':''}`} key={item.id} onClick={()=>onNavigate(item.id)} aria-current={isNavActive(item.id,currentView)?'page':undefined}><Icon name={item.icon} size={19}/><span>{item.label}</span>{item.count!=null&&<span className="nav-count">{item.count}</span>}</button>;
-  const pinned=pinnedGames.map(gameById).filter(Boolean).slice(0,6);
-  return <>
-    <button className="brand" onClick={()=>onNavigate('home')} aria-label="Brain Arena - Home"><span className="brand-mark"><Icon name="cube" size={26}/></span><span><strong>brain<span>arena</span><i/></strong><small>PLAY WITH YOUR MIND</small></span></button>
-    <nav aria-label={copy('Navigasi utama','Main navigation')} className="main-nav smart-nav">
-      {groupInfo.map(([id,label])=><section className="smart-nav-group" key={id}><button type="button" className="nav-label nav-group-toggle" onClick={()=>toggleGroup(id)} aria-expanded={groups[id]}><span>{label}</span><Icon name={groups[id]?'down':'chevron'} size={11}/></button>{groups[id]&&<div className="smart-nav-items">{nav.filter(item=>item.group===id).map(renderItem)}</div>}</section>)}
-    </nav>
-    {pinned.length>0&&<nav className="game-nav pinned-game-nav" aria-label={copy('Game dipin','Pinned games')}><p className="nav-label">{copy('PINNED GAMES','PINNED GAMES')}</p>{pinned.map((game,index)=><div className={`pinned-nav-row ${currentView===game.id?'active':''}`} key={game.id}><button className="pinned-nav-main" onClick={()=>onNavigate(game.id)}><span className={`nav-game-icon color-${game.color}`}><Icon name={game.icon} size={15}/></span><span>{game.title[lang]}</span></button><span className="pinned-nav-actions"><button disabled={index===0} onClick={()=>movePinnedGame(game.id,-1)} aria-label={copy('Naikkan pin','Move pin up')}><Icon name="up" size={11}/></button><button disabled={index===pinned.length-1} onClick={()=>movePinnedGame(game.id,1)} aria-label={copy('Turunkan pin','Move pin down')}><Icon name="down" size={11}/></button><button onClick={()=>togglePinnedGame(game.id)} aria-label={copy('Lepas pin','Unpin')}><Icon name="close" size={11}/></button></span></div>)}</nav>}
-    <nav aria-label={copy('Pintasan permainan','Game shortcuts')} className="game-nav"><button type="button" className="nav-label nav-group-toggle" onClick={()=>toggleGroup('games')} aria-expanded={groups.games}><span>{copy('LANGSUNG MAIN','JUMP INTO A GAME')}</span><Icon name={groups.games?'down':'chevron'} size={11}/></button>{groups.games&&GAMES.map(game=><button key={game.id} onClick={()=>onNavigate(game.id)} className={`game-nav-item ${currentView===game.id?'active':''}`} aria-current={currentView===game.id?'page':undefined}><span className={`nav-game-icon color-${game.color}`}><Icon name={game.icon} size={15}/></span><span>{game.title[lang]}</span>{game.season>1&&<span className="mini-tag">S{game.season}</span>}</button>)}</nav>
-    <div className="sidebar-bottom"><div className="sidebar-pwa"><PwaInstallButton/></div><div className="sidebar-note"><span className="note-spark">+</span><h3>{copy('Sedikit latihan.','A little practice.')}<br/>{copy('Banyak kemajuan.','A lot of progress.')}</h3><p>{copy('Tantangan berikutnya menantimu.','Your next challenge is waiting.')}</p><button onClick={()=>onNavigate(GAMES[Math.floor(Math.random()*GAMES.length)].id)}>{copy('Coba game acak','Try a random game')}<Icon name="shuffle" size={14}/></button></div><button className="local-profile" onClick={()=>onNavigate('profile')}><span className={`profile-avatar frame-${frameOption.id}`}><Icon name={avatarOption.icon} size={18}/></span><span><strong>{profile.name||copy('Pemain lokal','Local player')}</strong><small>{rankInfo.tier.title[lang]} · Lv. {levelInfo.level}</small></span><span className="local-profile-level">{Math.round(levelInfo.progress)}%</span></button></div>
-  </>;
+// Portaled tooltips stay outside the rail's scroll container. Names remain on buttons.
+function Tooltip({label,children,placement='bottom'}) {
+  const id=useId(), anchor=useRef(null), leaveTimer=useRef(null);
+  const [hovered,setHovered]=useState(false), [focused,setFocused]=useState(false);
+  const [dismissed,setDismissed]=useState(false), [position,setPosition]=useState(null);
+  const open=(hovered||focused)&&!dismissed&&position;
+  const locate=()=>{
+    const rect=anchor.current?.getBoundingClientRect();
+    if(!rect)return;
+    setPosition({left:Math.max(8,Math.min(placement==='right'?rect.right+10:rect.left,window.innerWidth-280)),top:placement==='right'?rect.top+rect.height/2:rect.bottom+8});
+    setDismissed(false);
+  };
+  const enter=()=>{clearTimeout(leaveTimer.current);setHovered(true);locate();};
+  const leave=()=>{leaveTimer.current=setTimeout(()=>setHovered(false),120);};
+  useEffect(()=>()=>clearTimeout(leaveTimer.current),[]);
+  useEffect(()=>{
+    if(!open)return;
+    const dismiss=e=>{if(e.key==='Escape'){setDismissed(true);if(!document.querySelector('dialog[open]')){e.preventDefault();e.stopPropagation();}}};
+    const reposition=()=>setDismissed(true);
+    window.addEventListener('keydown',dismiss,true);
+    window.addEventListener('resize',reposition);
+    window.addEventListener('scroll',reposition,true);
+    return()=>{window.removeEventListener('keydown',dismiss,true);window.removeEventListener('resize',reposition);window.removeEventListener('scroll',reposition,true);};
+  },[open]);
+  return <span className="navigation-tooltip-trigger" ref={anchor} onMouseEnter={enter} onMouseLeave={leave} onFocus={()=>{setFocused(true);locate();}} onBlur={()=>setFocused(false)} onClick={()=>setDismissed(true)}>
+    {React.cloneElement(children,{'aria-describedby':open?id:undefined})}
+    {open&&createPortal(<span id={id} role="tooltip" className={`layout-refresh navigation-tooltip tooltip-${placement}`} style={position} onMouseEnter={enter} onMouseLeave={leave}>{label}</span>,document.body)}
+  </span>;
+}
+function TooltipButton({label,placement,children,...props}) {
+  return <Tooltip label={label} placement={placement}><button type="button" aria-label={label} {...props}>{children}</button></Tooltip>;
 }
 
-function RailNavigation({currentView,onNavigate}){
-  const {lang}=useLanguage(); const {favorites,pinnedGames,dailyCompleted}=useArena(); const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
-  const nav=useMemo(()=>buildNav(copy,dailyCompleted,favorites.length),[copy,dailyCompleted,favorites.length]);
-  const ids=['home','daily','games','favorites','arena-run','leaderboard','achievements','missions','rank','statistics','settings','profile'];
-  return <><button className="brand brand-compact" onClick={()=>onNavigate('home')} aria-label="Brain Arena - Home compact"><span className="brand-mark"><Icon name="cube" size={22}/></span></button><div className="rail-separator"/><nav className="rail-nav" aria-label={copy('Navigasi cepat','Quick navigation')}>{nav.filter(item=>ids.includes(item.id)).map(item=><button key={item.id} className={`rail-item ${isNavActive(item.id,currentView)?'active':''}`} onClick={()=>onNavigate(item.id)} aria-label={item.label} title={item.label}><Icon name={item.icon} size={18}/>{item.count!=null&&<span className="rail-dot">{item.count==='✓'?'•':item.count}</span>}</button>)}</nav><div className="rail-footer"><button className="rail-item rail-highlight" onClick={()=>onNavigate((gameById(pinnedGames[0])||GAMES[0]).id)} title={(gameById(pinnedGames[0])||GAMES[0]).title[lang]}><Icon name={(gameById(pinnedGames[0])||GAMES[0]).icon} size={18}/></button></div></>;
+function readSidebarPreference() {
+  try {
+    const collapsed=localStorage.getItem('ba_sidebar_collapsed');
+    if(collapsed==='1'||collapsed==='0')return collapsed==='1';
+    const saved=JSON.parse(localStorage.getItem('ba_sidebar_layout_v2')||'null');
+    if(saved?.mode==='compact')return true;
+    // Older migrations generated "full" even without a manual choice.
+    if(saved?.mode==='full'&&saved?.migratedAt)return null;
+    if(saved?.mode==='full'||saved?.mode==='expanded')return false;
+  } catch {}
+  return null;
+}
+
+function Navigation({currentView,onNavigate,compact=false,onCollapse}) {
+  const {lang}=useLanguage();
+  const {pinnedGames,profile,levelInfo,avatarOption,frameOption,missionCards}=useArena();
+  const copy=(id,en)=>lang==='id'?id:en;
+  const readyCount=missionCards.filter(mission=>mission.complete&&!mission.claimed).length;
+  const pinned=pinnedGames.map(gameById).filter(Boolean).slice(0,3);
+  const renderItem=item=>{
+    const count=item.id==='progress'?readyCount:0;
+    const label=`${item.label[lang]}${item.id==='profile'?`, ${profile.name||copy('Pemain lokal','Local player')}`:''}${count?copy(`, ${count} hadiah misi siap diklaim`,`, ${count} mission rewards ready to claim`):''}`;
+    const active=isNavActive(item.id,currentView);
+    const content=<><span className={item.id==='profile'?`profile-avatar navigation-avatar frame-${frameOption.id}`:'navigation-icon'}><Icon name={item.id==='profile'?avatarOption.icon:item.icon} size={20}/></span>{!compact&&<span className="navigation-label">{item.id==='profile'?<><strong>{profile.name||copy('Pemain lokal','Local player')}</strong><small>{copy('Level','Level')} {levelInfo.level} · {copy('Lokal','Local')}</small></>:item.label[lang]}</span>}{count>0&&<span className="navigation-badge" aria-hidden="true">{count}</span>}</>;
+    const props={className:`navigation-item ${active?'active':''}`,onClick:()=>onNavigate(item.id),'aria-current':active?'page':undefined};
+    return compact?<TooltipButton key={item.id} label={label} placement="right" {...props}>{content}</TooltipButton>:<button type="button" key={item.id} aria-label={label} {...props}>{content}</button>;
+  };
+  const brand=<button type="button" className={`brand ${compact?'brand-compact':''}`} onClick={()=>onNavigate('home')} aria-label={copy('Brain Arena — Beranda','Brain Arena — Home')}><span className="brand-mark"><Icon name="cube" size={24}/></span>{!compact&&<span><strong>brain<span>arena</span><i/></strong></span>}</button>;
+  return <div className={`navigation-shell ${compact?'navigation-compact':''}`}>
+    <div className="navigation-header">{compact?<Tooltip label={copy('Brain Arena — Beranda','Brain Arena — Home')} placement="right">{brand}</Tooltip>:brand}{!compact&&onCollapse&&<TooltipButton className="icon-button navigation-collapse" label={copy('Ringkas sidebar','Collapse sidebar')} onClick={onCollapse}><Icon name="back" size={18}/></TooltipButton>}</div>
+    <div className="navigation-scroll">
+      <nav className="navigation-primary" aria-label={copy('Navigasi utama','Main navigation')}>{PRIMARY_NAVIGATION.map(renderItem)}</nav>
+      {!compact&&pinned.length>0&&<section className="navigation-pins" aria-label={copy('Permainan dipin','Pinned games')}><div className="navigation-pins-heading"><h2>{copy('DIPIN','PINNED')}</h2><button type="button" onClick={()=>onNavigate('games')} aria-label={copy('Kelola pin di Permainan','Manage pins in Games')}>{copy('Kelola','Manage')}</button></div><nav aria-label={copy('Akses cepat permainan dipin','Pinned game shortcuts')}>{pinned.map(game=><button type="button" key={game.id} className={`navigation-item navigation-pin ${currentView===game.id?'is-current-game':''}`} onClick={()=>onNavigate(game.id)}><span className="navigation-icon"><Icon name={game.icon} size={19}/></span><span className="navigation-label">{game.title[lang]}</span></button>)}</nav></section>}
+    </div>
+    <nav className="navigation-footer" aria-label={copy('Pengaturan dan profil','Settings and profile')}>{FOOTER_NAVIGATION.map(renderItem)}</nav>
+  </div>;
 }
 
 export default function Layout({children,currentView,onViewChange}){
   const {lang,toggleLang}=useLanguage();
   const {muted,toggleSound,storageOk,notice,profile,levelInfo,rankInfo,avatarOption,frameOption,accessibility,updateAccessibility,currentSession,requestCoachHint,arenaRun,arenaCup,notifications,unreadNotifications,markNotificationRead,markAllNotificationsRead,recoverySession,resumeRecovery,setSessionSchoolLevel,setSessionUniversityDifficulty}=useArena();
   const [menu,setMenu]=useState(false),[search,setSearch]=useState(false),[help,setHelp]=useState(false),[notificationsOpen,setNotificationsOpen]=useState(false),[query,setQuery]=useState(''),[focus,setFocus]=useState(false),[coachOpen,setCoachOpen]=useState(false),[coachData,setCoachData]=useState(null),[sessionNow,setSessionNow]=useState(Date.now());
-  const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>{try{return localStorage.getItem('ba_sidebar_collapsed')==='1';}catch{return false;}});
+  const sidebarToggleRef=useRef(null);
+  const [manualCollapsed,setManualCollapsed]=useState(readSidebarPreference);
+  const [wideViewport,setWideViewport]=useState(()=>window.matchMedia('(min-width:1200px)').matches);
+  const sidebarCollapsed=manualCollapsed??!wideViewport;
   const copy=useCallback((id,en)=>lang==='id'?id:en,[lang]);
   const activeGame=gameById(currentView);
   const navigate=useCallback(view=>{setMenu(false);setSearch(false);setNotificationsOpen(false);setQuery('');onViewChange(view);},[onViewChange]);
-  const toggleSidebar=useCallback(()=>setSidebarCollapsed(value=>!value),[]);
-  useEffect(()=>{try{localStorage.setItem('ba_sidebar_collapsed',sidebarCollapsed?'1':'0');const old=JSON.parse(localStorage.getItem('ba_sidebar_layout_v2')||'{}');localStorage.setItem('ba_sidebar_layout_v2',JSON.stringify({...old,mode:sidebarCollapsed?'compact':'full'}));}catch{}},[sidebarCollapsed]);
+  const toggleSidebar=useCallback(()=>{
+    const next=!sidebarCollapsed;
+    setManualCollapsed(next);
+    try{localStorage.setItem('ba_sidebar_collapsed',next?'1':'0');}catch{}
+    try{const old=JSON.parse(localStorage.getItem('ba_sidebar_layout_v2')||'{}');localStorage.setItem('ba_sidebar_layout_v2',JSON.stringify({...old,mode:next?'compact':'full'}));}catch{}
+  },[sidebarCollapsed]);
+  useEffect(()=>{
+    const media=window.matchMedia('(min-width:1200px)');
+    const update=()=>setWideViewport(media.matches);
+    media.addEventListener('change',update);
+    return()=>media.removeEventListener('change',update);
+  },[]);
   useEffect(()=>{if(!activeGame)setFocus(false);},[activeGame]);
   useEffect(()=>{if(!activeGame||!currentSession?.active||currentSession.gameId!==activeGame.id)return;const timer=setInterval(()=>setSessionNow(Date.now()),1000);return()=>clearInterval(timer);},[activeGame,currentSession?.active,currentSession?.gameId]);
   useEffect(()=>{const handleKey=e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='s'){e.preventDefault();toggleSidebar();return;}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setSearch(v=>!v);return;}const el=e.target;if(['INPUT','TEXTAREA','SELECT'].includes(el?.tagName)||el?.isContentEditable)return;if(e.altKey&&e.key.toLowerCase()==='h'){e.preventDefault();navigate('home');}if(e.altKey&&e.key.toLowerCase()==='l'){e.preventDefault();toggleLang();}if(e.altKey&&e.key.toLowerCase()==='m'){e.preventDefault();toggleSound();}if(e.key==='?'&&!e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();setHelp(true);}};window.addEventListener('keydown',handleKey);return()=>window.removeEventListener('keydown',handleKey);},[navigate,toggleLang,toggleSound,toggleSidebar]);
-  const names={home:copy('Beranda','Overview'),daily:'Daily Challenge','daily-archive':'Daily Archive',games:copy('Semua permainan','All games'),favorites:copy('Favorit','Favorites'),activity:copy('Aktivitas saya','My activity'),guides:copy('Panduan bermain','Game guides'),achievements:'Achievement & Badge',missions:'Mission / Quest',leaderboard:'Leaderboard',rank:'Arena Rank',customize:copy('Kustomisasi profil','Profile customization'),statistics:copy('Statistik lanjutan','Advanced statistics'),'activity-calendar':copy('Kalender Aktivitas','Activity Calendar'),goals:copy('Target Personal','Personal Goals'),season:'Season',events:copy('Event','Events'),mastery:'Game Mastery','arena-run':'Arena Run','arena-builder':'Arena Builder',history:'Match History',replay:'Replay',completion:'Game Completion',settings:copy('Pengaturan & Data','Settings & Data'),'data-health':'Data Health',offline:'Offline Manager',profiles:copy('Profil lokal','Local profiles'),showcase:'Player Showcase','share-result':copy('Kartu Hasil','Result Card'),'arena-cup':'Arena Cup','practice-lab':'Practice Lab','save-slots':'Save Slots','storage-center':'Storage Center',diagnostics:'System Diagnostics','cloud-readiness':'Supabase Readiness',controls:copy('Keyboard & Controller','Keyboard & Controller'),challenge:'Challenge',feedback:copy('Feedback & Saran','Feedback & Suggestions'),profile:copy('Profil pemain','Player profile')};
+  const names=Object.fromEntries(NAVIGATION_DESTINATIONS.map(item=>[item.id,item.label[lang]]));
   const currentName=activeGame?.title[lang]||(currentView.startsWith('tips-')?`${copy('Panduan','Guide')} / ${gameById(currentView.slice(5))?.title[lang]||''}`:names[currentView]||copy('Halaman tidak ditemukan','Page not found'));
   const normalized=query.trim().toLocaleLowerCase();
   const searchDifficulty=normalized.includes('impossible')?'impossible':normalized.includes('very hard')||normalized.includes('very-hard')?'very-hard':/(^|\s)hard(\s|$)/.test(normalized)?'hard':null;
@@ -100,31 +116,17 @@ export default function Layout({children,currentView,onViewChange}){
   const gameResults=GAMES.filter(g=>{const hay=`${g.title.id} ${g.title.en} ${CATEGORIES[g.category][lang]} ${g.description[lang]}`.toLocaleLowerCase();return searchTerms.every(term=>hay.includes(term));});
   const openGameResult=g=>{if(searchDifficulty){setSessionSchoolLevel(g.id,'universitas');setSessionUniversityDifficulty(g.id,searchDifficulty);}navigate(g.id);};
   const commandItems=useMemo(()=>[
-    {id:'home',icon:'home',label:copy('Buka Beranda','Open Home'),keywords:'home beranda',run:()=>navigate('home')},
-    {id:'daily',icon:'spark',label:copy('Buka Daily Challenge','Open Daily Challenge'),keywords:'daily challenge',run:()=>navigate('daily')},
-    {id:'archive',icon:'clock',label:copy('Buka Daily Archive','Open Daily Archive'),keywords:'archive arsip daily',run:()=>navigate('daily-archive')},
-    {id:'builder',icon:'sliders',label:copy('Buka Arena Builder','Open Arena Builder'),keywords:'custom arena builder tournament',run:()=>navigate('arena-builder')},
-    {id:'cup',icon:'trophy',label:copy('Buka Arena Cup','Open Arena Cup'),keywords:'cup bracket tournament',run:()=>navigate('arena-cup')},
-    {id:'lab',icon:'brain',label:copy('Buka Practice Lab','Open Practice Lab'),keywords:'practice lab drill training',run:()=>navigate('practice-lab')},
-    {id:'profiles',icon:'users',label:copy('Ganti Profil Lokal','Switch Local Profile'),keywords:'profile local pemain switch account',run:()=>navigate('profiles')},
-    {id:'showcase',icon:'medal',label:copy('Buka Player Showcase','Open Player Showcase'),keywords:'showcase profile achievement',run:()=>navigate('showcase')},
-    {id:'saves',icon:'shield',label:copy('Buka Save Slots','Open Save Slots'),keywords:'save slot backup checkpoint',run:()=>navigate('save-slots')},
-    {id:'storage',icon:'layers',label:copy('Buka Storage Center','Open Storage Center'),keywords:'storage cleanup cache optimize',run:()=>navigate('storage-center')},
-    {id:'diagnostics',icon:'activity',label:copy('Buka System Diagnostics','Open System Diagnostics'),keywords:'diagnostic crash service worker system',run:()=>navigate('diagnostics')},
-    {id:'cloud-readiness',icon:'layers',label:copy('Buka Supabase Readiness','Open Supabase Readiness'),keywords:'supabase cloud migration indexeddb sync queue repository v2',run:()=>navigate('cloud-readiness')},
-    {id:'controls',icon:'gamepad',label:copy('Keyboard & Controller','Keyboard & Controller'),keywords:'keyboard controller gamepad controls',run:()=>navigate('controls')},
-    {id:'goals',icon:'flag',label:copy('Buka Target Personal','Open Personal Goals'),keywords:'goal target personal',run:()=>navigate('goals')},
-    {id:'calendar',icon:'clock',label:copy('Buka Kalender Aktivitas','Open Activity Calendar'),keywords:'calendar kalender streak activity heatmap',run:()=>navigate('activity-calendar')},
-    {id:'health',icon:'shield',label:copy('Periksa Data Health','Check Data Health'),keywords:'data health repair restore',run:()=>navigate('data-health')},
-    {id:'offline',icon:'download',label:copy('Kelola Konten Offline','Manage Offline Content'),keywords:'offline download cache pwa',run:()=>navigate('offline')},
+    ...NAVIGATION_DESTINATIONS.map(item=>({id:item.id,icon:item.icon,label:copy(`Buka ${item.label.id}`,`Open ${item.label.en}`),keywords:`${item.id} ${item.label.id} ${item.label.en} ${item.keywords||''}`,run:()=>navigate(item.id)})),
+    ...GAMES.map(game=>({id:`tips-${game.id}`,icon:'book',label:copy(`Panduan ${game.title.id}`,`${game.title.en} guide`),keywords:`tips guide panduan ${game.title.id} ${game.title.en}`,run:()=>navigate(`tips-${game.id}`)})),
+    {id:'random',icon:'shuffle',label:copy('Mainkan game acak','Play a random game'),keywords:'random acak',run:()=>navigate(GAMES[Math.floor(Math.random()*GAMES.length)].id)},
+    {id:'help',icon:'help',label:copy('Buka bantuan','Open help'),keywords:'help bantuan shortcuts pintasan',run:()=>{setSearch(false);setHelp(true);}},
     {id:'sidebar',icon:'sidebar',label:copy('Ubah Sidebar','Toggle Sidebar'),keywords:'sidebar compact full',run:toggleSidebar},
     {id:'notifications',icon:'bell',label:copy('Buka Notifikasi','Open Notifications'),keywords:'notification notifikasi inbox',run:()=>{setSearch(false);setNotificationsOpen(true);}},
     {id:'sound',icon:muted?'muted':'sound',label:muted?copy('Aktifkan suara','Unmute sound'):copy('Bisukan suara','Mute sound'),keywords:'sound suara mute',run:toggleSound},
     {id:'language',icon:'globe',label:copy('Ganti bahasa','Switch language'),keywords:'language bahasa english indonesia',run:toggleLang},
     {id:'dark',icon:'moon',label:copy('Aktifkan Dark Mode','Enable Dark Mode'),keywords:'dark theme tema gelap',run:()=>updateAccessibility('theme','dark')},
     {id:'light',icon:'sun',label:copy('Aktifkan Light Mode','Enable Light Mode'),keywords:'light theme tema terang',run:()=>updateAccessibility('theme','light')},
-    {id:'settings',icon:'sliders',label:copy('Pengaturan & Backup','Settings & Backup'),keywords:'settings backup export import restore automatic',run:()=>navigate('settings')},
-    {id:'profile',icon:'user',label:copy('Buka Profil','Open Profile'),keywords:'profile profil pemain',run:()=>navigate('profile')},
+
   ],[copy,navigate,toggleSidebar,muted,toggleSound,toggleLang,updateAccessibility]);
   const commandResults=commandItems.filter(item=>!normalized||`${item.label} ${item.keywords}`.toLocaleLowerCase().includes(normalized));
   const activeSession=activeGame&&currentSession?.gameId===activeGame.id?currentSession:null;
@@ -132,16 +134,19 @@ export default function Layout({children,currentView,onViewChange}){
   const fmt=ms=>{const sec=Math.max(0,Math.floor(ms/1000));return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;};
   const openCoach=()=>{if(!activeGame)return;setCoachData(requestCoachHint(activeGame.id,lang));setCoachOpen(true);};
   const openNotification=item=>{markNotificationRead(item.id);if(item.type==='recovery'&&recoverySession){const target=resumeRecovery();if(target)navigate(target);return;}if(item.route)navigate(item.route);};
-  return <div className={`ba-app ${focus?'is-focus':''} ${sidebarCollapsed?'sidebar-collapsed':'sidebar-expanded'} theme-${accessibility.theme} ${accessibility.reducedMotion?'reduce-motion':''} ${accessibility.highContrast?'high-contrast':''} ${accessibility.largeText?'large-text':''}`}>
+  return <div className={`ba-app layout-refresh ${focus?'is-focus':''} ${sidebarCollapsed?'sidebar-collapsed':'sidebar-expanded'} theme-${accessibility.theme} ${accessibility.reducedMotion?'reduce-motion':''} ${accessibility.highContrast?'high-contrast':''} ${accessibility.largeText?'large-text':''}`}>
     <a href="#main-content" className="skip-link" onClick={e=>{e.preventDefault();document.getElementById('main-content')?.focus();}}>{copy('Lewati ke konten','Skip to content')}</a>
-    <aside className="sidebar"><Navigation currentView={currentView} onNavigate={navigate}/></aside><aside className="sidebar-rail"><RailNavigation currentView={currentView} onNavigate={navigate}/></aside>
-    <div className="app-body"><header className="topbar"><div className="topbar-left"><button className="icon-button mobile-menu" onClick={()=>setMenu(true)} aria-label={copy('Buka menu navigasi','Open navigation menu')}><Icon name="menu"/></button><button className="icon-button sidebar-toggle" onClick={toggleSidebar} aria-pressed={sidebarCollapsed} aria-label={copy('Ubah sidebar','Toggle sidebar')} title={`${copy('Ubah sidebar','Toggle sidebar')} · Ctrl+Shift+S`}><Icon name="sidebar" size={18}/></button><div className="breadcrumb"><button onClick={()=>navigate('home')}><Icon name="home" size={15}/><span>Arena</span></button><Icon name="chevron" size={12}/><span>{currentName}</span></div></div><div className="topbar-actions"><button className="global-search" onClick={()=>setSearch(true)} aria-label={copy('Command palette (Ctrl K)','Command palette (Ctrl K)')}><Icon name="search" size={16}/><span>{copy('Cari game atau aksi...','Search games or actions...')}</span><kbd>Ctrl K</kbd></button><span className="toolbar-divider"/><button className="language-button" onClick={toggleLang}><Icon name="globe" size={17}/>{lang.toUpperCase()}<Icon name="down" size={11}/></button><button className="icon-button sound-button" onClick={toggleSound} aria-pressed={muted}><Icon name={muted?'muted':'sound'} size={18}/></button>{activeGame&&<button className="icon-button" onClick={()=>setFocus(!focus)} aria-pressed={focus}><Icon name={focus?'collapse':'expand'} size={18}/></button>}{activeGame&&<button className="icon-button coach-top-button" onClick={openCoach}><Icon name="brain" size={18}/></button>}<PwaInstallButton compact/><button className="icon-button notification-button" onClick={()=>setNotificationsOpen(true)} aria-label={copy('Buka notifikasi','Open notifications')}><Icon name="bell" size={18}/>{unreadNotifications>0&&<span>{Math.min(99,unreadNotifications)}</span>}</button><button className="topbar-profile" onClick={()=>navigate('profile')}><span className={`frame-${frameOption.id}`}><Icon name={avatarOption.icon} size={15}/></span><span><strong>{profile.name||copy('Pemain Lokal','Local Player')}</strong><small>{rankInfo.tier.title[lang]} · Lv. {levelInfo.level}</small></span><i><b style={{width:`${levelInfo.progress}%`}}/></i></button><button className="icon-button help-button" onClick={()=>setHelp(true)}><Icon name="help" size={19}/></button></div></header>
+    <aside className="sidebar"><Navigation currentView={currentView} onNavigate={navigate} onCollapse={()=>{toggleSidebar();sidebarToggleRef.current?.focus();}}/></aside><aside className="sidebar-rail"><Navigation compact currentView={currentView} onNavigate={navigate}/></aside>
+    <div className="app-body"><header className="topbar">
+      <div className="topbar-left"><TooltipButton className="icon-button mobile-menu" onClick={()=>setMenu(true)} label={copy('Buka menu navigasi','Open navigation menu')} aria-haspopup="dialog" aria-expanded={menu}><Icon name="menu"/></TooltipButton><TooltipButton ref={sidebarToggleRef} className="icon-button sidebar-toggle" onClick={toggleSidebar} aria-pressed={sidebarCollapsed} aria-keyshortcuts="Control+Shift+S" label={`${sidebarCollapsed?copy('Perluas sidebar','Expand sidebar'):copy('Ringkas sidebar','Collapse sidebar')} · Ctrl+Shift+S`}><Icon name="sidebar" size={18}/></TooltipButton><div className="breadcrumb"><button onClick={()=>navigate('home')} aria-label={copy('Kembali ke Beranda','Return Home')}><Icon name="home" size={15}/><span>Arena</span></button><Icon name="chevron" size={12}/><span>{currentName}</span></div></div>
+      <div className="topbar-actions"><TooltipButton className="global-search" onClick={()=>setSearch(true)} label={copy('Cari game atau aksi (Ctrl K)','Search games or actions (Ctrl K)')}><Icon name="search" size={16}/><span>{copy('Cari game atau aksi...','Search games or actions...')}</span><kbd>Ctrl K</kbd></TooltipButton><span className="toolbar-divider"/><TooltipButton className="language-button" onClick={toggleLang} label={copy('Ganti bahasa ke Inggris','Switch language to Indonesian')}><Icon name="globe" size={17}/>{lang.toUpperCase()}<Icon name="down" size={11}/></TooltipButton><TooltipButton className="icon-button sound-button" onClick={toggleSound} aria-pressed={muted} label={muted?copy('Aktifkan suara','Unmute sound'):copy('Bisukan suara','Mute sound')}><Icon name={muted?'muted':'sound'} size={18}/></TooltipButton>{activeGame&&<TooltipButton className="icon-button" onClick={()=>setFocus(!focus)} aria-pressed={focus} label={focus?copy('Keluar mode fokus','Exit focus mode'):copy('Mode fokus','Focus mode')}><Icon name={focus?'collapse':'expand'} size={18}/></TooltipButton>}{activeGame&&<TooltipButton className="icon-button coach-top-button" onClick={openCoach} label="Brain Coach"><Icon name="brain" size={18}/></TooltipButton>}<Tooltip label={copy('Pasang Brain Arena','Install Brain Arena')}><PwaInstallButton compact/></Tooltip><TooltipButton className="icon-button notification-button" onClick={()=>setNotificationsOpen(true)} label={copy(`Buka notifikasi${unreadNotifications?`, ${unreadNotifications} belum dibaca`:''}`,`Open notifications${unreadNotifications?`, ${unreadNotifications} unread`:''}`)}><Icon name="bell" size={18}/>{unreadNotifications>0&&<span aria-hidden="true">{Math.min(99,unreadNotifications)}</span>}</TooltipButton><TooltipButton className="topbar-profile" onClick={()=>navigate('profile')} label={copy('Buka profil pemain','Open player profile')}><span className={`frame-${frameOption.id}`}><Icon name={avatarOption.icon} size={15}/></span><span><strong>{profile.name||copy('Pemain Lokal','Local Player')}</strong><small>{rankInfo.tier.title[lang]} · Lv. {levelInfo.level}</small></span><i><b style={{width:`${levelInfo.progress}%`}}/></i></TooltipButton><TooltipButton className="icon-button help-button" onClick={()=>setHelp(true)} label={copy('Buka bantuan','Open help')}><Icon name="help" size={19}/></TooltipButton></div>
+    </header>
       {!storageOk&&<div className="storage-banner" role="status">{copy('Penyimpanan browser tidak tersedia. Perubahan hanya tersimpan selama tab ini terbuka.','Browser storage is unavailable. Changes will only last while this tab stays open.')}</div>}
       {activeSession?.active&&<div className="competitive-hud"><span className={`hud-mode ${activeSession.mode}`}><Icon name={activeSession.mode==='ranked'?'shield':'gamepad'} size={13}/>{activeSession.mode==='ranked'?'Ranked':'Practice'}</span><span><Icon name="clock" size={13}/>{fmt(sessionElapsed)}</span>{activeSession.personalBestMs>0&&<span><Icon name="ghost" size={13}/>PB {fmt(activeSession.personalBestMs)}</span>}<code>{activeSession.challengeCode}</code>{arenaRun?.status==='active'&&activeSession.arenaRunId===arenaRun.id&&<span className="hud-run"><Icon name="trophy" size={13}/>{copy('Arena','Arena')} {arenaRun.index+1}/{arenaRun.stages.length}</span>}{arenaCup?.status==='active'&&activeSession.arenaCupId===arenaCup.id&&<span className="hud-run"><Icon name="trophy" size={13}/>Cup {arenaCup.index+1}/{arenaCup.stages.length}</span>}<button onClick={openCoach}><Icon name="brain" size={13}/>Brain Coach{activeSession.mode==='ranked'?` ${Math.max(0,2-(activeSession.hintsUsed||0))}/2`:''}</button></div>}
       <main id="main-content" tabIndex={-1} className={`main-content ${activeGame?'game-page':''}`}>{children}</main><footer className="site-footer"><span><strong>brainarena.</strong> {copy('Tempat pikiran bertumbuh.','Where sharp minds play.')}</span><span>{copy('Proyek penggemar independen','An independent fan project')}<i/>{copy('Dibuat untuk terus belajar','Built to keep you learning')}</span></footer>
     </div>
     <PwaUpdateManager/><OnboardingTour onNavigate={navigate}/><ControllerBridge/>
-    <Dialog open={menu} onClose={()=>setMenu(false)} title={copy('Navigasi','Navigation')} className="mobile-menu-dialog"><Navigation currentView={currentView} onNavigate={navigate}/></Dialog>
+    <Dialog open={menu} onClose={()=>setMenu(false)} title={copy('Navigasi','Navigation')} className="mobile-menu-dialog layout-refresh"><Navigation currentView={currentView} onNavigate={navigate}/></Dialog>
     <Dialog open={search} onClose={()=>{setSearch(false);setQuery('');}} title={copy('Command Palette','Command Palette')} className="search-dialog command-dialog"><label className="command-input"><Icon name="search"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder={copy('Cari game, halaman, atau aksi...','Search games, pages, or actions...')}/></label><div className="command-section"><small>{copy('AKSI CEPAT','QUICK ACTIONS')}</small><div className="search-results command-results">{commandResults.map(item=><button key={item.id} onClick={()=>{item.run();setSearch(false);setQuery('');}}><span className="command-result-icon"><Icon name={item.icon} size={16}/></span><span><strong>{item.label}</strong><small>{copy('Aksi Brain Arena','Brain Arena action')}</small></span><Icon name="arrow" size={15}/></button>)}</div></div><div className="command-section"><small>{copy('PERMAINAN','GAMES')}</small><div className="search-results">{gameResults.length?gameResults.map(g=><button key={g.id} onClick={()=>openGameResult(g)}><span className={`mini-game-icon color-${g.color}`}><Icon name={g.icon}/></span><span><strong>{g.title[lang]}</strong><small>{searchDifficulty?`Universitas · ${searchDifficulty==='very-hard'?'Very Hard':searchDifficulty==='impossible'?'Impossible':'Hard'} · `:''}{CATEGORIES[g.category][lang]} · {copy('Musim','Season')} {g.season}</small></span><Icon name="arrow" size={17}/></button>):<p className="search-empty">{copy('Tidak ada game yang cocok.','No matching games.')}</p>}</div></div><p className="dialog-footnote"><kbd>Ctrl K</kbd> {copy('buka/tutup','open/close')} &nbsp; <kbd>Esc</kbd> {copy('tutup','close')}</p></Dialog>
     <Dialog open={notificationsOpen} onClose={()=>setNotificationsOpen(false)} title={copy('Notification Center','Notification Center')} className="notification-dialog"><div className="notification-toolbar"><p>{unreadNotifications?copy(`${unreadNotifications} belum dibaca`,`${unreadNotifications} unread`):copy('Semua sudah dibaca','All caught up')}</p>{notifications.length>0&&<button type="button" className="text-button" onClick={markAllNotificationsRead}>{copy('Tandai semua dibaca','Mark all read')}</button>}</div><div className="notification-list">{notifications.length?notifications.map(item=><button key={item.id} className={item.read?'is-read':''} onClick={()=>openNotification(item)}><span><Icon name={item.icon} size={17}/></span><div><strong>{item.title[lang]}</strong><p>{item.body[lang]}</p></div>{!item.read&&<i/>}</button>):<div className="notification-empty"><Icon name="bell" size={25}/><strong>{copy('Belum ada notifikasi','No notifications yet')}</strong><p>{copy('Daily, mission, season, achievement, dan recovery akan muncul di sini.','Daily, mission, season, achievement, and recovery updates will appear here.')}</p></div>}</div></Dialog>
     <Dialog open={help} onClose={()=>setHelp(false)} title={copy('Selamat datang di arena','Welcome to the arena')}><p className="dialog-description">{copy('Pilih game, tentukan tingkat pendidikan, lalu mulai tantangan. Gunakan panduan untuk mempelajari aturan dan strategi.','Choose a game, select your education level, and start a challenge. Check each guide for rules and strategies.')}</p><div className="shortcuts">{[['Ctrl + Shift + S',copy('Ubah sidebar','Toggle sidebar')],['Ctrl / Cmd + K',copy('Command Palette','Command Palette')],['Alt + H',copy('Kembali ke beranda','Return home')],['Alt + L',copy('Ganti bahasa','Switch language')],['Alt + M',copy('Aktifkan / bisukan suara','Toggle sound')],['?',copy('Buka bantuan','Open help')]].map(([key,label])=><div key={key}><span>{label}</span><kbd>{key}</kbd></div>)}</div><div className="privacy-note"><Icon name="shield"/><p>{copy('Progress, autosave, notifikasi, XP, rank, dan profil disimpan di browser ini. v1.19 memperkuat recovery, backup, migrasi data, PWA cache, dan pencatatan crash tanpa menghapus progress lama.','Progress, autosave, notifications, XP, rank, and profile stay in this browser. v1.19 hardens recovery, backups, data migration, PWA caching, and crash tracking without deleting older progress.')}</p></div><button className="ba-button primary full-width" onClick={()=>{setHelp(false);navigate('guides');}}>{copy('Lihat panduan bermain','Browse game guides')}<Icon name="arrow" size={16}/></button></Dialog>

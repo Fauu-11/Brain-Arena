@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
 import Icon from './Icon.jsx';
 
-export default function PwaInstallButton({ compact=false }) {
+export default function PwaInstallButton({ compact=false, 'aria-describedby': describedBy }) {
   const { lang } = useLanguage();
   const { setNotice } = useArena();
   const [promptEvent,setPromptEvent] = useState(null);
@@ -24,5 +24,5 @@ export default function PwaInstallButton({ compact=false }) {
     if (result?.outcome === 'accepted') setNotice(copy('Brain Arena sedang dipasang.','Brain Arena is being installed.'));
     setPromptEvent(null);
   };
-  return <button className={compact?'icon-button pwa-install-compact':'ba-button outline pwa-install-button'} onClick={install} title={copy('Pasang Brain Arena','Install Brain Arena')} aria-label={copy('Pasang Brain Arena sebagai aplikasi','Install Brain Arena as an app')}><Icon name="download" size={compact?17:15}/>{!compact&&copy('Install aplikasi','Install app')}</button>;
+  return <button aria-describedby={describedBy} className={compact?'icon-button pwa-install-compact':'ba-button outline pwa-install-button'} onClick={install} title={copy('Pasang Brain Arena','Install Brain Arena')} aria-label={copy('Pasang Brain Arena sebagai aplikasi','Install Brain Arena as an app')}><Icon name="download" size={compact?17:15}/>{!compact&&copy('Install aplikasi','Install app')}</button>;
 }

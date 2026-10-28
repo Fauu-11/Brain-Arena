@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
 import { GAMES, gameById } from '../data/games.js';
 import Icon from '../components/Icon.jsx';
+import '../hubs.css';
 
 export default function Profile({ onNavigate }) {
   const { lang } = useLanguage();
@@ -32,17 +33,24 @@ export default function Profile({ onNavigate }) {
     </section>
 
 
+    <section className="hub-access-panel hub-profile-access" aria-labelledby="profile-access-title">
+      <h2 id="profile-access-title">{copy('Profil & identitas', 'Profile & identity')}</h2>
+      <p>{copy('Kelola pemain lokal, ubah tampilan profil, dan pilih pencapaian yang ingin ditampilkan.', 'Manage local players, customize your profile, and choose the achievements to feature.')}</p>
+      <nav className="hub-tool-links" aria-labelledby="profile-access-title">
+        <button onClick={()=>onNavigate('profiles')}><Icon name="users" size={22}/><span><strong>{copy('Profil lokal','Local profiles')}</strong><small>{copy('Ganti atau tambah pemain','Switch or add players')}</small></span><Icon name="chevron" size={18}/></button>
+        <button onClick={()=>onNavigate('customize')}><Icon name="sliders" size={22}/><span><strong>{copy('Kustomisasi profil','Customize profile')}</strong><small>{copy('Avatar, bingkai, gelar & banner','Avatar, frame, title & banner')}</small></span><Icon name="chevron" size={18}/></button>
+        <button onClick={()=>onNavigate('showcase')}><Icon name="medal" size={22}/><span><strong>{copy('Etalase pemain','Player showcase')}</strong><small>{copy('Sorot pencapaian terbaik','Feature your best progress')}</small></span><Icon name="chevron" size={18}/></button>
+      </nav>
+    </section>
+
     <section className="profile-progression-links">
       <button onClick={()=>onNavigate('achievements')}><span><Icon name="medal" size={20}/></span><div><small>{copy('ACHIEVEMENT','ACHIEVEMENTS')}</small><strong>{Object.keys(achievements.unlocked||{}).length}/{achievementList.length} {copy('badge terbuka','badges unlocked')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('missions')}><span><Icon name="checklist" size={20}/></span><div><small>{copy('MISSION / QUEST','MISSIONS / QUESTS')}</small><strong>{missionCards.filter(item=>item.complete&&!item.claimed).length} {copy('siap diklaim','ready to claim')}</strong></div><Icon name="chevron" size={14}/></button>
-      <button onClick={()=>onNavigate('leaderboard')}><span><Icon name="trophy" size={20}/></span><div><small>{copy('LEADERBOARD','LEADERBOARD')}</small><strong>{copy('Lihat posisi latihanmu','View your practice rank')}</strong></div><Icon name="chevron" size={14}/></button>
+      <button onClick={()=>onNavigate('leaderboard')}><span><Icon name="trophy" size={20}/></span><div><small>{copy('PAPAN XP LOKAL','LOCAL XP BOARD')}</small><strong>{copy('Lihat posisi latihanmu','View your practice rank')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('rank')}><span><Icon name="shield" size={20}/></span><div><small>{copy('ARENA RANK','ARENA RANK')}</small><strong>{rankInfo.tier.title[lang]} · {rankInfo.rating.toLocaleString()} AR</strong></div><Icon name="chevron" size={14}/></button>
-      <button onClick={()=>onNavigate('customize')}><span><Icon name="sliders" size={20}/></span><div><small>{copy('KUSTOMISASI','CUSTOMIZE')}</small><strong>{copy('Avatar, bingkai, gelar & banner','Avatar, frame, title & banner')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('statistics')}><span><Icon name="activity" size={20}/></span><div><small>{copy('STATISTIK','STATISTICS')}</small><strong>{copy('Lihat tren dan performa','View trends and performance')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('season')}><span><Icon name="spark" size={20}/></span><div><small>SEASON</small><strong>{copy('Progress dan reward musiman','Season progress and rewards')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('mastery')}><span><Icon name="trophy" size={20}/></span><div><small>GAME MASTERY</small><strong>{copy('Kuasai setiap permainan','Master every game')}</strong></div><Icon name="chevron" size={14}/></button>
-      <button onClick={()=>onNavigate('profiles')}><span><Icon name="users" size={20}/></span><div><small>{copy('PROFIL LOKAL','LOCAL PROFILES')}</small><strong>{copy('Ganti atau tambah pemain','Switch or add players')}</strong></div><Icon name="chevron" size={14}/></button>
-      <button onClick={()=>onNavigate('showcase')}><span><Icon name="medal" size={20}/></span><div><small>PLAYER SHOWCASE</small><strong>{copy('Sorot pencapaian terbaik','Feature your best progress')}</strong></div><Icon name="chevron" size={14}/></button>
       <button onClick={()=>onNavigate('settings')}><span><Icon name="sliders" size={20}/></span><div><small>{copy('PENGATURAN & DATA','SETTINGS & DATA')}</small><strong>{copy('Aksesibilitas dan backup','Accessibility and backup')}</strong></div><Icon name="chevron" size={14}/></button>
     </section>
 
