@@ -16,7 +16,7 @@ export default function ReplayViewer({ onNavigate }) {
   const match=useMemo(()=>matches.find(item=>item.id===selectedReplayId)||matches[0]||null,[matches,selectedReplayId]);
   const [playing,setPlaying]=useState(false); const [speed,setSpeed]=useState(1); const [index,setIndex]=useState(0);
   useEffect(()=>{setPlaying(false);setIndex(0);setSpeed(1);},[match?.id]);
-  const actions=match?.replay||[];
+  const actions=useMemo(()=>match?.replay||[],[match?.replay]);
   const duration=Math.max(Number(match?.durationMs)||0,Number(actions.at(-1)?.t)||0,1);
   useEffect(()=>{ if(!playing||!actions.length) return; if(index>=actions.length-1){setPlaying(false);return;} const current=actions[index]; const next=actions[index+1]; const wait=Math.max(70,Math.min(1300,((next.t-current.t)||350)/speed)); const timer=setTimeout(()=>setIndex(v=>Math.min(v+1,actions.length-1)),wait); return()=>clearTimeout(timer); },[playing,index,speed,actions]);
   if(!match) return <div className="empty-state"><Icon name="play" size={36}/><h2>{copy('Belum ada replay','No replay yet')}</h2><button className="ba-button primary" onClick={()=>onNavigate('games')}>{copy('Mainkan game','Play a game')}</button></div>;

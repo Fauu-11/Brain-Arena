@@ -1,7 +1,7 @@
 import { readJSON, readText } from './storage.js';
 import { getOrCreateGuestIdentity } from './guestIdentity.js';
 const firstArray=(keys)=>{for(const key of keys){const value=readJSON(key,null);if(Array.isArray(value))return value;}return [];};
-export function buildNormalizedPlayerModel(storage=typeof window!=='undefined'?window.localStorage:null){
+export function buildNormalizedPlayerModel(_storage=typeof window!=='undefined'?window.localStorage:null){
   const identity=getOrCreateGuestIdentity();
   const profile=readJSON('ba_profile_v1',{});
   const progress={

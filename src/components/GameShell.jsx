@@ -92,11 +92,12 @@ export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, chi
 function useCompletionReward(meta = {}) {
   const { recordGameCompletion } = useArena();
   const [reward, setReward] = useState(null);
+  const metaKey = JSON.stringify(meta);
   useEffect(() => {
     const gameId = resolveRoute(window.location.hash);
     if (!gameById(gameId)) return;
-    setReward(recordGameCompletion(gameId,meta));
-  }, [recordGameCompletion]);
+    setReward(recordGameCompletion(gameId, JSON.parse(metaKey || '{}')));
+  }, [recordGameCompletion, metaKey]);
   return reward;
 }
 

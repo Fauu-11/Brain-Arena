@@ -1,0 +1,665 @@
+/* Meta pages only; the resolved theme also covers system dark mode. */
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .activity-stats article,
+  .record-card,
+  .record-empty,
+  .daily-main-card,
+  .daily-reward-card,
+  .daily-streak-card,
+  .daily-how-grid article,
+  .profile-hero,
+  .profile-custom-hero:not(.banner-elite),
+  .profile-stat-grid article,
+  .equipped-badge,
+  .achievement-card,
+  .mission-section,
+  .leaderboard-panel,
+  .rank-breakdown-panel,
+  .rank-next-panel,
+  .rank-ladder-panel,
+  .custom-section,
+  .statistics-kpis article,
+  .stats-panel,
+  .analytics-range,
+  .analytics-v2-kpis article,
+  .activity-calendar-kpis article,
+  .activity-calendar-panel,
+  .run-builder-main,
+  .run-rules,
+  .run-summary-card,
+  .run-v2-scoreboard > div:not(.run-v2-grade),
+  .replay-coach-v2,
+  .completion-overview,
+  .completion-card,
+  .builder-game-grid button,
+  .archive-calendar,
+  .archive-calendar button,
+  .profile-manager-hero,
+  .profile-create-card,
+  .local-profile-grid article,
+  .showcase-config,
+  .cup-start-card,
+  .cup-bracket,
+  .practice-lab-grid article,
+  .save-slot-create,
+  .save-slot-list article,
+  .storage-total,
+  .storage-breakdown-grid article,
+  .storage-actions article,
+  .diagnostic-grid article,
+  .diagnostic-report,
+  .rollback-card,
+  .cloud-readiness-hero,
+  .cloud-readiness-grid article,
+  .cloud-foundation-panel,
+  .controls-status,
+  .control-mapping-grid article
+) {
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .daily-goal,
+  .daily-week > div,
+  .profile-game-list > button,
+  .profile-daily-game,
+  .xp-event-list > div,
+  .achievement-card.locked,
+  .mission-card,
+  .podium article,
+  .leaderboard-table > div,
+  .leaderboard-note,
+  .rank-breakdown-list > div,
+  .rank-transparency,
+  .rank-next-stats > span,
+  .rank-ladder article,
+  .custom-option,
+  .insight-list > div,
+  .stats-game-table > button,
+  .performance-v2-table > button,
+  .run-presets button,
+  .run-mode-choice button,
+  .run-best-stage,
+  .replay-coach-v2 .coach-focus,
+  .cup-round article,
+  .cup-round article.done,
+  .cloud-readiness-hero code,
+  .cloud-flag-grid > div,
+  .controls-note,
+  .control-mapping-grid kbd
+) {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .stat-icon,
+  .daily-status-pill,
+  .daily-card-icon,
+  .streak-big,
+  .daily-week span,
+  .profile-edit,
+  .profile-badge-chip,
+  .profile-daily-state,
+  .profile-stat-grid article > span,
+  .profile-progression-links > button > span,
+  .achievement-state,
+  .locked-note,
+  .quest-reset,
+  .mission-icon,
+  .podium-avatar,
+  .podium em,
+  .leader-avatar,
+  .rank-ladder-count,
+  .custom-count,
+  .custom-preview,
+  .profile-custom-avatar,
+  .statistics-kpis article > span,
+  .insight-list > div > span,
+  .run-presets button > span,
+  .run-stage-index,
+  .run-best-stage > span,
+  .replay-meta > span,
+  .replay-timeline button > i,
+  .replay-coach-v2 header > span,
+  .completion-levels span,
+  .completion-card > button,
+  .builder-summary b,
+  .archive-status,
+  .season-live,
+  .season-reward-step,
+  .season-reward button,
+  .mastery-total,
+  .local-profile-card-avatar,
+  .profile-manager-hero > div > svg,
+  .practice-tags span,
+  .storage-breakdown-grid article > span,
+  .rollback-card > span,
+  .cloud-local-badge,
+  .controls-status > span,
+  .activity-calendar-kpis article > span
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .achievement-progress > i,
+  .mission-progress > i,
+  .category-distribution > div > i,
+  .share-cell > i,
+  .mastery-progress > span,
+  .goal-list article > i,
+  .replay-progress,
+  .completion-bar
+) {
+  background: var(--theme-surface-muted);
+}
+
+/* Target typography, not descendants of artwork or primary action buttons. */
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .activity-stats strong,
+  .history-row strong,
+  .record-card h3,
+  .record-card > strong,
+  .daily-main-card h2,
+  .daily-goal strong,
+  .daily-reward-card strong,
+  .daily-streak-heading h2,
+  .daily-streak-meta strong,
+  .daily-how-grid h3,
+  .profile-identity h1,
+  .profile-title-line strong,
+  .profile-stat-grid strong,
+  .profile-panel h2,
+  .profile-game-copy strong,
+  .profile-daily-game strong,
+  .xp-event-list strong,
+  .profile-empty strong,
+  .equipped-badge strong,
+  .achievement-card h2,
+  .achievement-progress > div b,
+  .mission-heading h3,
+  .podium strong,
+  .leaderboard-toolbar h2,
+  .leaderboard-table strong,
+  .leaderboard-table b,
+  .leaderboard-note strong,
+  .rank-breakdown-panel h2,
+  .rank-breakdown-list span,
+  .rank-transparency strong,
+  .rank-next-panel h2,
+  .rank-next-stats b,
+  .rank-ladder-panel h2,
+  .rank-ladder strong,
+  .profile-custom-hero h1,
+  .custom-option strong,
+  .statistics-kpis strong,
+  .stats-panel h2,
+  .stats-panel > header > strong,
+  .chart-day > small,
+  .category-distribution > div > span,
+  .insight-list strong,
+  .stats-game-table strong,
+  .stats-game-table > button > b,
+  .analytics-v2-toolbar h2,
+  .analytics-v2-kpis strong,
+  .activity-calendar-kpis strong,
+  .run-best-stage strong,
+  .run-v2-scoreboard > div:not(.run-v2-grade) strong,
+  .replay-coach-v2 strong,
+  .profile-manager-hero strong,
+  .diagnostic-grid strong,
+  .cloud-readiness-grid strong
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .activity-stats div > span,
+  .history-row time,
+  .record-card p,
+  .record-card small,
+  .record-empty,
+  .daily-main-card p,
+  .daily-goal small,
+  .daily-reward-card small,
+  .daily-reward-card p,
+  .daily-streak-heading p,
+  .streak-big span,
+  .daily-week small,
+  .daily-week em,
+  .daily-streak-meta span,
+  .daily-how-grid p,
+  .profile-identity > p,
+  .profile-title-line,
+  .profile-title-line b,
+  .profile-stat-grid small,
+  .profile-stat-grid p,
+  .profile-game-copy small,
+  .profile-game-xp small,
+  .profile-daily-game p,
+  .xp-event-list small,
+  .profile-empty p,
+  .equipped-badge small,
+  .equipped-badge p,
+  .achievement-card > p,
+  .achievement-progress > div,
+  .mission-copy > p,
+  .mission-progress > div,
+  .podium-rank,
+  .podium small,
+  .leaderboard-table small,
+  .rank-cell,
+  .rank-breakdown-list small,
+  .rank-next-panel > small,
+  .rank-next-panel > p,
+  .rank-next-stats small,
+  .rank-ladder small,
+  .profile-custom-hero p,
+  .custom-option small,
+  .statistics-kpis small,
+  .statistics-kpis p,
+  .chart-day > span,
+  .chart-legend,
+  .category-distribution > div > small,
+  .heat-legend,
+  .insight-list small,
+  .stats-table-head,
+  .share-cell small,
+  .analytics-v2-kpis small,
+  .analytics-v2-kpis span,
+  .analytics-trend-chart span,
+  .analytics-trend-chart small,
+  .performance-v2-head,
+  .performance-v2-table > button > span:last-child,
+  .activity-calendar-kpis small,
+  .activity-calendar-panel header > strong,
+  .calendar-heatmap-legend,
+  .run-v2-scoreboard > div:not(.run-v2-grade) small,
+  .run-v2-scoreboard > div:not(.run-v2-grade) span,
+  .replay-coach-v2 p,
+  .builder-options label > span,
+  .builder-summary > small,
+  .archive-calendar small,
+  .archive-detail > small,
+  .goal-create label > span,
+  .offline-grid small,
+  .offline-core small,
+  .season-reward small,
+  .event-game small,
+  .mastery-card-head small,
+  .profile-manager-hero small,
+  .profile-manager-hero p,
+  .profile-create-card .eyebrow,
+  .profile-create-card p,
+  .local-profile-grid article small,
+  .local-profile-grid p,
+  .showcase-config small,
+  .showcase-config p,
+  .cup-start-card p,
+  .cup-round h3,
+  .cup-round article small,
+  .cup-round article > span:last-child,
+  .practice-lab-grid small,
+  .practice-lab-grid p,
+  .save-slot-create > span,
+  .save-slot-list small,
+  .save-slot-list p,
+  .storage-total small,
+  .storage-total span,
+  .storage-breakdown-grid small,
+  .storage-breakdown-grid p,
+  .storage-actions p,
+  .diagnostic-grid small,
+  .diagnostic-grid span,
+  .diagnostic-report small,
+  .rollback-card small,
+  .rollback-card p,
+  .cloud-readiness-hero > div:nth-child(2) > small,
+  .cloud-readiness-hero p,
+  .cloud-readiness-grid small,
+  .cloud-readiness-grid p,
+  .cloud-foundation-panel header small,
+  .cloud-foundation-panel > p,
+  .cloud-flag-grid span,
+  .cloud-flag-grid strong.off,
+  .controls-status small,
+  .controls-status p
+) {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .profile-game-xp,
+  .xp-event-list b,
+  .mission-xp,
+  .rank-breakdown-panel > header > strong,
+  .rank-breakdown-list b,
+  .category-distribution > div > b,
+  .insight-list > div > b,
+  .insight-list button,
+  .season-reward p,
+  .run-best-stage > b,
+  .run-best-stage small,
+  .replay-coach-v2 small,
+  .goal-list article > strong,
+  .custom-option > svg,
+  .profile-panel .text-button,
+  .daily-main-card .eyebrow,
+  .cup-round article > b,
+  .cup-round article > em
+) {
+  color: var(--theme-accent-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .showcase-config > label,
+  .showcase-toggle,
+  .control-mapping-grid article > div
+) {
+  color: var(--theme-text-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .history-row,
+  .daily-streak-meta,
+  .activity-chart,
+  .performance-v2-table > button,
+  .builder-summary > span,
+  .diagnostic-report header,
+  .run-kpis > div,
+  .run-stage
+) {
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .profile-game-list > button:hover,
+
+  .stats-game-table > button:hover,
+  .performance-v2-table > button:hover,
+  .builder-game-grid button:hover,
+  .archive-calendar button:hover,
+  .local-profile-grid article:hover,
+  .practice-lab-grid article:hover
+) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .custom-option:enabled:hover:not(.selected) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+}
+
+/* Keep selection and progression visible over the neutral surfaces. */
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .daily-week .today,
+  .achievement-card.equipped,
+  .mission-card.ready,
+  .leaderboard-table > div.you,
+  .rank-ladder article.active,
+  .custom-option.selected,
+  .run-presets button.selected,
+  .run-mode-choice button.selected,
+  .run-stage.current,
+  .replay-timeline button.active,
+  .builder-game-grid button.selected,
+  .archive-calendar button.selected,
+  .offline-grid button.selected,
+  .local-profile-grid article.active,
+  .cup-round article.current,
+  .season-reward.ready
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface) !important;
+  border-color: var(--theme-accent-border);
+  box-shadow: inset 0 0 0 1px var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .replay-timeline button.timeline-hint {
+  border-left-color: #f0c884;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .replay-timeline button.timeline-warn {
+  border-left-color: #ffabb7;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .replay-timeline button.timeline-system {
+  border-left-color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .analytics-range button,
+  .replay-speeds button
+) {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-muted);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .analytics-range button.active,
+  .replay-speeds button.active,
+  .replay-controls .replay-play,
+  .daily-week .complete span,
+  .season-reward.ready:not(.claimed) button
+) {
+  color: #fff;
+  background: var(--ba-purple);
+  border-color: var(--ba-purple);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .history-row .opened-label,
+  .profile-daily-state.done,
+  .achievement-state.done,
+  .mission-card.claimed,
+  .rank-ladder article.passed:not(.active),
+  .run-stage.done .run-stage-index,
+  .status-pill.complete,
+  .completion-levels span.done,
+  .master-stamp,
+  .replay-integrity.clean,
+  .match-row .integrity-chip.clean,
+  .inline-success,
+  .cloud-inline-notice,
+  .cloud-readiness-grid article.is-ok > span,
+  .event-bonus,
+  .season-reward.claimed
+) {
+  color: #91d6ad;
+  background: color-mix(in srgb, #55b87c 12%, var(--theme-surface)) !important;
+  border-color: color-mix(in srgb, #55b87c 35%, var(--theme-border));
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .mission-card.claimed .mission-progress > i > b,
+  .season-live.active i
+) {
+  background: #76c695;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .completion-card.complete,
+  .health-summary article.healthy
+) {
+  border-color: color-mix(in srgb, #55b87c 40%, var(--theme-border));
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .health-table .ok,
+  .cloud-flag-grid strong.on,
+  .offline-core > span
+) {
+  color: #91d6ad;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .replay-integrity.recovered,
+  .replay-integrity.review,
+  .match-row .integrity-chip.recovered,
+  .status-pill.champion
+) {
+  color: #f0c884;
+  background: color-mix(in srgb, #d79a3e 14%, var(--theme-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .status-pill.eliminated,
+  .match-row .integrity-chip.review,
+  .cloud-readiness-grid article.is-warning > span
+) {
+  color: #ffabb7;
+  background: color-mix(in srgb, #e95870 13%, var(--theme-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .health-summary article.warning {
+  background: var(--theme-accent-surface) !important;
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .health-table .bad {
+  color: #ffabb7;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .archive-calendar button.complete::after {
+  border-color: color-mix(in srgb, #76c695 55%, var(--theme-border));
+}
+
+/* Dark banner variants retain their patterns and rank/badge identities. */
+html[data-ba-effective-theme="dark"] .main-content :is(.profile-hero, .profile-custom-hero).banner-focus {
+  background: linear-gradient(90deg, var(--theme-border) 1px, transparent 1px),
+    linear-gradient(var(--theme-border) 1px, transparent 1px), var(--theme-surface);
+  background-size: 18px 18px;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(.profile-hero, .profile-custom-hero).banner-streak {
+  background: linear-gradient(120deg, var(--theme-surface) 0 58%, var(--theme-accent-surface) 58% 72%, var(--theme-surface-muted) 72% 84%, var(--theme-surface) 84%);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .profile-hero.banner-elite {
+  background: linear-gradient(130deg, var(--theme-surface), var(--theme-surface-raised) 58%, var(--theme-accent-surface));
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .profile-avatar-large {
+  color: var(--theme-accent-text);
+  background: linear-gradient(145deg, var(--theme-surface-muted), var(--theme-accent-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .profile-avatar-large > span,
+  .profile-equipped-badge,
+  .profile-custom-avatar > i,
+  .replay-marker
+) {
+  border-color: var(--theme-surface);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .profile-avatar-large,
+  .profile-custom-avatar
+):is(.frame-violet, .frame-silver, .frame-gold, .frame-diamond, .frame-master) {
+  box-shadow: 0 0 0 2px var(--meta-frame), 0 0 0 4px var(--theme-surface-muted);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .frame-violet { --meta-frame: #b89bd7; }
+html[data-ba-effective-theme="dark"] .main-content .frame-silver { --meta-frame: #abb2bd; }
+html[data-ba-effective-theme="dark"] .main-content .frame-gold { --meta-frame: #d1aa4f; }
+html[data-ba-effective-theme="dark"] .main-content .frame-diamond { --meta-frame: #6daab5; }
+html[data-ba-effective-theme="dark"] .main-content .frame-master { --meta-frame: #b087df; }
+
+html[data-ba-effective-theme="dark"] .main-content .custom-preview.banner-focus {
+  background: linear-gradient(90deg, var(--theme-border-strong) 1px, transparent 1px),
+    linear-gradient(var(--theme-border-strong) 1px, transparent 1px), var(--theme-surface-muted);
+  background-size: 8px 8px;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .custom-preview.banner-streak {
+  background: linear-gradient(130deg, var(--theme-accent-surface), var(--theme-surface-muted), var(--theme-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .custom-preview.banner-elite {
+  background: #3c3146;
+  color: #ddc8ea;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .badge-emblem,
+  .profile-equipped-badge,
+  .daily-card-art,
+  .daily-goal > span,
+  .mastery-level
+) {
+  color: color-mix(in srgb, var(--art-color) 55%, var(--theme-text));
+  background: color-mix(in srgb, var(--art-color) 18%, var(--theme-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--art-color) 35%, var(--theme-border));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .rank-emblem {
+  color: var(--meta-rank-tone, var(--theme-text));
+  background: color-mix(in srgb, var(--meta-rank-tone, var(--theme-text)) 16%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--meta-rank-tone, var(--theme-text)) 40%, var(--theme-border));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .rank-bronze { --meta-rank-tone: #d9a083; }
+html[data-ba-effective-theme="dark"] .main-content .rank-silver { --meta-rank-tone: #bec8d7; }
+html[data-ba-effective-theme="dark"] .main-content .rank-gold { --meta-rank-tone: #e3c16a; }
+html[data-ba-effective-theme="dark"] .main-content .rank-platinum { --meta-rank-tone: #8bc8bb; }
+html[data-ba-effective-theme="dark"] .main-content .rank-diamond { --meta-rank-tone: #89d0df; }
+html[data-ba-effective-theme="dark"] .main-content .rank-master { --meta-rank-tone: #c49aee; }
+html[data-ba-effective-theme="dark"] .main-content .rank-grandmaster { --meta-rank-tone: #e4c9ff; }
+
+html[data-ba-effective-theme="dark"] .main-content .podium .place-1 {
+  background: linear-gradient(180deg, color-mix(in srgb, #d9ad4e 15%, var(--theme-surface)), var(--theme-surface));
+  border-color: color-mix(in srgb, #d9ad4e 40%, var(--theme-border));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .place-1 .podium-avatar {
+  color: #e3c16a;
+  background: color-mix(in srgb, #d9ad4e 20%, var(--theme-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .podium article.you {
+  box-shadow: inset 0 0 0 2px var(--theme-accent-border);
+}
+
+/* arena.css heat levels are important; use a sequential dark palette in both calendars. */
+html[data-ba-effective-theme="dark"] .main-content :is(.heatmap span, .heat-legend i, .calendar-cell, .calendar-heatmap-legend > i) {
+  background: var(--theme-surface-muted);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .main-content .heat-0 { background: #302a33 !important; }
+html[data-ba-effective-theme="dark"] .main-content .heat-1 { background: #52323f !important; }
+html[data-ba-effective-theme="dark"] .main-content .heat-2 { background: #804354 !important; }
+html[data-ba-effective-theme="dark"] .main-content .heat-3 { background: #ae5268 !important; }
+html[data-ba-effective-theme="dark"] .main-content .heat-4 { background: #d8657f !important; }
+
+html[data-ba-effective-theme="dark"] .main-content .calendar-cell.heat-4 {
+  color: #21151c;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .calendar-cell > i {
+  background: #f0c884;
+  box-shadow: 0 0 0 1px var(--theme-surface);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .calendar-heatmap-legend > b {
+  color: #f0c884;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .profile-create-form input:focus,
+  .save-slot-create input:focus,
+  .showcase-config select:focus
+) {
+  border-color: var(--theme-accent-border);
+  box-shadow: 0 0 0 3px var(--theme-accent-surface);
+}

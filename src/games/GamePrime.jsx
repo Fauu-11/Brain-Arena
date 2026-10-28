@@ -77,7 +77,7 @@ const playSound = (type) => {
         osc.stop(now + idx * 0.12 + 0.5);
       });
     }
-  } catch (e) {
+  } catch {
     // AudioContext ignored if blocked
   }
 };
@@ -156,6 +156,7 @@ export default function GamePrime({ onBack, onNavigate }) {
   universityDifficultyRef.current = universityDifficulty;
   const turnSecondsRef = useRef(turnSeconds);
   turnSecondsRef.current = turnSeconds;
+  const scheduleAITurnRef = useRef(() => {});
 
   const rules = lang === 'en' ? [
     "The board is filled with 25 unique number cubes. The goal is to identify Prime Numbers.",
@@ -288,7 +289,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       if (activePlayerRef.current === 1) {
         setActivePlayer(2);
         setIsTimerActive(false);
-        scheduleAITurn();
+        scheduleAITurnRef.current();
       } else {
         setActivePlayer(1);
         setIsTimerActive(true);
@@ -396,6 +397,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       }, 700);
     }, 1200);
   };
+  scheduleAITurnRef.current = scheduleAITurn;
 
   const executeAIMove = (targetIdx) => {
     const currentBoard = [...boardRef.current];

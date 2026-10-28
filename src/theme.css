@@ -1,0 +1,850 @@
+:root {
+  color-scheme: light;
+  --theme-page: #fbf7f8;
+  --theme-surface: #ffffff;
+  --theme-surface-raised: #fffafb;
+  --theme-surface-muted: #f7edef;
+  --theme-border: #eadcdf;
+  --theme-border-strong: #d7bec3;
+  --theme-text: #34282d;
+  --theme-text-muted: #76666b;
+  --theme-text-subtle: #907e84;
+  --theme-control: #fffdfd;
+  --theme-shadow: 0 10px 30px rgba(48, 20, 28, .055);
+}
+
+html[data-ba-effective-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-ba-effective-theme="dark"] {
+  color-scheme: dark;
+  --ba-page: #151319;
+  --ba-ink: #f2edf1;
+  --ba-muted: #b7aeb7;
+  --ba-line: #39343d;
+  --ba-light-purple: #38252d;
+  --uw-bg: #151319;
+  --uw-bg-strong: #201c23;
+  --uw-surface: #252129;
+  --uw-surface-strong: #211e25;
+  --uw-surface-alt: #2d2830;
+  --uw-border: #403942;
+  --uw-border-strong: #625661;
+  --uw-text: #f2edf1;
+  --uw-text-muted: #b7aeb7;
+  --uw-text-muted-strong: #d8cfd7;
+  --uw-neutral: #302832;
+  --uw-neutral-hover: #3a303a;
+  --uw-neutral-active: #453743;
+  --uw-soft: #302a33;
+  --uw-muted: #c0b7c1;
+  --viz-card: #211e25;
+  --viz-border: #3d3640;
+  --ba-red-soft: #38252d;
+  --uw-shadow-sm: 0 6px 20px rgba(0, 0, 0, .2);
+  --uw-shadow-md: 0 12px 32px rgba(0, 0, 0, .28);
+  --theme-page: #151319;
+  --theme-surface: #211e25;
+  --theme-surface-raised: #28242c;
+  --theme-surface-muted: #302a33;
+  --theme-border: #3d3640;
+  --theme-border-strong: #554a57;
+  --theme-text: #f2edf1;
+  --theme-text-muted: #c0b7c1;
+  --theme-text-subtle: #a79ca8;
+  --theme-control: #28242c;
+  --theme-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+  --theme-accent-surface: #38252d;
+  --theme-accent-surface-raised: #402831;
+  --theme-accent-border: #62414b;
+  --theme-accent-text: #f2c4cd;
+}
+
+html[data-ba-effective-theme="light"] body,
+html[data-ba-effective-theme="dark"] body {
+  background: var(--theme-page);
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="light"] .ba-app,
+html[data-ba-effective-theme="dark"] .ba-app {
+  background: var(--theme-page);
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .sidebar,
+html[data-ba-effective-theme="dark"] .sidebar-rail,
+html[data-ba-effective-theme="dark"] .topbar,
+html[data-ba-effective-theme="dark"] .mobile-menu-dialog,
+html[data-ba-effective-theme="dark"] .settings-panel,
+html[data-ba-effective-theme="dark"] .season-rewards,
+html[data-ba-effective-theme="dark"] .season-reward,
+html[data-ba-effective-theme="dark"] .event-game,
+html[data-ba-effective-theme="dark"] .mastery-card,
+html[data-ba-effective-theme="dark"] .feedback-form,
+html[data-ba-effective-theme="dark"] .feedback-side > section {
+  color: var(--theme-text);
+  background-color: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .sidebar-rail {
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-ba-effective-theme="dark"] .rail-item {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] .rail-item:is(:hover, .active) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+}
+
+html[data-ba-effective-theme="dark"] .rail-item.active {
+  box-shadow: inset 0 0 0 1px var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .rail-dot {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface-raised);
+}
+
+html[data-ba-effective-theme="dark"] .rail-highlight {
+  color: var(--theme-accent-text);
+  background: linear-gradient(180deg, var(--theme-accent-surface), var(--theme-accent-surface-raised));
+}
+
+html[data-ba-effective-theme="dark"] .rail-highlight:hover {
+  background: var(--theme-accent-surface-raised);
+}
+
+html[data-ba-effective-theme="dark"] .rail-separator {
+  background: linear-gradient(90deg, transparent, var(--theme-border) 20% 80%, transparent);
+}
+
+html[data-ba-effective-theme="dark"] .topbar :is(
+  .icon-button,
+  .topbar-profile
+) {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .topbar-profile :is(
+  .frame-classic,
+  i
+) {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .topbar-profile :is(strong, small) {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] .global-search kbd {
+  color: var(--theme-text-subtle);
+  background-color: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .toolbar-divider {
+  background-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-stage,
+  .play-guide-card,
+  .play-setup-card,
+  .play-stage-top,
+  .play-stage-bottom,
+  .play-tool,
+  .competitive-mode-block,
+  .challenge-code-block,
+  .competitive-hud,
+  .replay-shell,
+  .replay-stage,
+  .replay-timeline,
+  .replay-controls button,
+  .result-v2-grid,
+  .play-levels button,
+  .play-university-block,
+  .play-university-difficulty button,
+  .play-stat,
+  .guide-panel,
+  .history-panel
+) {
+  color: var(--theme-text);
+  background-color: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-stage,
+  .play-guide-card,
+  .play-setup-card,
+  .play-tool,
+  .play-levels button,
+  .play-university-block,
+  .play-university-difficulty button,
+  .competitive-mode-block,
+  .challenge-code-block,
+  .competitive-hud,
+  .replay-shell,
+  .replay-stage,
+  .replay-timeline
+) {
+  background-color: var(--theme-surface) !important;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-stage-top,
+  .play-stage-bottom,
+  .play-tip-card,
+  .play-steps li > span,
+  .play-guide-icon,
+  .play-tool.selected,
+  .adaptive-suggestion,
+  .competitive-mode-toggle button,
+  .challenge-code-input input,
+  .challenge-code-input button,
+  .play-levels button,
+  .play-university-block,
+  .play-university-difficulty button,
+  .replay-focus,
+  .replay-time-row,
+  .replay-controls button
+) {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-aside-heading h2,
+  .play-stage-top > span:first-child,
+  .competitive-mode-block strong,
+  .challenge-code-head strong,
+  .replay-focus strong,
+  .replay-timeline strong,
+  .play-setup-heading h2
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-levels button strong,
+  .play-university-heading > span,
+  .play-university-difficulty button,
+  .play-university-difficulty button.selected,
+  .play-field-label,
+  .play-setup-heading h2
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .play-levels button small,
+  .play-field-label > span,
+  .play-university-heading > small,
+  .play-university-difficulty button small,
+  .play-setup-heading p
+) {
+  color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] .play-levels button.selected,
+html[data-ba-effective-theme="dark"] .play-university-difficulty button.selected {
+  background-color: #402831 !important;
+  border-color: #a64b5b;
+}
+
+html[data-ba-effective-theme="dark"] .global-search,
+html[data-ba-effective-theme="dark"] .theme-select select,
+html[data-ba-effective-theme="dark"] .main-content input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-ba-effective-theme="dark"] .main-content select,
+html[data-ba-effective-theme="dark"] .main-content textarea,
+html[data-ba-effective-theme="dark"] .feedback-fields input,
+html[data-ba-effective-theme="dark"] .feedback-fields select,
+html[data-ba-effective-theme="dark"] .feedback-field input,
+html[data-ba-effective-theme="dark"] .feedback-field textarea {
+  color: var(--theme-text);
+  background-color: var(--theme-control);
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .main-content input::placeholder,
+html[data-ba-effective-theme="dark"] .main-content textarea::placeholder {
+  color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .landing-proof,
+  .home-daily-card,
+  .home-progression-strip > button,
+  .profile-progression-links > button,
+  .pinned-v2-section article,
+  .game-card,
+  .recent-card,
+  .category-strip,
+  .season-rewards,
+  .season-reward,
+  .event-game,
+  .mastery-card,
+  .settings-panel,
+  .meta-callout,
+  .health-summary article,
+  .health-table,
+  .health-table > div,
+  .goal-create,
+  .goal-list article,
+  .archive-calendar,
+  .archive-detail,
+  .builder-games,
+  .builder-options,
+  .builder-summary,
+  .share-challenge-card,
+  .share-game,
+  .share-link-box,
+  .offline-core,
+  .offline-grid button,
+  .match-row,
+  .profile-panel,
+  .statistics-panel,
+  .activity-panel,
+  .guide-card,
+  .guide-card-v15
+) {
+  color: var(--theme-text);
+  background-color: var(--theme-surface);
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-ba-effective-theme="dark"] .landing-proof,
+html[data-ba-effective-theme="dark"] .home-progression-strip > button,
+html[data-ba-effective-theme="dark"] .profile-progression-links > button,
+html[data-ba-effective-theme="dark"] .pinned-v2-section article,
+html[data-ba-effective-theme="dark"] .game-card,
+html[data-ba-effective-theme="dark"] .recent-card,
+html[data-ba-effective-theme="dark"] .category-strip,
+html[data-ba-effective-theme="dark"] .season-rewards,
+html[data-ba-effective-theme="dark"] .season-reward,
+html[data-ba-effective-theme="dark"] .event-game,
+html[data-ba-effective-theme="dark"] .mastery-card,
+html[data-ba-effective-theme="dark"] .settings-panel,
+html[data-ba-effective-theme="dark"] .meta-callout,
+html[data-ba-effective-theme="dark"] .health-summary article,
+html[data-ba-effective-theme="dark"] .health-table,
+html[data-ba-effective-theme="dark"] .goal-create,
+html[data-ba-effective-theme="dark"] .goal-list article,
+html[data-ba-effective-theme="dark"] .archive-detail,
+html[data-ba-effective-theme="dark"] .builder-games,
+html[data-ba-effective-theme="dark"] .builder-options,
+html[data-ba-effective-theme="dark"] .builder-summary,
+html[data-ba-effective-theme="dark"] .share-challenge-card,
+html[data-ba-effective-theme="dark"] .share-game,
+html[data-ba-effective-theme="dark"] .share-link-box,
+html[data-ba-effective-theme="dark"] .offline-core,
+html[data-ba-effective-theme="dark"] .offline-grid button,
+html[data-ba-effective-theme="dark"] .match-row,
+html[data-ba-effective-theme="dark"] .profile-panel,
+html[data-ba-effective-theme="dark"] .statistics-panel,
+html[data-ba-effective-theme="dark"] .activity-panel,
+html[data-ba-effective-theme="dark"] .guide-card,
+html[data-ba-effective-theme="dark"] .guide-card-v15 {
+  background-color: var(--theme-surface) !important;
+}
+
+html[data-ba-effective-theme="dark"] .landing-proof {
+  background: linear-gradient(110deg, var(--theme-surface), var(--theme-surface-raised)) !important;
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .home-progression-strip > button:hover,
+  .profile-progression-links > button:hover,
+  .pinned-v2-section article:hover,
+  .recent-card:hover,
+  .event-game:hover,
+  .offline-grid button:hover
+) {
+  background-color: var(--theme-surface-raised);
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .landing-proof-icon,
+  .home-daily-icon,
+  .category-icon,
+  .count-badge,
+  .season-tabs,
+  .catalog-search,
+  .game-art,
+  .season-label,
+  .pin-button,
+  .favorite-button,
+  .mini-game-icon,
+  .guide-banner-icon,
+  .home-level-mini i,
+  .home-progression-strip > button > span
+) {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted) !important;
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .ba-app .profile-avatar {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .category-strip button {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted) !important;
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .category-strip button:hover {
+  background-color: var(--theme-surface-raised) !important;
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .season-tabs button {
+  color: var(--theme-text-muted);
+  background-color: transparent;
+}
+
+html[data-ba-effective-theme="dark"] .main-content .season-tabs button.active {
+  color: var(--theme-accent-text);
+  background-color: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .data-schema-status,
+  .data-schema-status > span,
+  .auto-backup-toolbar > span,
+  .auto-backup-list article,
+  .settings-tool-links button,
+  .cloud-settings-score > div,
+  .ba-button.outline
+) {
+  color: var(--theme-text-muted);
+  background-color: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .data-schema-status strong,
+  .auto-backup-list article strong,
+  .settings-tool-links button strong,
+  .cloud-settings-score code
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .data-schema-status small,
+  .data-schema-status p,
+  .auto-backup-list article small,
+  .auto-backup-list article p,
+  .settings-tool-links button small,
+  .cloud-settings-score small
+) {
+  color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .cloud-settings-score strong {
+  color: var(--theme-accent-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .settings-tool-links button:hover,
+  .ba-button.outline:hover
+) {
+  background-color: var(--theme-surface-raised);
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .main-content .settings-title > span {
+  color: var(--theme-accent-text);
+  background-color: var(--theme-accent-surface);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .page-heading h1,
+  .section-heading h2,
+  .game-card h3,
+  .home-progression-strip strong,
+  .profile-progression-links strong,
+  .pinned-v2-main strong,
+  .recent-card strong,
+  .health-table strong,
+  .goal-list h2,
+  .archive-detail h2,
+  .settings-title h2,
+  .mastery-card h2
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .page-intro,
+  .section-heading p,
+  .game-card-body > p,
+  .home-progression-strip small,
+  .profile-progression-links small,
+  .recent-card small,
+  .pinned-v2-main small,
+  .settings-title p,
+  .setting-toggle small,
+  .backup-note p,
+  .health-summary small,
+  .health-table span,
+  .goal-list article small,
+  .archive-detail p,
+  .mastery-rank span,
+  .mastery-progress small
+) {
+  color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] .nav-item,
+html[data-ba-effective-theme="dark"] .game-nav-item,
+html[data-ba-effective-theme="dark"] .pinned-nav-main,
+html[data-ba-effective-theme="dark"] .breadcrumb,
+html[data-ba-effective-theme="dark"] .language-button,
+html[data-ba-effective-theme="dark"] .sidebar-note p,
+html[data-ba-effective-theme="dark"] .site-footer {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] .nav-label,
+html[data-ba-effective-theme="dark"] .sidebar-note h3,
+html[data-ba-effective-theme="dark"] .site-footer strong {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .nav-item:hover,
+html[data-ba-effective-theme="dark"] .game-nav-item:hover,
+html[data-ba-effective-theme="dark"] .pinned-nav-row:hover,
+html[data-ba-effective-theme="dark"] .pinned-nav-row.active {
+  background: var(--theme-surface-muted);
+}
+
+html[data-ba-effective-theme="dark"] .nav-item.active,
+html[data-ba-effective-theme="dark"] .game-nav-item.active {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+}
+
+html[data-ba-effective-theme="dark"] .sidebar-note,
+html[data-ba-effective-theme="dark"] .meta-callout,
+html[data-ba-effective-theme="dark"] .mastery-card > button,
+html[data-ba-effective-theme="dark"] .adaptive-suggestion,
+html[data-ba-effective-theme="dark"] .backup-note,
+html[data-ba-effective-theme="dark"] .feedback-privacy,
+html[data-ba-effective-theme="dark"] .feedback-field > small {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .category-strip button + button,
+html[data-ba-effective-theme="dark"] .landing-proof article + article,
+html[data-ba-effective-theme="dark"] .settings-title,
+html[data-ba-effective-theme="dark"] .theme-select,
+html[data-ba-effective-theme="dark"] .setting-toggle,
+html[data-ba-effective-theme="dark"] .backup-replace,
+html[data-ba-effective-theme="dark"] .health-table > div,
+html[data-ba-effective-theme="dark"] .site-footer {
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .landing-proof article strong,
+html[data-ba-effective-theme="dark"] .landing-proof article span:not(.landing-proof-icon) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .home-daily-card,
+html[data-ba-effective-theme="dark"] .home-daily-card.is-complete {
+  background: linear-gradient(110deg, #211e25, #2b2027);
+}
+
+html[data-ba-effective-theme="dark"] .game-card:hover,
+html[data-ba-effective-theme="dark"] .recent-card:hover {
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .3);
+}
+
+html[data-ba-effective-theme="dark"] .skip-link {
+  color: #211e25;
+  background: #fff;
+}
+
+html[data-ba-effective-theme="dark"] ::selection {
+  color: #fff;
+  background: #a52e43;
+}
+
+html[data-ba-effective-theme="dark"] .ba-app button:focus-visible,
+html[data-ba-effective-theme="dark"] .ba-app a:focus-visible,
+html[data-ba-effective-theme="dark"] .ba-app input:focus-visible,
+html[data-ba-effective-theme="dark"] .ba-app select:focus-visible,
+html[data-ba-effective-theme="dark"] .ba-app textarea:focus-visible {
+  outline-color: #ff8291;
+}
+
+/* Dialogs are portaled to body, outside .main-content and .ba-app. */
+html[data-ba-effective-theme="dark"] :is(
+  .ba-dialog, .pwa-update-banner, .empty-state, .stability-error-state,
+  .continue-playing-card,
+  .guide-learning-path article, .manual-card, .manual-tutorial-step,
+  .manual-solve-flow article, .manual-strategy-sections > section
+) {
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow);
+}
+
+html[data-ba-effective-theme="dark"] .ba-dialog::backdrop {
+  background: rgba(8, 6, 12, .72);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .ba-button.outline, kbd, .command-input, .privacy-note,
+  .notification-list > button.is-read, .random-button,
+  .auto-backup-empty, .continue-playing-meta code, .manual-tabs, .manual-filterbar,
+  .manual-level-list > div, .manual-step-note,
+  .manual-mistakes article, .manual-strategy-grid article
+) {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .nav-count, .local-profile-level, .nav-game-icon, .mini-game-icon,
+  .ba-dialog .profile-avatar, .manual-tabs button small,
+  .command-result-icon, .notification-list > button > span,
+  .onboarding-orb, .coach-orb, .pwa-update-icon, .continue-playing-icon,
+  .rule-list li > span,
+  .empty-icon, .page-symbol, .guide-path-icon, .guide-card-season,
+  .guide-card-features span, .feedback-form-head > span, .feedback-side-icon,
+  .feedback-side-title > span, .feedback-receipt > span,
+  .pinned-v2-section article > div button, .pinned-nav-actions button:hover
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .ba-button.outline:hover, .search-results > button:hover,
+  .icon-button:hover, .icon-button[aria-pressed="true"],
+  .notification-list > button, .notification-list > button:hover,
+  .category-strip button.selected, .favorite-button.is-favorite,
+  .pin-button.is-pinned
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .main-content :is(
+  .category-strip button.selected, .favorite-button.is-favorite, .pin-button.is-pinned
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface) !important;
+}
+
+html[data-ba-effective-theme="dark"] .topbar .icon-button:is(:hover, [aria-pressed="true"]) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .dialog-description, .dialog-footnote, .shortcuts > div, .rule-list li,
+  .search-empty, .search-results small, .notification-toolbar p,
+  .notification-list p, .notification-empty, .onboarding-tour > p,
+  .pwa-update-banner p, .stability-error-state p, .empty-state p,
+  .guide-banner p, .guide-card p, .guide-learning-path p,
+  .guide-library-heading > div > p, .home-daily-main p,
+  .home-daily-reward span, .home-level-mini small,
+  .feedback-form-head p, .feedback-diagnostic small, .feedback-submit > span,
+  .feedback-side ol, .feedback-receipt small, .feedback-receipt time,
+  .feedback-empty, .backup-replace small, .category-strip button small,
+  .game-metadata > span, .card-guide, .difficulty,
+  .continue-playing-copy p, .continue-playing-meta
+) {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .dialog-header h2, .search-results strong, .notification-list strong,
+  .notification-empty strong, .onboarding-tour h2, .pwa-update-banner strong,
+  .guide-banner h2, .guide-card h2, .guide-learning-path h2,
+  .home-daily-main h2, .home-daily-reward strong, .home-level-mini strong,
+  .continue-playing-copy h2,
+  .empty-state h2, .empty-state h3, .stability-error-state h2,
+  .feedback-fields label > span, .feedback-field > span, .feedback-rating legend
+) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .command-input input, .ba-dialog input, .ba-dialog select, .ba-dialog textarea
+) {
+  color: var(--theme-text);
+  background: var(--theme-control);
+  border-color: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .ba-dialog input::placeholder {
+  color: var(--theme-text-subtle);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .command-input:focus-within, .ba-dialog input:focus,
+  .feedback-fields input:focus, .feedback-fields select:focus,
+  .feedback-field input:focus, .feedback-field textarea:focus
+) {
+  border-color: var(--theme-accent-text);
+  box-shadow: 0 0 0 2px var(--theme-accent-surface);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .dialog-footnote, .shortcuts > div, .notification-toolbar,
+  .command-section + .command-section, .guide-card > div,
+  .home-daily-reward, .feedback-diagnostic, .feedback-receipt,
+  .manual-card-title, .manual-mistakes, .manual-footer-cta,
+  .manual-strategy-sections > section > header
+) {
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .notification-button > span {
+  box-shadow: 0 0 0 2px var(--theme-surface);
+}
+
+html[data-ba-effective-theme="dark"] :is(
+  .onboarding-progress i:not(.active), .setting-toggle input:not(:checked) + i
+) {
+  background: var(--theme-border-strong);
+}
+
+html[data-ba-effective-theme="dark"] .guide-banner {
+  background: linear-gradient(135deg, var(--theme-surface), var(--theme-accent-surface));
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .loading-state {
+  color: var(--theme-text-muted);
+  background-image: linear-gradient(110deg, var(--theme-surface) 20%, var(--theme-surface-muted) 38%, var(--theme-surface) 56%);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .feedback-rating button {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .feedback-rating button:is(.active, :hover) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+
+html[data-ba-effective-theme="dark"] .feedback-privacy {
+  background: var(--theme-surface-muted) !important;
+}
+
+html[data-ba-effective-theme="dark"] :is(.settings-error, .feedback-alert.error, .storage-banner) {
+  color: #ffb5bf;
+  background: #40242d;
+  border-color: #80505c;
+}
+
+html[data-ba-effective-theme="dark"] :is(.feedback-alert.success, .pwa-installed, .inline-success) {
+  color: #a5e2bc;
+  background: #23392e;
+  border-color: #456b52;
+}
+
+/* Keep category identities without using their light pastel surfaces. */
+html[data-ba-effective-theme="dark"] .color-purple { --art-color: #c6a6f0; }
+html[data-ba-effective-theme="dark"] .color-mint { --art-color: #88d3b9; }
+html[data-ba-effective-theme="dark"] .color-peach { --art-color: #e8b08e; }
+html[data-ba-effective-theme="dark"] .color-blue { --art-color: #9cbeed; }
+html[data-ba-effective-theme="dark"] .color-yellow { --art-color: #e6cc7d; }
+html[data-ba-effective-theme="dark"] .color-pink { --art-color: #e9a9ca; }
+html[data-ba-effective-theme="dark"] .color-lavender { --art-color: #c8b1ee; }
+html[data-ba-effective-theme="dark"] :is(
+  .color-purple, .color-mint, .color-peach, .color-blue,
+  .color-yellow, .color-pink, .color-lavender
+) {
+  --art-bg: color-mix(in srgb, var(--art-color) 15%, var(--theme-surface));
+  --art-light: color-mix(in srgb, var(--art-color) 8%, var(--theme-surface));
+}
+
+html[data-ba-effective-theme="dark"] .main-content .manual-page {
+  --manual-accent: var(--theme-accent-text);
+  --manual-accent-soft: var(--theme-accent-surface);
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .manual-page :is(
+  .manual-game-picker button, .manual-tier-filter button,
+  .manual-step-check > span, .manual-callout button, .manual-next .ba-button,
+  .manual-search, .manual-callout-icon, .manual-mistakes article > span
+) {
+  color: var(--theme-text-muted);
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+}
+
+html[data-ba-effective-theme="dark"] .manual-page :is(
+  .manual-game-picker button.active, .manual-tabs button.active,
+  .manual-tier-filter button.active, .manual-callout,
+  .manual-tutorial-step.done, .manual-tutorial-step.done .manual-step-check > span
+) {
+  color: var(--theme-accent-text);
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  box-shadow: none;
+}
+
+html[data-ba-effective-theme="dark"] .manual-page :is(
+  .manual-card, .manual-section-heading, .manual-tutorial-step,
+  .manual-solve-flow, .manual-callout, .manual-mistakes,
+  .manual-strategy-sections, .manual-level-list, .manual-footer-cta
+) :is(h2, h3, h4, strong) {
+  color: var(--theme-text);
+}
+
+html[data-ba-effective-theme="dark"] .manual-page :is(
+  .manual-section-heading > div > p:last-child, .manual-card p,
+  .manual-tutorial-step p, .manual-solve-flow p, .manual-callout p,
+  .manual-mistakes article p, .manual-strategy-grid p, .manual-footer-cta > p,
+  .manual-tabs button, .manual-back
+) {
+  color: var(--theme-text-muted);
+}
+
+html[data-ba-effective-theme="dark"] .manual-progress > span,
+html[data-ba-effective-theme="dark"] .manual-tutorial-list::before {
+  background: var(--theme-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ba-effective-theme] *,
+  html[data-ba-effective-theme] *::before,
+  html[data-ba-effective-theme] *::after {
+    scroll-behavior: auto !important;
+  }
+}

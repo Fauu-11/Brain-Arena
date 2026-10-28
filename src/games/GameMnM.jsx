@@ -88,7 +88,7 @@ const playSound = (type) => {
         osc.stop(now + idx * 0.12 + 0.4);
       });
     }
-  } catch (e) {
+  } catch {
     // AudioContext ignored if blocked
   }
 };
@@ -136,7 +136,7 @@ export default function GameMnM({ onBack, onNavigate }) {
 
   // Active configuration
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_SPECS[schoolLevel] || LEVEL_SPECS.smp);
-  const { cols, chipsPerTile, matchPairs, winScore } = config;
+  const { cols, chipsPerTile, winScore } = config;
 
   // Refs for timer and timeout synchronization
   const chipsRef = useRef(chips);
@@ -169,7 +169,7 @@ export default function GameMnM({ onBack, onNavigate }) {
   // Initialize Board
   const initBoard = useCallback((level = schoolLevel, chosenMode = mode, arenaDifficulty = universityDifficulty) => {
     const currentConf = level === 'universitas' ? UNIVERSITY_LEVELS[arenaDifficulty] : (LEVEL_SPECS[level] || LEVEL_SPECS.smp);
-    const { cols: cCount, chipsPerTile: cpt, matchPairs: pairs } = currentConf;
+    const { cols: cCount, chipsPerTile: cpt } = currentConf;
 
     // Generate pairs 1..N
     const numberPool = [];

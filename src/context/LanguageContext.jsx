@@ -11,4 +11,6 @@ export function LanguageProvider({ children }) {
   useEffect(() => { document.documentElement.lang = lang; writeText('uw_lang', lang); }, [lang]);
   return <LanguageContext.Provider value={{ lang, setLang, toggleLang }}>{children}</LanguageContext.Provider>;
 }
+// Keep the context hook beside its provider as the public API for language consumers.
+// eslint-disable-next-line react/only-export-components
 export function useLanguage() { return useContext(LanguageContext); }

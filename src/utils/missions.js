@@ -1,4 +1,4 @@
-import { CATEGORIES, GAMES, gameById } from '../data/games.js';
+import { CATEGORIES, gameById } from '../data/games.js';
 import { deterministicIndex, localDateKey, shiftDateKey } from './progression.js';
 
 function dateKeyToUTC(key) {

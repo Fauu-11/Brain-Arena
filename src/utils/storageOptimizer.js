@@ -1,5 +1,4 @@
 const sizeOf=value=>new Blob([String(value||'')]).size;
-const keysMatching=(storage,predicate)=>{const out=[];for(let i=0;i<storage.length;i+=1){const key=storage.key(i);if(key&&predicate(key))out.push(key);}return out;};
 export function storageBreakdown(storage=window.localStorage){
   const entries=[];let total=0;for(let i=0;i<storage.length;i+=1){const key=storage.key(i);if(!key)continue;const value=storage.getItem(key)||'';const bytes=sizeOf(key)+sizeOf(value);total+=bytes;entries.push({key,bytes});}
   const group=(name,pred)=>({name,bytes:entries.filter(e=>pred(e.key)).reduce((s,e)=>s+e.bytes,0),keys:entries.filter(e=>pred(e.key)).map(e=>e.key)});

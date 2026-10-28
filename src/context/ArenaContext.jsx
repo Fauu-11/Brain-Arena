@@ -755,7 +755,15 @@ export function ArenaProvider({ children }) {
   }, [muted]);
   useEffect(() => {
     const root=document.documentElement;
-    root.dataset.baTheme=accessibility.theme;
+    const systemTheme = window.matchMedia?.('(prefers-color-scheme: dark)');
+    const applyTheme = () => {
+      root.dataset.baTheme=accessibility.theme;
+      root.dataset.baEffectiveTheme=accessibility.theme==='system'
+        ? (systemTheme?.matches ? 'dark' : 'light')
+        : accessibility.theme;
+    };
+    applyTheme();
+    systemTheme?.addEventListener?.('change', applyTheme);
     root.classList.toggle('ba-reduced-motion',accessibility.reducedMotion);
     root.classList.toggle('ba-high-contrast',accessibility.highContrast);
     root.classList.toggle('ba-large-text',accessibility.largeText);
@@ -763,6 +771,7 @@ export function ArenaProvider({ children }) {
     root.classList.toggle('ba-enhanced-focus',accessibility.enhancedFocus);
     root.classList.toggle('ba-screen-reader-hints',accessibility.screenReaderHints);
     root.classList.toggle('ba-no-timer-pressure',accessibility.disableTimerPressure);
+    return () => systemTheme?.removeEventListener?.('change', applyTheme);
   }, [accessibility]);
   useEffect(() => {
     const sync = e => {
@@ -790,7 +799,7 @@ export function ArenaProvider({ children }) {
     const unavailable = () => setStorageOk(false);
     window.addEventListener('storage',sync); window.addEventListener('ba-storage-unavailable',unavailable);
     return () => { window.removeEventListener('storage',sync); window.removeEventListener('ba-storage-unavailable',unavailable); };
-  }, []);
+  }, [refreshAutomaticBackups]);
   useEffect(() => { if (!notice) return; const timer=setTimeout(()=>setNotice(''),3000); return()=>clearTimeout(timer); }, [notice]);
 
   return <ArenaContext.Provider value={{
@@ -812,4 +821,6 @@ export function ArenaProvider({ children }) {
     automaticBackups,createRestorePoint,restoreRestorePoint,deleteRestorePoint,refreshAutomaticBackups,
   }}>{children}</ArenaContext.Provider>;
 }
+// Keep the context hook beside its provider as the public API for arena consumers.
+// eslint-disable-next-line react/only-export-components
 export function useArena() { return useContext(ArenaContext); }

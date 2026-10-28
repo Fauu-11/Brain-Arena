@@ -1,0 +1,621 @@
+/* Load after game-theme.css and theme.css. Only the resolved dark theme applies.
+   Puzzle colors are intentionally left on pixels, MnM chips, dice and numbered
+   2048 tiles. !important is limited to inline styles and existing skin overrides. */
+html[data-ba-effective-theme="dark"] .arena-game {
+  --game-success-surface: color-mix(in srgb, var(--uw-success) 16%, var(--theme-surface));
+  --game-success-border: color-mix(in srgb, var(--uw-success) 55%, var(--theme-border));
+  --game-success-text: color-mix(in srgb, var(--uw-success) 45%, var(--theme-text));
+  --game-error-surface: color-mix(in srgb, var(--uw-danger) 18%, var(--theme-surface));
+  --game-error-border: color-mix(in srgb, var(--uw-danger) 65%, var(--theme-border));
+  --game-error-text: color-mix(in srgb, var(--uw-danger) 40%, var(--theme-text));
+  --game-warning-surface: color-mix(in srgb, var(--uw-warning) 15%, var(--theme-surface));
+  --game-warning-border: color-mix(in srgb, var(--uw-warning) 60%, var(--theme-border));
+  --game-warning-text: color-mix(in srgb, var(--uw-warning) 40%, var(--theme-text));
+  color: var(--theme-text);
+}
+
+/* Shared controls, setup and stage chrome. */
+html[data-ba-effective-theme="dark"] .arena-game .uw-btn-neutral {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .uw-btn-neutral:hover:not(:disabled) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .uw-btn-secondary {
+  background: var(--game-success-surface);
+  border-color: var(--game-success-border);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .uw-btn-secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--uw-success) 25%, var(--theme-surface));
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-stage, .play-guide-card, .play-setup-card, .play-tool,
+  .competitive-mode-block, .challenge-code-block, .play-university-block,
+  .play-levels button, .play-university-difficulty button
+) {
+  background-color: var(--theme-surface) !important;
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-stage-top, .play-stage-bottom, .play-tip-card,
+  .play-level-description, .play-stat, .competitive-mode-toggle button,
+  .challenge-code-input button, .adaptive-suggestion, .setup-recovery-card
+) {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-levels button:hover, .play-university-difficulty button:hover,
+  .challenge-code-input button:hover, .play-tool:hover
+) {
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-tool.selected, .play-levels button.selected,
+  .play-university-difficulty button.selected, .competitive-mode-toggle button.selected
+) {
+  background: var(--theme-accent-surface) !important;
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+  box-shadow: inset 0 0 0 1px var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-setup-heading h2, .play-field-label, .play-levels strong,
+  .play-university-heading > span, .play-aside-heading h2,
+  .play-stage-top > span:first-child, .competitive-mode-block strong,
+  .challenge-code-head strong, .adaptive-suggestion strong,
+  .setup-recovery-card strong, .play-input-hint strong
+) {
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-back, .play-status, .play-steps li > p, .play-tip-card > p,
+  .play-setup-heading p, .play-level-description p, .play-input-hint p,
+  .setup-recovery-card p, .competitive-mode-block small,
+  .challenge-code-head small, .play-stat span
+) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-stage-label, .play-aside-heading small, .play-kicker,
+  .play-setup-footnote, .play-field-label > span, .play-levels small,
+  .play-university-heading > small, .play-university-difficulty button small,
+  .adaptive-suggestion small, .setup-recovery-card small
+) {
+  color: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-rules-link, .play-stage-bottom > button, .play-tip-card > button,
+  .play-tip-card > span, .play-level-description strong,
+  .play-level-description > span, .play-levels button.selected strong,
+  .play-live-stats, .play-back:hover, .challenge-code-input button
+) {
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-live-stats > span + span {
+  color: var(--game-warning-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-guide-icon, .play-steps li > span, .play-setup-badge,
+  .challenge-code-head em, .adaptive-suggestion > span,
+  .setup-recovery-card > span
+) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-setup-actions, .play-rules-link, .play-level-check
+) {
+  border-color: var(--theme-border-strong);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-level-bars i {
+  background: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-level-bars i.filled {
+  background: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game .selected .play-level-bars i.filled {
+  background: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .adaptive-suggestion p {
+  color: var(--theme-text-muted) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .adaptive-suggestion button, .setup-recovery-card .ba-button.outline
+) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-accent-text);
+}
+/* These inputs have inline backgrounds; inherited tokens alone cannot win. */
+html[data-ba-effective-theme="dark"] .arena-game input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-ba-effective-theme="dark"] .arena-game select {
+  background-color: var(--theme-surface-raised) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border-strong) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game input::placeholder {
+  color: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game input:disabled {
+  background-color: var(--theme-surface-muted) !important;
+  color: var(--theme-text-muted) !important;
+}
+
+/* Scoreboard: keep the two active-player identities and urgent clock distinct. */
+html[data-ba-effective-theme="dark"] .arena-game .play-scoreboard {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-player-avatar {
+  background: var(--theme-surface-muted);
+  color: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-player.active {
+  background: var(--theme-accent-surface);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-player.active .play-player-avatar {
+  background: var(--theme-surface-muted);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-player.player-2.active {
+  background: var(--game-success-surface);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-player.player-2.active .play-player-avatar {
+  background: var(--game-success-surface);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.play-player > div > span, .play-player > strong) {
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.play-player > div > small, .play-turn-clock) {
+  border-color: var(--theme-border);
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-turn-clock strong {
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.play-turn-clock.urgent, .play-turn-clock.urgent strong) {
+  color: var(--game-error-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-timer-track {
+  background: var(--theme-surface-muted);
+}
+
+/* GameShell results, rewards and post-game insights (not global modals). */
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-result-scores > div, .play-xp-reward, .play-xp-reward.daily,
+  .performance-grade, .performance-details > div, .result-v2-grid,
+  .post-game-insights, .post-game-insights article, .brain-coach-v2-result
+) {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-result-icon, .play-xp-icon, .post-game-insights-head > span,
+  .post-game-insights article > span, .brain-coach-v2-result > span,
+  .play-result-scores > div.winner
+) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-result h2, .play-result-scores strong, .play-xp-copy strong,
+  .performance-details strong, .result-v2-grid strong,
+  .post-game-insights-head strong, .post-game-insights article strong,
+  .brain-coach-v2-result strong
+) {
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .play-result > p:not(.play-kicker), .play-result-scores span,
+  .play-result-scores small, .play-xp-copy small, .performance-grade span,
+  .performance-details span, .result-v2-grid span, .result-v2-grid small,
+  .post-game-insights-head small, .post-game-insights article p,
+  .brain-coach-v2-result small, .result-challenge-code span
+) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-xp-copy p {
+  color: var(--theme-text-muted) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.result-v2-grid > div, .result-challenge-code) {
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.performance-grade strong, .result-challenge-code code) {
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .performance-grade.grade-s strong {
+  color: #c7a7ff;
+}
+html[data-ba-effective-theme="dark"] .arena-game .performance-grade.grade-a strong {
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.performance-grade.grade-c strong, .performance-grade.grade-d strong) {
+  color: var(--game-warning-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.cube-result-breakdown .correct, .post-game-insights .insight-good) {
+  background: var(--game-success-surface);
+  border-color: var(--game-success-border);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .post-game-insights .insight-good > span {
+  background: var(--game-success-surface);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .post-game-insights .insight-warn {
+  background: var(--game-warning-surface);
+  border-color: var(--game-warning-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .post-game-insights .insight-warn > span {
+  background: var(--game-warning-surface);
+  color: var(--game-warning-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .cube-result-breakdown .incorrect {
+  background: var(--game-error-surface);
+  border-color: var(--game-error-border);
+  color: var(--game-error-text);
+}
+
+/* Legacy feedback banners have no state class. Match only the direct banners
+   in the stage / Cube panel, never pixel matrices, chips or other descendants.
+   Include both CSSOM rgb serialization and hex for pre-rendered markup. */
+html[data-ba-effective-theme="dark"] .arena-game :is(.play-stage-body > div, .cube-play-panel) > div:is(
+  [style*="background-color: rgb(220, 252, 231)"], [style*="background-color: #dcfce7"]
+) {
+  background-color: var(--game-success-surface) !important;
+  border-color: var(--game-success-border) !important;
+  color: var(--game-success-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.play-stage-body > div, .cube-play-panel) > div:is(
+  [style*="background-color: rgb(254, 226, 226)"], [style*="background-color: #fee2e2"]
+) {
+  background-color: var(--game-error-surface) !important;
+  border-color: var(--game-error-border) !important;
+  color: var(--game-error-text) !important;
+}
+
+/* Inline stat/player accents need readable text without changing uw-primary,
+   which is also used for semantic puzzle fills and primary buttons. */
+html[data-ba-effective-theme="dark"] .arena-game .play-stat > strong[style*="color: var(--uw-primary)"],
+html[data-ba-effective-theme="dark"] .arena-game[data-game="prime"] .play-stage-body > div > div > span[style*="color: var(--uw-primary)"] {
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .play-stat > strong[style*="color: var(--uw-secondary)"],
+html[data-ba-effective-theme="dark"] .arena-game[data-game="prime"] .play-stage-body > div > div > span[style*="color: var(--uw-secondary)"] {
+  color: var(--game-success-text) !important;
+}
+/* The yellow Prime AI target needs dark ink, not the light uw-text token. */
+html[data-ba-effective-theme="dark"] .arena-game .prime-board > button:is(
+  [style*="background-color: rgb(254, 240, 138)"], [style*="background-color: #fef08a"]
+) {
+  color: #342d17 !important;
+}
+
+/* Pixel: change the work surfaces, not MatrixDisplay cells or target colors.
+   MnM: the white revealed chips and green found chips are semantic states. */
+html[data-ba-effective-theme="dark"] .arena-game :is(.pixel-board, .mnm-board) {
+  background: var(--theme-surface-muted) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .mnm-board {
+  border-color: var(--theme-border-strong) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .pixel-workbench {
+  background: var(--theme-surface-raised) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .pixel-board > [aria-pressed="true"] {
+  background-color: var(--theme-accent-surface) !important;
+  border-color: var(--theme-accent-border) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .pixel-board > [aria-pressed="true"] > div:nth-child(2) {
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-phase > div:first-child {
+  background: var(--theme-accent-surface) !important;
+  color: var(--theme-accent-text) !important;
+}
+
+/* Sudoku retains clue/entry, related-cell, same-value and peek distinctions. */
+html[data-ba-effective-theme="dark"] .arena-game .sudoku-memory-board {
+  background: var(--theme-border-strong) !important;
+  border-color: var(--theme-accent-border) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game [data-sudoku-memo] {
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game [data-sudoku-cell][aria-pressed="true"] {
+  background-color: var(--theme-accent-surface) !important;
+  outline-color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game [data-sudoku-cell] > span[style*="color: var(--uw-primary)"] {
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game [data-sudoku-cell] > span[style*="color: var(--uw-secondary)"] {
+  color: var(--game-success-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .sudoku-keypad button {
+  background: var(--theme-surface-raised) !important;
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .sudoku-keypad button:last-child {
+  background: var(--game-error-surface) !important;
+  border-color: var(--game-error-border);
+  color: var(--game-error-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .sudoku-keypad button:hover:not(:disabled) {
+  border-color: var(--theme-accent-text);
+}
+
+/* Cube surfaces already use uw tokens; its inline white input is covered above.
+   Keep the isometric SVG face shading and level/timer indicators unchanged. */
+html[data-ba-effective-theme="dark"] .arena-game .arithmetic-practice {
+  background: var(--theme-surface-raised) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .arithmetic-topic {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .arithmetic-topic:has(input:checked) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .arithmetic-config :is(h3, span)[style*="color: var(--uw-primary)"],
+html[data-ba-effective-theme="dark"] .arena-game .arithmetic-practice > div:first-child,
+html[data-ba-effective-theme="dark"] .arena-game[data-game="300"] span[title] {
+  color: var(--theme-accent-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game[data-game="300"] div:has(> input[data-wrong="true"]) {
+  background-color: var(--game-error-surface) !important;
+  border-color: var(--game-error-border) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game[data-game="300"] input[data-wrong="true"] {
+  background-color: var(--game-error-surface) !important;
+  border-color: var(--game-error-border) !important;
+}
+
+/* Dice Duel: the die/net face palette stays intact. */
+html[data-ba-effective-theme="dark"] .arena-game :is(.rps-planar, .rps-controls) {
+  background: var(--theme-surface-raised) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-planar h2 {
+  color: var(--theme-text) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-planar p {
+  color: var(--theme-text-muted) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .rps-memory-note, .rps-folding > small, .rps-control-label,
+  .rps-turn-hint, .rps-symbol-legend, .rps-symbol-legend > small, .rps-score-note
+) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.rps-direction, .rps-edit-buttons button, .rps-move-slot) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-direction:hover:not(:disabled) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-edit-buttons button:last-child:not(:disabled) {
+  color: var(--game-error-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.rps-direction:disabled, .rps-edit-buttons button:disabled, .rps-roll-button:disabled) {
+  background: var(--theme-surface-muted);
+  color: var(--theme-text-subtle);
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-move-slot.filled {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-arena {
+  background: var(--theme-border) !important;
+  border-color: var(--theme-border-strong) !important;
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-cell {
+  background: var(--theme-surface);
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-cell.projected {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-cell.visited {
+  border-color: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game .rps-cell.target {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-accent-text);
+}
+
+/* Minesweeper, Maze and Memory Matrix: neutral chrome only, then explicit states. */
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-toolbar, .maze-toolbar, .memory-toolbar) {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-toolbar strong, .maze-toolbar strong, .memory-toolbar strong) {
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .ms-toolbar small, .maze-toolbar small, .memory-toolbar small,
+  .ms-legend, .ms-legend > small, .maze-route-note > span,
+  .maze-route-note small, .memory-score span, .memory-countdown,
+  .memory-footer, .memory-footer small
+) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .ms-flag-mode, .ms-small-button, .maze-toolbar-actions button,
+  .maze-dpad button, .maze-dpad .center, .memory-countdown strong
+) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(
+  .ms-flag-mode:hover, .ms-small-button:hover,
+  .maze-toolbar-actions button:hover, .maze-dpad button:hover,
+  .ms-flag-mode.active
+) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-flag-mode.active {
+  box-shadow: inset 0 0 0 1px var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-board-shell, .maze-shell, .memory-board-shell) {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border);
+  box-shadow: none;
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-board {
+  background: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-cell, .ms-legend-cell) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+  box-shadow: inset 1px 1px 0 var(--theme-border-strong);
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell:hover:not(.open) {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.open {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  box-shadow: none;
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.flagged {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.mine-hit {
+  background: var(--game-error-surface);
+  border-color: var(--game-error-border);
+  color: var(--game-error-text);
+}
+/* Keep all eight clue hues, with enough luminance on the opened dark surface. */
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-one { color: #8fb9f1; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-two { color: #81cda8; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-three { color: #f297a0; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-four { color: #bda2f0; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-five { color: #d89bb0; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-six { color: #80cbd4; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-seven { color: var(--theme-text); }
+html[data-ba-effective-theme="dark"] .arena-game .ms-cell.n-eight { color: #c3b0c7; }
+html[data-ba-effective-theme="dark"] .arena-game .ms-legend-number {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-pause-cover, .maze-pause) {
+  background: color-mix(in srgb, var(--theme-surface) 94%, transparent);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-pause-cover span, .maze-pause span) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.ms-change-level, .maze-route-note strong, .memory-score strong, .memory-footer b) {
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.maze-board, .maze-cell) {
+  background: var(--theme-surface);
+}
+/* Do not override maze border-color: transparent edges encode open passages. */
+html[data-ba-effective-theme="dark"] .arena-game .maze-cell.visited {
+  background: var(--theme-accent-surface);
+}
+html[data-ba-effective-theme="dark"] .arena-game .maze-cell.exit {
+  background: var(--game-success-surface);
+  color: var(--game-success-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-score {
+  border-color: var(--theme-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-cell:not(.memory-on):not(.chosen):not(.wrong) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-border-strong);
+  box-shadow: inset 1px 1px 0 var(--theme-border-strong);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-cell.chosen {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-cell.chosen > span {
+  background: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-cell.wrong {
+  background: var(--game-error-surface);
+  border-color: var(--game-error-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-cell.wrong > span {
+  background: var(--game-error-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .memory-round-success {
+  background: var(--game-success-surface);
+  border-color: var(--game-success-border);
+  color: var(--game-success-text);
+}
+
+/* Use the effective theme, including System, instead of data-ba-theme.
+   An active Nonogram tool must not lose its selected styling to the base rule. */
+html[data-ba-effective-theme="dark"] .arena-game :is(.nonogram-tools button, .g2048-toolbar button, .g2048-dpad button) {
+  background: var(--theme-surface-raised);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.nonogram-tools button:not(.active), .g2048-toolbar button, .g2048-dpad button):hover:not(:disabled) {
+  background: var(--theme-surface-muted);
+  border-color: var(--theme-accent-border);
+}
+html[data-ba-effective-theme="dark"] .arena-game .nonogram-tools button.active {
+  background: var(--theme-accent-surface);
+  border-color: var(--theme-accent-text);
+  color: var(--theme-accent-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.nonogram-toolbar small, .g2048-toolbar small, .nonogram-hint) {
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game :is(.nonogram-col-clues > div, .nonogram-row-clues > div, .nonogram-corner) {
+  border-color: var(--theme-border);
+  color: var(--theme-text-muted);
+}
+html[data-ba-effective-theme="dark"] .arena-game .nonogram-grid {
+  background: var(--theme-border);
+  border-color: var(--theme-border-strong);
+}
+html[data-ba-effective-theme="dark"] .arena-game .nonogram-grid button {
+  background: var(--theme-surface);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-text-subtle);
+}
+html[data-ba-effective-theme="dark"] .arena-game .nonogram-grid button.filled {
+  background: #8665c8;
+  color: #fff;
+}
+html[data-ba-effective-theme="dark"] .arena-game .nonogram-grid button.cross {
+  background: var(--theme-surface-muted);
+  color: var(--game-error-text);
+}
+html[data-ba-effective-theme="dark"] .arena-game .g2048-board {
+  background: var(--theme-border-strong);
+}
+html[data-ba-effective-theme="dark"] .arena-game .g2048-tile.empty {
+  background: var(--theme-surface-muted);
+}

@@ -91,7 +91,7 @@ const playSound = (type) => {
         osc.stop(now + idx * 0.12 + 0.4);
       });
     }
-  } catch (e) {
+  } catch {
     // AudioContext ignored if blocked by browser policy
   }
 };
@@ -123,6 +123,7 @@ export default function GamePixel({ onBack, onNavigate }) {
   const [bestTime, setBestTime] = useState(null);
   const [hintActive, setHintActive] = useState(false);
   const [shakePreview, setShakePreview] = useState(false);
+  const checkSelectionRef = useRef(() => {});
 
   const recordKey = schoolLevel === 'universitas' ? `pixel_best_${schoolLevel}_${universityDifficulty}` : `pixel_best_${schoolLevel}`;
 
@@ -283,7 +284,7 @@ export default function GamePixel({ onBack, onNavigate }) {
       if (gameState !== 'playing') return;
       if (e.key === 'Enter' || e.code === 'Space') {
         e.preventDefault();
-        checkSelection();
+        checkSelectionRef.current();
       } else if (e.key === 'Escape') {
         setSelectedCardIdxs([]);
         playSound('deselect');
@@ -291,7 +292,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState, selectedCardIdxs, cards, targets, solvedTargets]);
+  }, [gameState]);
 
   // Current stacked composite calculation
   const selectedGrids = selectedCardIdxs.map(i => cards[i]?.grid).filter(Boolean);
@@ -355,6 +356,7 @@ export default function GamePixel({ onBack, onNavigate }) {
       triggerError(lang === 'en' ? 'Does not match any unsolved target digit.' : 'Belum cocok dengan digit target yang tersisa.');
     }
   };
+  checkSelectionRef.current = checkSelection;
 
   const triggerError = (msg) => {
     playSound('error');

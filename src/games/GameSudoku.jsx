@@ -3,7 +3,7 @@ import Icon from '../components/Icon.jsx';
 import { generateSudokuMatrix } from '../utils/sudoku.js';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
 import { readText, writeText } from '../utils/storage.js';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
@@ -88,7 +88,7 @@ const playSound = (type) => {
         osc.stop(now + idx * 0.1 + 0.35);
       });
     }
-  } catch (e) {
+  } catch {
     // AudioContext ignored if blocked
   }
 };
@@ -197,6 +197,21 @@ export default function GameSudoku({ onBack, onNavigate }) {
     return () => clearInterval(timer);
   }, [phase]);
 
+  const enterValueAtCell = useCallback((cellIdx, val) => {
+    if (cellIdx === null || cluesMask[cellIdx]) return;
+    if (val === '') {
+      playSound('erase');
+    } else {
+      playSound('place');
+    }
+
+    setUserAnswers(prev => {
+      const next = [...prev];
+      next[cellIdx] = val;
+      return next;
+    });
+  }, [cluesMask]);
+
   // Keyboard navigation & inputs
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -230,22 +245,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [phase, selectedCell, size]);
-
-  const enterValueAtCell = (cellIdx, val) => {
-    if (cellIdx === null || cluesMask[cellIdx]) return;
-    if (val === '') {
-      playSound('erase');
-    } else {
-      playSound('place');
-    }
-
-    setUserAnswers(prev => {
-      const next = [...prev];
-      next[cellIdx] = val;
-      return next;
-    });
-  };
+  }, [phase, selectedCell, size, enterValueAtCell]);
 
   // Peek Solution helper
   const handleQuickPeek = () => {
