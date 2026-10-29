@@ -1,3 +1,9 @@
+import { useArena } from '../context/ArenaContext.jsx';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
@@ -8,6 +14,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Digital numbers 0-9 in a 3x5 grid (15 boolean values)
+const random=()=>sessionRandom('pixel');
+
 const DIGIT_TEMPLATES = [
   [true, true, true,  true, false, true,  true, false, true,  true, false, true,  true, true, true],  // 0
   [false, false, true, false, false, true, false, false, true, false, false, true, false, false, true], // 1
@@ -105,11 +113,12 @@ const UNIVERSITY_LEVELS = {
 const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 export default function GamePixel({ onBack, onNavigate }) {
+  const {restartGameSession}=useArena();
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing', 'ended'
-  const [schoolLevel, setSchoolLevel] = useState('universitas');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('pixel','schoolLevels','universitas'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('pixel','universityDifficulties','hard'));
 
   // Game states
   const [targets, setTargets] = useState([]);
@@ -173,7 +182,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     const totalCardsCount = level === 'sd' ? 6 : level === 'smp' ? 10 : level === 'sma' ? 12 : arena.cards;
 
     // Pick random unique digits
-    const digitsPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+    const digitsPool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => random() - 0.5);
     const chosenTargets = digitsPool.slice(0, targetsCount);
 
     setTargets(chosenTargets);
@@ -194,15 +203,15 @@ export default function GamePixel({ onBack, onNavigate }) {
       if (level === 'universitas') {
         const upper = Math.min(arena.splitMax, activeIndices.length);
         const lower = Math.min(arena.splitMin, upper);
-        splitsCount = lower + Math.floor(Math.random() * (upper - lower + 1));
+        splitsCount = lower + Math.floor(random() * (upper - lower + 1));
       } else if (activeIndices.length >= 10 && (level === 'smp' || level === 'sma')) {
-        splitsCount = Math.random() < 0.5 ? 2 : 3;
+        splitsCount = random() < 0.5 ? 2 : 3;
       } else if (activeIndices.length >= 7 && level === 'sma') {
-        splitsCount = Math.random() < 0.5 ? 2 : 3;
+        splitsCount = random() < 0.5 ? 2 : 3;
       }
 
       // Shuffle active pixel coordinates
-      const shuffledPixels = [...activeIndices].sort(() => Math.random() - 0.5);
+      const shuffledPixels = [...activeIndices].sort(() => random() - 0.5);
       const pieceGrids = Array.from({ length: splitsCount }, () => Array(15).fill(false));
 
       // Distribute evenly so each piece has at least 2 pixels
@@ -214,7 +223,7 @@ export default function GamePixel({ onBack, onNavigate }) {
       pieceGrids.forEach(grid => {
         if (grid.some(Boolean)) {
           generatedCards.push({
-            id: Math.random().toString(36).substring(2, 9),
+            id: random().toString(36).substring(2, 9),
             grid,
             targetRef: targetIdx,
             pixelCount: grid.filter(Boolean).length,
@@ -228,15 +237,15 @@ export default function GamePixel({ onBack, onNavigate }) {
     const neededDistractors = Math.max(0, totalCardsCount - generatedCards.length);
     for (let d = 0; d < neededDistractors; d++) {
       const distGrid = Array(15).fill(false);
-      const activeCount = Math.floor(Math.random() * 3) + 2; // 2 to 4 pixels
-      const pool = Array.from({ length: 15 }, (_, i) => i).sort(() => Math.random() - 0.5);
+      const activeCount = Math.floor(random() * 3) + 2; // 2 to 4 pixels
+      const pool = Array.from({ length: 15 }, (_, i) => i).sort(() => random() - 0.5);
 
       for (let p = 0; p < activeCount; p++) {
         distGrid[pool[p]] = true;
       }
 
       generatedCards.push({
-        id: Math.random().toString(36).substring(2, 9),
+        id: random().toString(36).substring(2, 9),
         grid: distGrid,
         targetRef: -1,
         pixelCount: activeCount,
@@ -245,7 +254,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     }
 
     // Shuffle cards
-    generatedCards.sort(() => Math.random() - 0.5);
+    generatedCards.sort(() => random() - 0.5);
     setCards(generatedCards);
     setSelectedCardIdxs([]);
     setMessage(lang === 'en' ? 'Select cards to combine and match a target digit.' : 'Pilih kartu untuk ditumpuk dan cocokkan dengan digit target.');
@@ -458,6 +467,8 @@ export default function GamePixel({ onBack, onNavigate }) {
       : `Berhasil merekonstruksi semua digit target dalam ${elapsedTime} detik dengan ${attempts} kali uji coba.`,
     best: lang === 'en' ? 'Best' : 'Rekor'
   };
+
+  useGameCheckpoint('pixel',{gameState,schoolLevel,universityDifficulty,targets,solvedTargets,cards,selectedCardIdxs,message,messageType,elapsedTime,attempts,hintActive,shakePreview},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setTargets(saved.targets);setSolvedTargets(saved.solvedTargets);setCards(saved.cards);setSelectedCardIdxs(saved.selectedCardIdxs);setMessage(saved.message);setMessageType(saved.messageType);setElapsedTime(saved.elapsedTime);setAttempts(saved.attempts);setHintActive(saved.hintActive);setShakePreview(saved.shakePreview);},gameState==='playing'&&!hintActive&&!shakePreview,gameState==='playing');
 
   return (
     <GameScreen gameId="pixel" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{elapsedTime}s</span>{bestTime !== null && <span><Icon name="trophy" size={14}/>{bestTime}s</span>}</>}>
@@ -773,7 +784,7 @@ export default function GamePixel({ onBack, onNavigate }) {
           }}>
             <button
               className="uw-btn uw-btn-neutral"
-              onClick={() => initGame(schoolLevel)}
+              onClick={() => {restartGameSession('pixel');initGame(schoolLevel);}}
             >
               ↻ {t.resetBoard}
             </button>

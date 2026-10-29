@@ -1,3 +1,4 @@
+import { validCheckpoint } from '../utils/gameCheckpoint.js';
 import React, { useMemo, useRef, useState } from 'react';
 import { GAMES, CATEGORIES, gameById } from '../data/games.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
@@ -41,8 +42,8 @@ function Dashboard({ onSelectGame }) {
     recovery: {
       eyebrow: copy('SESI TERSIMPAN', 'SAVED SESSION'),
       title: copy('Lanjutkan tantanganmu.', 'Pick up your challenge.'),
-      description: copy(`Sesi ${primary.game.title[lang]} masih tersimpan. Lanjutkan tantangan yang sama melalui pengaturan permainan.`, `Your ${primary.game.title[lang]} session is saved. Continue the same challenge through game setup.`),
-      action: copy(`Lanjutkan ${primary.game.title[lang]}`, `Continue ${primary.game.title[lang]}`),
+      description: copy(`Sesi ${primary.game.title[lang]} tersimpan. ${validCheckpoint(recoverySession?.boardCheckpoint,primary.game.id)?'Lanjutkan dari titik aman terakhir.':'Ulangi challenge dengan seed yang sama dari papan awal.'}`, `Your ${primary.game.title[lang]} challenge is saved. ${validCheckpoint(recoverySession?.boardCheckpoint,primary.game.id)?'Continue from the last safe checkpoint.':'Restart with the same seed from the opening board.'}`),
+      action: copy(`${validCheckpoint(recoverySession?.boardCheckpoint,primary.game.id)?'Lanjutkan':'Ulangi'} ${primary.game.title[lang]}`, `${validCheckpoint(recoverySession?.boardCheckpoint,primary.game.id)?'Continue':'Restart'} ${primary.game.title[lang]}`),
     },
     daily: {
       eyebrow: copy('TANTANGAN HARI INI', 'TODAY’S CHALLENGE'),

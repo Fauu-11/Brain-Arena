@@ -1,3 +1,8 @@
+import { configuredChallengeCode, challengeConfiguration } from '../utils/competitive.js';
+import { applyChallengeConfiguration } from '../utils/gameCheckpoint.js';
+import { readGameCheckpoint, clearGameCheckpoint, validCheckpoint } from '../utils/gameCheckpoint.js';
+import { resetSessionClock, sessionDurationMs, setClockSuspended } from '../utils/sessionClock.js';
+import { belongsToStage } from '../utils/sessionRules.js';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { GAMES, gameById } from '../data/games.js';
 import { ACHIEVEMENTS, achievementById, newlyCompletedAchievements } from '../data/achievements.js';
@@ -201,6 +206,7 @@ export function ArenaProvider({ children }) {
   const arenaRunRef = useRef(arenaRun);
   const arenaCupRef = useRef(arenaCup);
   const sessionRef = useRef(currentSession);
+  const competitionLaunchRef = useRef(null);
   const recoveryRef = useRef(recoverySession);
 
   useEffect(() => { profileRef.current = profile; }, [profile]);
@@ -229,7 +235,8 @@ export function ArenaProvider({ children }) {
     if (!session?.gameId || !gameById(session.gameId)) return null;
     const now=Date.now();
     const elapsedMs=session.startedAt?Math.max(0,now-session.startedAt):Math.max(0,Number(session.elapsedMs)||0);
-    const snapshot={...session,active:false,elapsedMs,lastSavedAt:now,actions:Array.isArray(session.actions)?session.actions.slice(-240):[]};
+    const boardCheckpoint=readGameCheckpoint(session.gameId);
+    const snapshot={...session,boardCheckpoint,clock:boardCheckpoint?.clock??null,active:false,elapsedMs,lastSavedAt:now,actions:Array.isArray(session.actions)?session.actions.slice(-240):[]};
     recoveryRef.current=snapshot; setRecoverySession(snapshot); writeJSON(recoverySessionKey,snapshot);
     return snapshot;
   },[]);
@@ -250,13 +257,6 @@ export function ArenaProvider({ children }) {
   const ensureCompetitionSetup = useCallback(gameId => {
     if (!gameById(gameId)) return null;
     const current=competitionSetupRef.current;
-    const run=arenaRunRef.current;
-    const stage=run?.status==='active' ? run.stages?.[run.index] : null;
-    if (stage?.gameId===gameId) {
-      const next={ ...current,mode:run.mode||current.mode,challengeCodes:{...current.challengeCodes,[gameId]:stage.challengeCode} };
-      if (current.challengeCodes?.[gameId]!==stage.challengeCode || current.mode!==next.mode) saveCompetitionSetup(next);
-      return stage.challengeCode;
-    }
     if (current.challengeCodes?.[gameId]) return current.challengeCodes[gameId];
     const code=createChallengeCode(gameId);
     saveCompetitionSetup({ ...current, challengeCodes:{...current.challengeCodes,[gameId]:code} });
@@ -265,7 +265,10 @@ export function ArenaProvider({ children }) {
   const setChallengeCode = useCallback((gameId,value) => {
     if (!gameById(gameId)) return null;
     const code=normalizeChallengeCode(value);
-    saveCompetitionSetup({ ...competitionSetupRef.current, challengeCodes:{...competitionSetupRef.current.challengeCodes,[gameId]:code} });
+    const config=challengeConfiguration(code);
+    const current=competitionSetupRef.current;
+    saveCompetitionSetup({ ...current, challengeCodes:{...current.challengeCodes,[gameId]:code},...(config?{schoolLevels:{...current.schoolLevels,[gameId]:config.schoolLevel},universityDifficulties:{...current.universityDifficulties,[gameId]:config.universityDifficulty}}:{}) });
+    if(config)applyChallengeConfiguration(gameId,config);
     return code;
   },[saveCompetitionSetup]);
   const regenerateChallengeCode = useCallback(gameId => {
@@ -276,18 +279,18 @@ export function ArenaProvider({ children }) {
     if (!gameById(gameId) || !['sd','smp','sma','universitas'].includes(level)) return;
     const current=competitionSetupRef.current;
     if (current.schoolLevels?.[gameId]===level) return;
-    saveCompetitionSetup({ ...current, schoolLevels:{...current.schoolLevels,[gameId]:level} });
+    saveCompetitionSetup({ ...current, schoolLevels:{...current.schoolLevels,[gameId]:level},challengeCodes:{...current.challengeCodes,[gameId]:configuredChallengeCode(current.challengeCodes?.[gameId]||createChallengeCode(gameId),level,current.universityDifficulties?.[gameId]||'hard')} });
   },[saveCompetitionSetup]);
   const setSessionUniversityDifficulty = useCallback((gameId,value) => {
     if (!gameById(gameId) || !['hard','very-hard','impossible'].includes(value)) return;
     const current=competitionSetupRef.current;
     if (current.universityDifficulties?.[gameId]===value) return;
-    saveCompetitionSetup({ ...current, universityDifficulties:{...current.universityDifficulties,[gameId]:value} });
+    saveCompetitionSetup({ ...current, universityDifficulties:{...current.universityDifficulties,[gameId]:value},challengeCodes:{...current.challengeCodes,[gameId]:configuredChallengeCode(current.challengeCodes?.[gameId]||createChallengeCode(gameId),current.schoolLevels?.[gameId]||'sd',value)} });
   },[saveCompetitionSetup]);
   const appendSessionAction = useCallback(action => {
     const current=sessionRef.current;
     if (!current?.active || !gameById(current.gameId)) return;
-    const elapsed=Math.max(0,Date.now()-current.startedAt);
+    const elapsed=sessionDurationMs();
     const nextAction={ t:elapsed, ...action };
     const actions=[...(current.actions||[]),nextAction].slice(-240);
     updateSession({ ...current, actions });
@@ -299,7 +302,10 @@ export function ArenaProvider({ children }) {
       const code=saved.challengeCode;
       const check=validateChallengeCode(code,gameId);
       if (check.valid) activateSeededRandom(code);
-      const resumed={...saved,active:true,startedAt:Date.now()-Math.max(0,Number(saved.elapsedMs)||0),resumedAt:Date.now(),seed:check.seed??saved.seed,integrity:{...createSessionIntegrity(saved.mode),...(saved.integrity||{}),recoveryCount:(Number(saved.integrity?.recoveryCount)||0)+1}};
+      const recoverBoard=validCheckpoint(saved.boardCheckpoint,gameId);
+      if(recoverBoard) resetSessionClock(saved.boardCheckpoint.clock);
+      else resetSessionClock();
+      const resumed={...saved,id:recoverBoard?saved.id:`session-${crypto.randomUUID()}`,active:true,startedAt:Date.now(),hintsUsed:recoverBoard?saved.hintsUsed:0,actions:recoverBoard?saved.actions:[],reward:null,resumeCheckpoint:recoverBoard?saved.boardCheckpoint:null,resumedAt:Date.now(),seed:check.seed??saved.seed,integrity:{...createSessionIntegrity(saved.mode),...(saved.integrity||{}),recoveryCount:(Number(saved.integrity?.recoveryCount)||0)+1}};
       setResumeRequestedId(null);
       updateSession(resumed);
       return resumed;
@@ -307,42 +313,50 @@ export function ArenaProvider({ children }) {
     let setup=competitionSetupRef.current;
     let code=setup.challengeCodes?.[gameId] || ensureCompetitionSetup(gameId);
     const activeRun=arenaRunRef.current;
-    const stage=activeRun?.status==='active' ? activeRun.stages?.[activeRun.index] : null;
+    const launch=competitionLaunchRef.current;
+    const previousSession=sessionRef.current;
+    const runSelected=launch?.arenaRunId===activeRun?.id || (previousSession?.active && previousSession.gameId===gameId && previousSession.arenaRunId===activeRun?.id);
+    const stage=runSelected && activeRun?.status==='active' ? activeRun.stages?.[activeRun.index] : null;
     const activeCup=arenaCupRef.current;
-    const cupStage=activeCup?.status==='active' ? activeCup.stages?.[activeCup.index] : null;
-    let mode=setup.mode;
-    if (stage?.gameId===gameId) { code=stage.challengeCode; mode=activeRun.mode || mode; }
-    if (cupStage?.gameId===gameId) { code=cupStage.challengeCode; mode=activeCup.mode || mode; }
+    const cupSelected=launch?.arenaCupId===activeCup?.id || (previousSession?.active && previousSession.gameId===gameId && previousSession.arenaCupId===activeCup?.id);
+    const cupStage=cupSelected && activeCup?.status==='active' ? activeCup.stages?.[activeCup.index] : null;
+    competitionLaunchRef.current=null;
+    const lab=readJSON(practiceLabKey,null);
+    const activeLab=lab?.gameId===gameId && Date.now()-Number(lab.startedAt||0)<60*60*1000 ? lab : null;
+    let mode=activeLab?'practice':setup.mode;
+    if (!activeLab && stage?.gameId===gameId) { code=stage.challengeCode; mode=activeRun.mode || mode; }
+    if (!activeLab && cupStage?.gameId===gameId) { code=cupStage.challengeCode; mode=activeCup.mode || mode; }
     let check=validateChallengeCode(code,gameId);
     if (!check.valid) { code=createChallengeCode(gameId); setChallengeCode(gameId,code); check=validateChallengeCode(code,gameId); }
     activateSeededRandom(code);
+    resetSessionClock(); clearGameCheckpoint(gameId);
     const level=setup.schoolLevels?.[gameId] || 'sd';
     const universityDifficulty=setup.universityDifficulties?.[gameId] || 'hard';
     const key=bestKey(gameId,level,universityDifficulty);
-    const lab=readJSON(practiceLabKey,null);
-    const activeLab=lab?.gameId===gameId && Date.now()-Number(lab.startedAt||0)<60*60*1000 ? lab : null;
-    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:stage?.gameId===gameId?activeRun.id:null,arenaCupId:cupStage?.gameId===gameId?activeCup.id:null,practiceLabId:activeLab?.drillId||null,integrity:createSessionIntegrity(mode) };
+    const next={ id:`session-${crypto.randomUUID()}`,gameId,active:true,startedAt:Date.now(),mode,challengeCode:code,seed:check.seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[key])||0,arenaRunId:!activeLab && stage?.gameId===gameId?activeRun.id:null,arenaCupId:!activeLab && cupStage?.gameId===gameId?activeCup.id:null,practiceLabId:activeLab?.drillId||null,integrity:createSessionIntegrity(mode) };
     updateSession(next);
     return next;
   },[ensureCompetitionSetup,setChallengeCode,updateSession,resumeRequestedId]);
   const prepareFreshSession = useCallback(gameId => {
     if (!gameById(gameId)) return null;
+    if (sessionRef.current?.active && (sessionRef.current.arenaRunId || sessionRef.current.arenaCupId)) return beginGameSession(gameId);
     const code=createChallengeCode(gameId);
     setChallengeCode(gameId,code);
     activateSeededRandom(code);
+    resetSessionClock(); clearGameCheckpoint(gameId);
     const setup=competitionSetupRef.current;
     const level=setup.schoolLevels?.[gameId]||'sd';
     const universityDifficulty=setup.universityDifficulties?.[gameId]||'hard';
-    const next={ id:`session-${Date.now()}-${gameId}`,gameId,active:true,startedAt:Date.now(),mode:setup.mode,challengeCode:code,seed:validateChallengeCode(code,gameId).seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[bestKey(gameId,level,universityDifficulty)])||0,arenaRunId:null,integrity:createSessionIntegrity(setup.mode) };
+    const next={ id:`session-${crypto.randomUUID()}`,gameId,active:true,startedAt:Date.now(),mode:setup.mode,challengeCode:code,seed:validateChallengeCode(code,gameId).seed,schoolLevel:level,universityDifficulty,hintsUsed:0,actions:[],personalBestMs:Number(personalBestsRef.current[bestKey(gameId,level,universityDifficulty)])||0,arenaRunId:null,integrity:createSessionIntegrity(setup.mode) };
     updateSession(next); return next;
-  },[setChallengeCode,updateSession]);
+  },[setChallengeCode,updateSession,beginGameSession]);
   const leaveGameSession = useCallback(() => {
-    restoreNativeRandom();
     if (sessionRef.current?.active) {
       persistRecovery(sessionRef.current);
       const next={ ...sessionRef.current,active:false,abandonedAt:Date.now() };
       sessionRef.current=next; setCurrentSession(next);
     }
+    restoreNativeRandom();
   },[persistRecovery]);
   const resumeRecovery = useCallback(() => {
     const saved=recoveryRef.current;
@@ -365,7 +379,7 @@ export function ArenaProvider({ children }) {
     if (current?.mode==='ranked' && used>=2) return { limited:true,text:lang==='en'?'Ranked mode allows a maximum of 2 Brain Coach hints.':'Mode Ranked membatasi Brain Coach maksimal 2 hint.',used,remaining:0 };
     const text=coachTip(gameId,used,lang);
     if (current?.gameId===gameId) {
-      const next={...current,hintsUsed:used+1,actions:[...(current.actions||[]),{t:Math.max(0,Date.now()-current.startedAt),type:'hint',label:`Brain Coach #${used+1}`}].slice(-240)};
+      const next={...current,hintsUsed:used+1,actions:[...(current.actions||[]),{t:sessionDurationMs(),type:'hint',label:`Brain Coach #${used+1}`}].slice(-240)};
       updateSession(next);
     }
     return { limited:false,text,used:used+1,remaining:current?.mode==='ranked'?Math.max(0,1-used):null };
@@ -383,8 +397,10 @@ export function ArenaProvider({ children }) {
     const games=nativeShuffle(GAMES).slice(0,preset.count);
     const stages=games.map((game,index)=>({ gameId:game.id,challengeCode:createChallengeCode(game.id,`${id}-${index}-${game.id}`) }));
     const next={ id,preset:preset.id,count:preset.count,mode:mode==='practice'?'practice':'ranked',status:'active',startedAt:Date.now(),index:0,stages,results:[] };
+    competitionLaunchRef.current={arenaRunId:next.id};
+    saveCompetitionSetup({...competitionSetupRef.current,mode:next.mode});
     saveArenaRun(next); return next;
-  },[saveArenaRun]);
+  },[saveArenaRun,saveCompetitionSetup]);
   const startCustomArenaRun = useCallback(({gameIds=[],mode='ranked',schoolLevel='universitas',universityDifficulty='hard',randomize=true}={}) => {
     const clean=[...new Set(gameIds)].filter(id=>gameById(id)).slice(0,12);
     if (clean.length<3) return null;
@@ -392,6 +408,7 @@ export function ArenaProvider({ children }) {
     const order=randomize?nativeShuffle(clean):clean;
     const stages=order.map((gameId,index)=>({gameId,challengeCode:createChallengeCode(gameId,`${id}-${index}-${gameId}`),schoolLevel,universityDifficulty}));
     const next={id,preset:'custom',count:stages.length,mode:mode==='practice'?'practice':'ranked',schoolLevel,universityDifficulty,status:'active',startedAt:Date.now(),index:0,stages,results:[]};
+    competitionLaunchRef.current={arenaRunId:next.id};
     saveArenaRun(next);
     const current=competitionSetupRef.current;
     saveCompetitionSetup({...current,mode:next.mode,schoolLevels:{...current.schoolLevels,...Object.fromEntries(clean.map(g=>[g,schoolLevel]))},universityDifficulties:{...current.universityDifficulties,...Object.fromEntries(clean.map(g=>[g,universityDifficulty]))}});
@@ -403,11 +420,12 @@ export function ArenaProvider({ children }) {
     const run=arenaRunRef.current;
     if (!run) return 'arena-run';
     if (run.status==='complete') return 'arena-run';
+    competitionLaunchRef.current={arenaRunId:run.id};
     return run.stages?.[run.index]?.gameId || 'arena-run';
   },[]);
 
   const startArenaCup = useCallback((mode='ranked') => {
-    const next=createArenaCup({mode}); saveArenaCup(next);
+    const next=createArenaCup({mode}); competitionLaunchRef.current={arenaCupId:next.id}; saveArenaCup(next);
     const current=competitionSetupRef.current;
     saveCompetitionSetup({...current,mode:next.mode,challengeCodes:{...current.challengeCodes,...Object.fromEntries(next.stages.map(stage=>[stage.gameId,stage.challengeCode]))}});
     return next;
@@ -416,6 +434,7 @@ export function ArenaProvider({ children }) {
   const continueArenaCup = useCallback(() => {
     const cup=arenaCupRef.current;
     if(!cup || cup.status!=='active') return 'arena-cup';
+    competitionLaunchRef.current={arenaCupId:cup.id};
     return cup.stages?.[cup.index]?.gameId || 'arena-cup';
   },[]);
   const startPracticeDrill = useCallback((gameId,drill={}) => {
@@ -488,22 +507,22 @@ export function ArenaProvider({ children }) {
     const game = gameById(id);
     if (!game) return null;
     const now = Date.now();
-    const prior = lastRewardRef.current;
-    if (prior?.gameId === id && Number.isFinite(prior.time) && now - prior.time < 2500) return prior;
-
     const session=sessionRef.current?.gameId===id ? sessionRef.current : null;
+    if (!session) return null;
+    if (session.reward) return session.reward;
+    if (!session.active || matchesRef.current.some(match=>match.sessionId===session.id)) return null;
     const setup=competitionSetupRef.current;
     const mode=session?.mode || setup.mode || 'practice';
     const level=session?.schoolLevel || setup.schoolLevels?.[id] || 'sd';
     const universityDifficulty=session?.universityDifficulty || setup.universityDifficulties?.[id] || 'hard';
     const challengeCode=session?.challengeCode || setup.challengeCodes?.[id] || createChallengeCode(id);
-    const durationMs=session?.startedAt ? Math.max(1000,now-session.startedAt) : 0;
+    const durationMs=Math.max(1000,sessionDurationMs());
     const outcome=meta.outcome || 'completed';
     const success=['completed','win'].includes(outcome);
     const pbKey=bestKey(id,level,universityDifficulty);
     const previousBestMs=Number(personalBestsRef.current[pbKey])||0;
     const hintsUsed=Number(session?.hintsUsed)||0;
-    const performance=performanceForRun({durationMs:durationMs||previousBestMs||60000,previousBestMs,outcome,hintsUsed});
+    const performance=performanceForRun({durationMs:durationMs||previousBestMs||60000,previousBestMs,outcome,hintsUsed,accuracy:meta.accuracy});
     const rankedDelta=mode==='ranked' ? rankedDeltaFor({grade:performance.grade,outcome,hintsUsed}) : 0;
     const newBest=Boolean(success && durationMs && (!previousBestMs || durationMs<previousBestMs));
 
@@ -512,7 +531,7 @@ export function ArenaProvider({ children }) {
     const challenge = getDailyChallenge(GAMES,dateKey);
     const firstOfDay = !oldProfile.playDates.includes(dateKey);
     const alreadyDaily = Boolean(dailyRef.current.completedByDate?.[dateKey]);
-    const dailyBonus = challenge.gameId === id && !alreadyDaily ? DAILY_CHALLENGE_XP : 0;
+    const dailyBonus = success && challenge.gameId === id && !alreadyDaily ? DAILY_CHALLENGE_XP : 0;
     const firstBonus = firstOfDay ? FIRST_PLAY_XP : 0;
     const eventInfo = eventBonusForGame(game,BASE_COMPLETION_XP,dateKey);
     const eventBonus = eventInfo.bonus;
@@ -551,19 +570,19 @@ export function ArenaProvider({ children }) {
       saveCompletionMap({ ...completionMapRef.current,[id]:{...gameMap,[completionKey]:gameMap[completionKey]||now} });
     }
 
-    const match={ id:`match-${now}-${id}`,gameId:id,time:now,dateKey,mode,outcome,schoolLevel:level,universityDifficulty:level==='universitas'?universityDifficulty:null,challengeCode,durationMs,performance:performance.score,grade:performance.grade,hintsUsed,rankedDelta,xp:amount,isPersonalBest:newBest,previousBestMs,replay:Array.isArray(session?.actions)?session.actions:[],arenaRunId:session?.arenaRunId||null,arenaCupId:session?.arenaCupId||null,practiceLabId:session?.practiceLabId||null,integrity:{...createSessionIntegrity(mode),...(session?.integrity||{})} };
+    const match={ id:`match-${session.id}`,sessionId:session.id,accuracy:meta.accuracy??null,correct:meta.correct??null,total:meta.total??null,gameId:id,time:now,dateKey,mode,outcome,schoolLevel:level,universityDifficulty:level==='universitas'?universityDifficulty:null,challengeCode,durationMs,performance:performance.score,grade:performance.grade,hintsUsed,rankedDelta,xp:amount,isPersonalBest:newBest,previousBestMs,replay:Array.isArray(session?.actions)?session.actions:[],arenaRunId:session?.arenaRunId||null,arenaCupId:session?.arenaCupId||null,practiceLabId:session?.practiceLabId||null,integrity:{...createSessionIntegrity(mode),...(session?.integrity||{})} };
     saveMatches([match,...matchesRef.current.filter(item=>item.id!==match.id)].slice(0,300));
     selectReplay(match.id);
 
     const activeRun=arenaRunRef.current;
-    if (activeRun?.status==='active' && activeRun.stages?.[activeRun.index]?.gameId===id) {
+    if (belongsToStage(session,activeRun,'arenaRunId')) {
       const results=[...(activeRun.results||[]),{matchId:match.id,gameId:id,durationMs,performance:performance.score,grade:performance.grade,rankedDelta,outcome}];
       const finished=activeRun.index>=activeRun.stages.length-1;
       saveArenaRun({ ...activeRun,results,index:finished?activeRun.index:activeRun.index+1,status:finished?'complete':'active',completedAt:finished?now:null });
     }
 
     const activeCup=arenaCupRef.current;
-    if (activeCup?.status==='active' && activeCup.stages?.[activeCup.index]?.gameId===id) {
+    if (belongsToStage(session,activeCup,'arenaCupId')) {
       saveArenaCup(applyArenaCupResult(activeCup,match));
     }
     if (session?.practiceLabId) { try { localStorage.removeItem(practiceLabKey); } catch {} }
@@ -583,12 +602,18 @@ export function ArenaProvider({ children }) {
       seasonLevelAfter:getSeasonLevel(seasonXpBefore + seasonXp).level,
       durationMs,previousBestMs,isPersonalBest:newBest,performance:performance.score,grade:performance.grade,mode,rankedDelta,hintsUsed,challengeCode,matchId:match.id,arenaRunId:match.arenaRunId,
     };
-    if (session) updateSession({ ...session,active:false,endedAt:now,lastMatchId:match.id });
+    if (session) updateSession({ ...session,active:false,endedAt:now,lastMatchId:match.id,reward });
     if (recoveryRef.current?.gameId===id) clearRecovery();
     restoreNativeRandom();
     lastRewardRef.current = reward; writeJSON(lastCompletionKey,reward); setNotice(`+${amount} XP${rankedDelta?` · ${rankedDelta>0?'+':''}${rankedDelta} RP`:''}`);
     return reward;
   }, [saveProfile,saveSeason,savePersonalBests,saveCompletionMap,saveMatches,saveArenaRun,saveArenaCup,selectReplay,updateSession,clearRecovery]);
+  const restartGameSession=useCallback(gameId=>{
+    const current=sessionRef.current;
+    if(current?.active && current.gameId===gameId && current.mode==='ranked')recordGameCompletion(gameId,{outcome:'loss',reason:'restart'});
+    return prepareFreshSession(gameId);
+  },[recordGameCompletion,prepareFreshSession]);
+
 
   const selectBadge = useCallback(id => {
     if (id !== null && (!achievementById(id) || !achievementRef.current.unlocked[id])) return false;
@@ -726,19 +751,28 @@ export function ArenaProvider({ children }) {
     return()=>{document.removeEventListener('click',recordClick);window.removeEventListener('keydown',recordKey);};
   },[appendSessionAction]);
 
+  useEffect(()=>{
+    const sync=()=>setClockSuspended(document.hidden||Boolean(document.querySelector('dialog[open]')));
+    const save=()=>{if(sessionRef.current?.active)persistRecovery(sessionRef.current);};
+    const observe=new MutationObserver(sync);
+    observe.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
+    document.addEventListener('visibilitychange',sync);window.addEventListener('pagehide',save);sync();
+    return()=>{observe.disconnect();document.removeEventListener('visibilitychange',sync);window.removeEventListener('pagehide',save);};
+  },[persistRecovery]);
+
   useEffect(() => {
     const onVisibility=()=>{
       const current=sessionRef.current;
       if(!current?.active || current.mode!=='ranked') return;
       const integrity={...createSessionIntegrity('ranked'),...(current.integrity||{}),visibilityChanges:(Number(current.integrity?.visibilityChanges)||0)+1,focusLosses:(Number(current.integrity?.focusLosses)||0)+(document.hidden?1:0)};
-      updateSession({...current,integrity,actions:[...(current.actions||[]),{t:Math.max(0,Date.now()-current.startedAt),type:'system',label:document.hidden?'Tab hidden':'Tab visible'}].slice(-240)});
+      updateSession({...current,integrity,actions:[...(current.actions||[]),{t:sessionDurationMs(),type:'system',label:document.hidden?'Tab hidden':'Tab visible'}].slice(-240)});
     };
     document.addEventListener('visibilitychange',onVisibility);
     return()=>document.removeEventListener('visibilitychange',onVisibility);
   },[updateSession]);
 
   useEffect(() => {
-    const timer=setInterval(()=>{ if (sessionRef.current?.active) persistRecovery(sessionRef.current); },8000);
+    const timer=setInterval(()=>{ if (sessionRef.current?.active) persistRecovery(sessionRef.current); },800);
     return()=>clearInterval(timer);
   },[persistRecovery]);
 
@@ -811,7 +845,7 @@ export function ArenaProvider({ children }) {
     rankInfo,customization,updateCustomization,avatarOption,frameOption,titleOption,bannerOption,
     season,currentSeason:CURRENT_SEASON,seasonLevel,claimSeasonReward,activeEvent,
     masteryForGame,adaptiveForGame,
-    competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,leaveGameSession,currentSession,personalBests,personalBestFor,
+    competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,setSessionUniversityDifficulty,beginGameSession,prepareFreshSession,restartGameSession,leaveGameSession,currentSession,personalBests,personalBestFor,
     matches,selectReplay,selectedReplayId,requestCoachHint,completionMap,
     arenaRun,startArenaRun,startCustomArenaRun,cancelArenaRun,continueArenaRun,
     arenaCup,startArenaCup,cancelArenaCup,continueArenaCup,startPracticeDrill,

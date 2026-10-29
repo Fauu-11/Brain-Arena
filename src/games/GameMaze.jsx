@@ -1,12 +1,21 @@
+import BoardZoom from '../components/BoardZoom.jsx';
+import { useBoardSizing } from '../hooks/useBoardSizing.js';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import RulesModal from '../components/RulesModal.jsx';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useArena } from '../context/ArenaContext.jsx';
 import { readText, writeText } from '../utils/storage.js';
 import { formatMinesweeperTime } from '../utils/minesweeper.js';
 import { chooseMazeEndpoints, generateMaze, moveInMaze } from '../utils/maze.js';
+
+const random=()=>sessionRandom('maze');
 
 const BASE_LEVELS = {
   sd: { rows: 7, cols: 7 },
@@ -32,11 +41,12 @@ function difficultyKey(level, universityDifficulty) {
 
 export default function GameMaze({ onBack, onNavigate }) {
   const { lang } = useLanguage();
+  const { restartGameSession } = useArena();
   const copy = (id, en) => lang === 'en' ? en : id;
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup');
-  const [schoolLevel, setSchoolLevel] = useState('sd');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('maze','schoolLevels','sd'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('maze','universityDifficulties','hard'));
   const [maze, setMaze] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [target, setTarget] = useState(0);
@@ -49,6 +59,13 @@ export default function GameMaze({ onBack, onNavigate }) {
   const [bestTime, setBestTime] = useState(null);
 
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : BASE_LEVELS[schoolLevel];
+  const boardSizing=useBoardSizing(config.cols,{min:18,max:44,gutter:8});
+  useEffect(()=>{
+    const node=boardSizing.element;if(!node||gameState!=='playing')return;
+    const left=(position%config.cols+.5)*boardSizing.cell-node.clientWidth/2;
+    const top=(Math.floor(position/config.cols)+.5)*boardSizing.cell-node.clientHeight/2;
+    node.scrollTo({left:Math.max(0,left),top:Math.max(0,top),behavior:'instant'});
+  },[position,config.cols,boardSizing.cell,boardSizing.element,gameState]);
   const recordKey = `maze_best_${difficultyKey(schoolLevel, universityDifficulty)}`;
 
   useEffect(() => {
@@ -106,8 +123,8 @@ export default function GameMaze({ onBack, onNavigate }) {
   }, [gameState, paused, move]);
 
   const startGame = useCallback(() => {
-    const nextMaze = generateMaze(config.rows, config.cols);
-    const endpoints = chooseMazeEndpoints(nextMaze, config.rows, config.cols);
+    const nextMaze = generateMaze(config.rows, config.cols, random);
+    const endpoints = chooseMazeEndpoints(nextMaze, config.rows, config.cols, random);
     setMaze(nextMaze);
     setStartIndex(endpoints.start);
     setTarget(endpoints.target);
@@ -161,11 +178,13 @@ export default function GameMaze({ onBack, onNavigate }) {
   }), [maze, config.cols, config.rows, position, startIndex, target, visited]);
 
   const efficiency = optimalMoves > 0 ? Math.max(1, Math.round((optimalMoves / Math.max(moves, 1)) * 100)) : 100;
-  const boardWidth = Math.max(310, Math.min(720, config.cols * (schoolLevel === 'universitas' ? 22 : 34)));
+  const boardWidth = config.cols*boardSizing.cell;
   const stats = gameState === 'playing' ? <>
     <span><Icon name="clock" size={14}/>{formatMinesweeperTime(elapsed)}</span>
     <span><Icon name="maze" size={14}/>{moves} {copy('langkah', 'moves')}</span>
   </> : null;
+
+  useGameCheckpoint('maze',{gameState,schoolLevel,universityDifficulty,maze,startIndex,target,position,visited,moves,elapsed,paused,optimalMoves},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setMaze(saved.maze);setStartIndex(saved.startIndex);setTarget(saved.target);setPosition(saved.position);setVisited(saved.visited);setMoves(saved.moves);setElapsed(saved.elapsed);setPaused(saved.paused);setOptimalMoves(saved.optimalMoves);},gameState==='playing',gameState==='playing'&&!paused);
 
   return <GameScreen gameId="maze" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={stats}>
     {gameState === 'setup' && <SetupCard
@@ -185,10 +204,10 @@ export default function GameMaze({ onBack, onNavigate }) {
     {gameState === 'playing' && <div className="maze-gameplay">
       <div className="maze-toolbar">
         <div><span className="play-kicker">{copy('CARI JALAN KELUAR', 'FIND THE EXIT')}</span><strong>{config.rows}×{config.cols}{schoolLevel === 'universitas' ? ` · ${UNIVERSITY_LABELS[universityDifficulty]}` : ''}</strong><small>{copy('Ungu = posisi kamu · bendera = pintu keluar.', 'Purple = your position · flag = the exit.')}</small></div>
-        <div className="maze-toolbar-actions"><button type="button" onClick={() => setPaused(value => !value)}><Icon name={paused ? 'play' : 'clock'} size={15}/>{paused ? copy('Lanjut', 'Resume') : copy('Jeda', 'Pause')}</button><button type="button" onClick={startGame}><Icon name="refresh" size={15}/>{copy('Labirin baru', 'New maze')}</button></div>
+        <div className="maze-toolbar-actions"><button type="button" onClick={() => setPaused(value => !value)}><Icon name={paused ? 'play' : 'clock'} size={15}/>{paused ? copy('Lanjut', 'Resume') : copy('Jeda', 'Pause')}</button><button type="button" onClick={()=>{restartGameSession('maze');startGame();}}><Icon name="refresh" size={15}/>{copy('Labirin baru', 'New maze')}</button></div>
       </div>
-      <div className="maze-shell">
-        <div className="maze-scroll" aria-label={copy('Labirin Maze Escape', 'Maze Escape maze')}>
+      <BoardZoom value={boardSizing.zoom} onChange={boardSizing.setZoom} lang={lang}/><p className="board-pan-hint">{copy('Papan mengikuti posisimu. Gunakan +/− untuk zoom.','The board follows your position. Use +/− to zoom.')}</p><div className="maze-shell">
+        <div ref={boardSizing.ref} tabIndex={0} role="region" className="maze-scroll" aria-label={copy('Labirin Maze Escape', 'Maze Escape maze')}>
           <div className={`maze-board ${paused ? 'is-paused' : ''}`} style={{ '--maze-cols': config.cols, '--maze-rows': config.rows, width: `${boardWidth}px` }}>
             {mazeCells}
             {paused && <div className="maze-pause"><Icon name="brain" size={28}/><strong>{copy('Labirin dijeda', 'Maze paused')}</strong><span>{copy('Lanjutkan saat siap.', 'Resume when you are ready.')}</span></div>}

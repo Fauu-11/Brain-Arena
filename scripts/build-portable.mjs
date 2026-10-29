@@ -50,7 +50,16 @@ for (const file of source.filter(f => /\.jsx?$/.test(f))) {
 fs.cpSync(runtimeDir, path.join(stage, vendor), { recursive: true });
 fs.cpSync(path.join(root, 'public'), stage, { recursive: true });
 fs.copyFileSync(path.join(root, 'vendor/THIRD-PARTY-NOTICES.txt'), path.join(stage, 'THIRD-PARTY-NOTICES.txt'));
-fs.writeFileSync(path.join(stage, `assets/style-${id}.css`), ['index.css', 'arena.css', 'game-theme.css'].map(f => fs.readFileSync(path.join(root, 'src', f), 'utf8')).join('\n'));
+const styles = new Set();
+const collectStyles = file => {
+  const text = fs.readFileSync(file, 'utf8');
+  for (const match of text.matchAll(/^import\s+['"]([^'"]+\.css)['"];?/gm)) {
+    styles.add(path.resolve(path.dirname(file), match[1]));
+  }
+};
+collectStyles(path.join(root, 'src/main.jsx'));
+for (const file of source.filter(f => /\.jsx?$/.test(f))) collectStyles(file);
+fs.writeFileSync(path.join(stage, `assets/style-${id}.css`), [...styles].map(f => fs.readFileSync(f, 'utf8')).join('\n'));
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 html = html.replace(/<script type="module" src="\/src\/main.jsx"><\/script>/, `<script type="importmap">${JSON.stringify({ imports: { react: `./${vendor}/react.js`, 'react-dom': `./${vendor}/react-dom.js`, 'react-dom/client': `./${vendor}/react-dom-client.js` } })}</script>\n    <script type="module" src="./${base}/main.js"></script>`);
 html = html.replace('</head>', `  <link rel="stylesheet" href="./assets/style-${id}.css" />\n  </head>`).replace('href="/favicon.svg"', 'href="./favicon.svg"');

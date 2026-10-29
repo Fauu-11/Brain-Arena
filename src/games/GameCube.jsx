@@ -1,3 +1,8 @@
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { cubeResult, initialGameSetting } from '../utils/sessionRules.js';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
@@ -6,6 +11,8 @@ import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
 
 // ─── Grid & Level Configuration ──────────────────────────────
+const random=()=>sessionRandom('cube');
+
 const GRID_CONFIG = {
   sd:  { size: 3, maxH: 2, minCubes: 4,  seconds: 40, label: 'SD' },
   smp: { size: 4, maxH: 3, minCubes: 8,  seconds: 40, label: 'SMP' },
@@ -42,8 +49,8 @@ function generateHeights(level, size, maxH, minTarget) {
   while (attempts < 50) {
     grid.fill(0);
     // Tentukan titik puncak (bisa di sudut (0,0) atau menyebar di baris/kolom belakang)
-    const peakR = Math.random() < 0.75 ? 0 : Math.min(size - 2, 1);
-    const peakC = Math.random() < 0.75 ? 0 : Math.min(size - 2, 1);
+    const peakR = random() < 0.75 ? 0 : Math.min(size - 2, 1);
+    const peakC = random() < 0.75 ? 0 : Math.min(size - 2, 1);
     grid[peakR * size + peakC] = maxH;
 
     for (let r = 0; r < size; r++) {
@@ -61,7 +68,7 @@ function generateHeights(level, size, maxH, minTarget) {
           continue;
         }
 
-        const drop = Math.random() > factor ? Math.floor(Math.random() * 2) + 1 : 0;
+        const drop = random() > factor ? Math.floor(random() * 2) + 1 : 0;
         grid[r * size + c] = Math.max(0, cap - drop);
       }
     }
@@ -80,9 +87,9 @@ function randomizeHeightOrientation(values, size) {
     const r = Math.floor(index / size), c = index % size;
     return source[(size - 1 - c) * size + r];
   });
-  const turns = Math.floor(Math.random() * 4);
+  const turns = Math.floor(random() * 4);
   for (let i = 0; i < turns; i += 1) grid = rotate(grid);
-  if (Math.random() < 0.5) {
+  if (random() < 0.5) {
     grid = Array.from({ length: size * size }, (_, index) => {
       const r = Math.floor(index / size), c = index % size;
       return grid[r * size + (size - 1 - c)];
@@ -191,8 +198,8 @@ export default function GameCube({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup'); // 'setup' | 'playing' | 'ended'
-  const [schoolLevel, setSchoolLevel] = useState('sma');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('cube','schoolLevels','sma'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('cube','universityDifficulties','hard'));
 
   const [level, setLevel] = useState(1);
   const [heights, setHeights] = useState([]);
@@ -341,6 +348,8 @@ export default function GameCube({ onBack, onNavigate }) {
     return lang === 'en' ? 'Keep Training!' : 'Jangan Menyerah, Coba Lagi!';
   };
 
+  useGameCheckpoint('cube',{gameState,schoolLevel,universityDifficulty,level,heights,gridSize,answerInput,feedback,revealedAnswer,correctAnswers,timer,isTimerActive,history},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setLevel(saved.level);setHeights(saved.heights);setGridSize(saved.gridSize);setAnswerInput(saved.answerInput);setFeedback(saved.feedback);setRevealedAnswer(saved.revealedAnswer);setCorrectAnswers(saved.correctAnswers);setTimer(saved.timer);setIsTimerActive(saved.isTimerActive);setHistory(saved.history);},gameState==='playing'&&feedback===null&&timer>0,gameState==='playing'&&isTimerActive&&feedback===null&&timer>0);
+
   return (
     <GameScreen gameId="cube" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
       <RulesModal
@@ -355,7 +364,7 @@ export default function GameCube({ onBack, onNavigate }) {
           heading={lang === 'en' ? 'Set your perspective' : 'Siap melihat lebih jeli?'}
           schoolLevel={schoolLevel}
           onLevelChange={setSchoolLevel}
-          desc={SCHOOL_DESCS[schoolLevel]}
+          desc={`${SCHOOL_DESCS[schoolLevel]} · ${lang==='en'?'Pass: at least 3/5 correct':'Lulus: minimal 3/5 benar'}`}
           lang={lang}
         >
           {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
@@ -535,8 +544,8 @@ export default function GameCube({ onBack, onNavigate }) {
 
       {/* ══════════════ ENDED ══════════════ */}
       {gameState === 'ended' && (
-        <SoloEndCard heading={scoreLabel(correctAnswers)}
-          subtext={lang === 'en' ? 'You completed all five levels. Take a look at your results.' : 'Lima level telah selesai. Lihat kembali hasil setiap tantanganmu.'}
+        <SoloEndCard heading={scoreLabel(correctAnswers)} outcome={cubeResult(correctAnswers).outcome} result={cubeResult(correctAnswers)}
+          subtext={lang === 'en' ? 'Five levels finished. At least 3 of 5 correct answers are required to pass. Review your results below.' : 'Lima level selesai. Minimal 3 dari 5 jawaban benar untuk lulus. Lihat hasilmu di bawah.'}
           stats={[{ label: lang === 'en' ? 'Correct answers' : 'Jawaban benar', value: `${correctAnswers}/5` }]}
           lang={lang} onBack={onBack} onPlayAgain={startGame}>
           <div className="cube-result-breakdown">{history.map((item, index) => <div key={index} className={item.isCorrect ? 'correct' : 'incorrect'}><small>{lang === 'en' ? 'Level' : 'Level'} {item.level}</small><Icon name={item.isCorrect ? 'check' : 'close'} size={18}/><span>{item.total} {lang === 'en' ? 'cubes' : 'kubus'}</span></div>)}</div>

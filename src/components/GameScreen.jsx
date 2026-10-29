@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect,useState} from 'react';
 import Icon from './Icon.jsx';
 import Artwork from './Artwork.jsx';
 import { gameById, CATEGORIES } from '../data/games.js';
@@ -104,6 +104,8 @@ const GUIDES = {
 };
 
 export default function GameScreen({ gameId, lang = 'id', state = 'setup', level, onBack, onNavigate, onRules, stats, children }) {
+  const [guideOpen,setGuideOpen]=useState(()=>!window.matchMedia('(max-width:800px)').matches);
+  useEffect(()=>{const media=window.matchMedia('(max-width:800px)');const change=()=>setGuideOpen(!media.matches);media.addEventListener('change',change);return()=>media.removeEventListener('change',change);},[]);
   const game = gameById(gameId);
   const { favorites, toggleFavorite } = useArena();
   const copy = (id, en) => lang === 'en' ? en : id;
@@ -120,7 +122,7 @@ export default function GameScreen({ gameId, lang = 'id', state = 'setup', level
   return <section className={`arena-game color-${game.color} phase-${phase}`} data-game={gameId} data-state={state || 'setup'} aria-labelledby={`game-title-${gameId}`}>
     <div className="play-page-nav">
       <button className="play-back" onClick={onBack}><Icon name="back" size={17}/>{copy('Kembali ke beranda', 'Back to home')}</button>
-      <div className="play-page-tools">
+      <div className="play-page-tools">{onRules&&<button type="button" className="play-tool play-mobile-rules" onClick={onRules} aria-label={copy('Aturan permainan','Game rules')}><Icon name="book" size={17}/></button>}
         <span className={`play-status ${phase}`}><i/>{phaseText}</span>
         <button className={`play-tool ${favorite ? 'selected' : ''}`} aria-pressed={favorite} aria-label={favorite ? copy('Hapus dari favorit', 'Remove from favorites') : copy('Tambah ke favorit', 'Add to favorites')} onClick={() => toggleFavorite(gameId)}><Icon name="star" size={17} filled={favorite}/></button>
       </div>
@@ -143,14 +145,14 @@ export default function GameScreen({ gameId, lang = 'id', state = 'setup', level
         <div className="play-stage-bottom"><Icon name="shield" size={14}/><span>{copy('Satu tantangan, satu langkah lebih baik.', 'One challenge. One step forward.')}</span>{onRules && <button onClick={onRules}><Icon name="book" size={14}/>{copy('Aturan', 'Rules')}</button>}</div>
       </div>
 
-      <aside className="play-aside" aria-label={copy('Panduan singkat', 'Quick guide')}>
+      <aside className="play-aside" aria-label={copy('Panduan singkat', 'Quick guide')}><details className="play-guide-panel" open={guideOpen} onToggle={event=>setGuideOpen(event.currentTarget.open)}><summary><Icon name="book" size={18}/>{copy('Cara bermain & strategi','How to play & strategy')}<Icon name="down" size={16}/></summary><div className="play-guide-content">
         <div className="play-guide-card"><div className="play-aside-heading"><span className="play-guide-icon"><Icon name="book" size={19}/></span><div><small>{copy('SEBELUM MULAI', 'GET STARTED')}</small><h2>{copy('Cara bermain', 'How to play')}</h2></div></div>
           <ol className="play-steps">{guide.steps[lang].map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></li>)}</ol>
           {onRules && <button className="play-rules-link" onClick={onRules}>{copy('Baca aturan lengkap', 'Read the full rules')}<Icon name="arrow" size={15}/></button>}
         </div>
         <div className="play-tip-card"><span><Icon name="spark" size={18}/>{copy('Sedikit strategi', 'A little strategy')}</span><p>{guide.tip[lang]}</p>{onNavigate && setup && <button onClick={() => onNavigate(`tips-${gameId}`)}>{copy('Lihat tips & trik', 'More tips & tricks')}<Icon name="arrow" size={14}/></button>}</div>
         <div className="play-input-hint"><Icon name="keyboard" size={19}/><div><strong>{copy('Kontrol permainan', 'Game controls')}</strong><p>{guide.input[lang]}</p></div></div>
-      </aside>
+      </div></details></aside>
     </div>
   </section>;
 }

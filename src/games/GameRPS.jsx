@@ -1,3 +1,8 @@
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
@@ -10,6 +15,8 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
 import { DIRECTIONS, FACE_THEME, NET, WIN_SCORE, STEP_MS, STEP_PAUSE_MS, FOLD_MS,
   createGame, nextMoveCount, duelReducer, canPlan, isPlanning, projectPath, faceRotation, getDuelConfig } from '../utils/duelDice.js';
+
+const random=()=>sessionRandom('rps');
 
 const ARROWS = { up: '\u2191', down: '\u2193', left: '\u2190', right: '\u2192' };
 const LABELS = { up: ['Atas', 'Up'], down: ['Bawah', 'Down'], left: ['Kiri', 'Left'], right: ['Kanan', 'Right'] };
@@ -119,7 +126,7 @@ function ArenaBoard({ game, lang, reduced }) {
 export default function GameRPS({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const text = (id, en) => lang === 'en' ? en : id;
-  const [game, dispatch] = useReducer(duelReducer, undefined, () => createGame());
+  const [game, dispatch] = useReducer(duelReducer, undefined, () => createGame(initialGameSetting('rps','schoolLevels','sma'), random, initialGameSetting('rps','universityDifficulties','hard')));
   const [showRules, setShowRules] = useState(false);
   const resultButtonRef = useRef(null);
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -175,7 +182,7 @@ export default function GameRPS({ onBack, onNavigate }) {
     return () => cancelAnimationFrame(frame);
   }, [game.battle]);
 
-  const acknowledge = useCallback(() => dispatch({ type: 'ACK', nextMoves: nextMoveCount(game.level, Math.random, game.universityDifficulty), turn: game.turn }), [game.level, game.universityDifficulty, game.turn]);
+  const acknowledge = useCallback(() => dispatch({ type: 'ACK', nextMoves: nextMoveCount(game.level, random, game.universityDifficulty), turn: game.turn }), [game.level, game.universityDifficulty, game.turn]);
   useEffect(() => {
     const onKey = event => {
       if (!isPlanning(game) || event.ctrlKey || event.metaKey || event.altKey || document.querySelector('dialog[open]')) return;
@@ -218,7 +225,9 @@ export default function GameRPS({ onBack, onNavigate }) {
   const planning = isPlanning(game);
   const paused = game.paused && game.status === 'planning';
   const timer = Math.ceil(game.remainingMs / 1000);
-  const reset = (level = game.level, phase = 'setup', universityDifficulty = game.universityDifficulty) => dispatch({ type: 'RESET', state: { ...createGame(level, Math.random, universityDifficulty), phase } });
+  const reset = (level = game.level, phase = 'setup', universityDifficulty = game.universityDifficulty) => dispatch({ type: 'RESET', state: { ...createGame(level, random, universityDifficulty), phase } });
+
+  useGameCheckpoint('rps',{game},saved=>{dispatch({type:'RESET',state:saved.game});},game.phase==='planar'||(game.phase==='playing'&&['planning','feedback'].includes(game.status)),game.phase==='playing'&&game.status==='planning'&&!game.paused);
 
   return <GameScreen gameId="rps" lang={lang} state={game.phase} level={game.level} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
     <RulesModal isOpen={showRules} onClose={() => setShowRules(false)} ruleList={rules} gameName={text('Duel Dadu', 'Dice Duel')}/>
@@ -255,6 +264,7 @@ export default function GameRPS({ onBack, onNavigate }) {
 
     {game.phase === 'playing' && <div className="rps-gameplay" data-turn={game.turn} data-status={game.status} data-paused={game.paused}>
       <Scoreboard activePlayer={game.activePlayer} score1={game.scores[0]} score2={game.scores[1]} timer={timer} maxTime={config.seconds} winScore={WIN_SCORE}/>
+      <ArenaBoard game={game} lang={lang} reduced={reduced}/>
       <div className="rps-controls">
         <div className="rps-plan-block"><div className="rps-control-label">{text('Rencana gerak', 'Planned steps')} ({game.planned.length}/{game.movesRequired})</div>
           <div className="rps-move-slots" role="list" aria-label={text('Urutan langkah', 'Move sequence')}>
@@ -284,7 +294,6 @@ export default function GameRPS({ onBack, onNavigate }) {
         : game.status === 'feedback' ? text('Konfirmasi hasil untuk melanjutkan.', 'Confirm the result to continue.')
         : paused ? text('Permainan dijeda.', 'Game paused.')
         : text(`Giliran Pemain ${game.activePlayer}. ${game.position.row === 0 ? 'Mulai dengan arah Bawah.' : 'Lanjut dari posisi dadu terakhir.'}`, `Player ${game.activePlayer}'s turn. ${game.position.row === 0 ? 'Start with Down.' : 'Continue from the last position.'}`)}</div>
-      <ArenaBoard game={game} lang={lang} reduced={reduced}/>
       <div className="rps-symbol-legend" aria-label={text('Aturan simbol', 'Symbol rules')}>
         {['rock', 'scissors', 'paper'].map((shape, index) => <React.Fragment key={shape}><span><RPSHand shape={shape} size={18}/>{FACE_THEME[shape][lang]}</span><b aria-hidden="true">{index === 2 ? '\u21bb' : '\u2192'}</b></React.Fragment>)}
         <small>{text('mengalahkan', 'beats')}</small>

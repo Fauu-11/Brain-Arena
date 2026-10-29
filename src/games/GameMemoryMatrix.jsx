@@ -1,3 +1,8 @@
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
@@ -6,6 +11,8 @@ import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { readText, writeText } from '../utils/storage.js';
 import { memoryRoundTarget, sampleMemoryCells } from '../utils/memoryMatrix.js';
+
+const random=()=>sessionRandom('matrix');
 
 const BASE_LEVELS = {
   sd: { size: 3, startTargets: 3, rounds: 5, previewMs: 2600, growth: 1, lives: 3 },
@@ -28,8 +35,8 @@ export default function GameMemoryMatrix({ onBack, onNavigate }) {
   const copy = useCallback((id, en) => lang === 'en' ? en : id, [lang]);
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup');
-  const [schoolLevel, setSchoolLevel] = useState('sd');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('matrix','schoolLevels','sd'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('matrix','universityDifficulties','hard'));
   const [round, setRound] = useState(1);
   const [pattern, setPattern] = useState(() => new Set());
   const [selected, setSelected] = useState(() => new Set());
@@ -81,7 +88,7 @@ export default function GameMemoryMatrix({ onBack, onNavigate }) {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     const count = memoryRoundTarget(config.startTargets, roundNumber, totalCells, config.growth);
     setRound(roundNumber);
-    setPattern(new Set(sampleMemoryCells(totalCells, count)));
+    setPattern(new Set(sampleMemoryCells(totalCells, count, random)));
     setSelected(new Set());
     setWrongCells(new Set());
     setRoundFeedback('');
@@ -187,6 +194,8 @@ export default function GameMemoryMatrix({ onBack, onNavigate }) {
   </> : null;
 
   const outcomeWon = roundFeedback === 'won';
+  useGameCheckpoint('matrix',{gameState,schoolLevel,universityDifficulty,round,pattern,selected,wrongCells,lives,score,previewRemaining,roundFeedback},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setRound(saved.round);setPattern(saved.pattern);setSelected(saved.selected);setWrongCells(saved.wrongCells);setLives(saved.lives);setScore(saved.score);setPreviewRemaining(saved.previewRemaining);setRoundFeedback(saved.roundFeedback);},gameState==='playing'&&!roundFeedback&&wrongCells.size===0,gameState==='playing'&&!roundFeedback);
+
   return <GameScreen gameId="matrix" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={stats}>
     {gameState === 'setup' && <SetupCard
       heading={copy('Pilih tantangan Memory Matrix', 'Choose your Memory Matrix challenge')}

@@ -88,3 +88,7 @@ export function formatMinesweeperTime(seconds) {
   const secs = safe % 60;
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
+
+export function challengeOpeningIndex(rows, cols, code='') {
+  return code.startsWith('BA2-') ? Math.floor(rows/2)*cols+Math.floor(cols/2) : null;
+}

@@ -80,7 +80,7 @@ function AppContent() {
   },[]);
   useEffect(() => {
     if (gameById(view) && previous.current !== view) recordVisit(view);
-    if (!gameById(view)) leaveGameSession();
+    if (!gameById(view) || (previous.current!==view && gameById(previous.current))) leaveGameSession();
     if (previous.current !== view) {
       window.scrollTo({ top:0, behavior:'instant' });
       if (previous.current !== null) document.getElementById('main-content')?.focus({ preventScroll:true });
