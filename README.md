@@ -1,22 +1,106 @@
 # Brain Arena
 
-Web game matematika, logika, memori, dan strategi dengan 12 permainan. Dibangun menggunakan React dan Vite. Progress disimpan di browser perangkat yang digunakan.
+17 web game untuk berlatih hafalan, logika, strategi, dan hitung mental. Dibangun dengan React dan Vite, dengan antarmuka responsif untuk ponsel, tablet, dan desktop.
 
-Versi **1.21.0 — Mobile & Responsive**, diperbarui pada **29 Oktober 2026**.
+**v1.24.0 — Lima Game Baru**, 29 Oktober 2026.
+
+## Lima game baru di v1.24
+
+- **Pecahkan Sandi / Code Breaker:** deduksi kode angka dengan petunjuk tepat posisi dan salah posisi, termasuk digit berulang.
+- **Padamkan Lampu / Lights Out:** membalik lampu dan tetangganya sampai seluruh papan padam.
+- **Jejak Ingatan / Sequence Recall:** mengulangi urutan yang semakin panjang pada setiap ronde, dengan tiga nyawa.
+- **Silang Angka / Kakuro:** memenuhi jumlah kelompok angka 1–9 tanpa pengulangan. Angka awal membantu memastikan solusi unik.
+- **Lingkar Logika / Slitherlink:** menggambar satu lingkaran sesuai petunjuk 0–3. Garis/X awal terkunci dan beberapa petunjuk dapat dihilangkan pada tingkat lebih tinggi.
+
+Semua game baru memakai **SD, SMP, SMA, SMA+, Universitas**, mendukung kontrol sentuh dan keyboard pada kontrol terkait, serta mempunyai ilustrasi katalog dan panduan Indonesia/Inggris.
+
+| Game | Variasi Universitas 1 | Variasi 2 | Variasi 3 |
+| --- | --- | --- | --- |
+| Code Breaker | Maksimal tujuh tebakan | Hasil petunjuk hilang setelah lima detik | Enam digit wajib berbeda |
+| Lights Out | Batas langkah berdasarkan solusi yang dijamin ada | Separuh tombol bergantian terkunci tiap 10 detik | Papan berputar 180° tiap 20 detik |
+| Sequence Recall | Jawab urutan terbalik | Tambah satu pada angka; 10 kembali ke 1 | Posisi tombol diacak setelah preview |
+| Kakuro | Isian permanen | Jumlah terlihat 12 detik awal, lalu 4 detik tiap 20 detik | Sel, panah, jumlah, dan isian berputar bersamaan |
+| Slitherlink | Garis permanen | Petunjuk terlihat 12 detik awal, lalu 4 detik tiap 20 detik | Garis, X, angka, dan papan berputar bersamaan |
+
+Generator Lights Out menyimpan jalur penekanan yang dapat membalik papan kembali padam. Generator Kakuro dan Slitherlink memakai solver dengan batas pencarian dan hanya menerima pengurangan petunjuk jika solusi tunggal terbukti. Kakuro terdiri dari wilayah silang yang dipisahkan petak gelap; givens ditambahkan jika diperlukan untuk keunikan. Solusi internal tidak ditampilkan di DOM saat bermain.
+
+## Yang berubah
+
+Aplikasi sekarang langsung berfokus pada permainan. Navigasi utama hanya **Permainan, Panduan, dan Pengaturan**. Profil, XP/EXP, daily challenge, misi, achievement, rank, leaderboard, progres, mastery, season/event, turnamen Arena Run/Cup, riwayat/replay, rekomendasi progres, dan sistem sinkronisasi profil telah dilepas dari alur dan kode aplikasi.
+
+Skor, giliran, nyawa, dan waktu yang merupakan aturan sebuah game tetap ditampilkan selama sesi. Hasil tidak menghasilkan XP, rank, atau koleksi progres. Penyimpanan hanya dipakai untuk pilihan kesulitan, suara, bahasa, tampilan, serta laporan galat jika terjadi crash. Data profil lama tidak dibaca atau diperbarui, dan tidak dihapus otomatis. Memuat ulang halaman memulai permainan kembali; tidak ada autosave progres.
+
+## Lima tingkat kesulitan
+
+Semua game memakai pilihan yang sama, tanpa submenu kesulitan Universitas:
+
+| Label di aplikasi | Tingkat |
+| --- | --- |
+| SD | Easy / mudah |
+| SMP | Medium / sedang |
+| SMA | Hard / sulit |
+| SMA+ | Very hard / SMA tingkat lanjut |
+| Universitas | Impossible / tantangan tertinggi |
+
+Label ini menjelaskan tingkat tantangan game, bukan penilaian kemampuan akademik. SMA+ mempunyai konfigurasi tersendiri: papan atau angka lebih besar, target lebih tinggi, atau waktu yang lebih singkat daripada SMA. Panduan tiap game mencantumkan konfigurasi yang dipakai.
+
+## Gameplay khusus Universitas
+
+Setiap game mempunyai **tiga variasi gameplay**. Saat menekan mulai atau main lagi, satu variasi dipilih secara acak. Selama aplikasi masih terbuka, pemilihan menghindari pengulangan variasi yang baru dimainkan. Tingkat SD, SMP, SMA, dan SMA+ tetap memakai aturan dasarnya.
+
+Variasi diterapkan langsung pada permainan. Ujian hafalan/logika/hitung terpisah setelah permainan pada v1.22 telah diganti dengan mekanik ini. Aturan aktif ditampilkan di atas papan; tiga kemungkinan aturan juga dijelaskan sebelum mulai.
+
+| Game | Variasi 1 | Variasi 2 | Variasi 3 |
+| --- | --- | --- | --- |
+| Maze Escape | Dinding fatal: mencoba menembus tembok langsung kalah | Dinding ingatan: terlihat 8 detik awal, lalu 5 detik tiap 60 detik | Labirin berubah setiap 20 detik; posisi dan pintu keluar tetap |
+| 2048 | Setiap langkah valid memunculkan angka 4 | Nilai ubin tersembunyi; muncul 3 detik tiap 20 detik setelah preview 6 detik | Satu arah dikunci dan berganti tiap 20 detik |
+| Nonogram | Tanda yang dibuat menjadi permanen | Petunjuk tersembunyi; muncul 4 detik tiap 20 detik setelah preview 10 detik | Papan, tanda, dan petunjuk berputar 180° tiap 20 detik |
+| Memory Matrix | Jawab pola yang diputar 180° | Pilih petak yang tidak menyala | Pilih target berurutan dari kiri ke kanan, atas ke bawah |
+| Sudoku Buta | Satu angka salah langsung kalah | Isian hanya tampak pada sel terpilih atau kilatan 3 detik tiap 20 detik | Solusi, clue, dan isian berputar 180° tiap 20 detik saat menjawab |
+| Minesweeper | Bermain tanpa bendera | Angka petunjuk hanya muncul 4 detik tiap 20 detik setelah preview 8 detik | Bendera pada petak aman langsung kalah; buka petak awal dahulu |
+| Perburuan Prima | Memilih komposit atau salah menebak kubus ? langsung kalah | Angka belum dipilih tersembunyi, muncul 5 detik tiap 20 detik setelah preview 8 detik | Angka yang belum dipilih berpindah tiap 20 detik pada jeda aman |
+| Digit Piksel | Piksel bertumpuk langsung kalah | Target tersembunyi, muncul 4 detik tiap 20 detik setelah preview 8 detik | Kartu diacak tiap 20 detik setelah pilihan dikosongkan |
+| Hitung Kubus | Jawaban salah atau timeout langsung kalah | Kubus disembunyikan setelah 6 detik pada tiap soal | Susunan diputar 90° tiap 5 detik; jumlah kubus tetap |
+| Match & Mix | Tidak cocok atau timeout langsung kalah | Hafalan hanya 6 detik, lalu chip tertutup otomatis | Ubin tetangga otomatis bergeser ke ruang kosong tiap 20 detik pada jeda aman |
+| Duel Dadu | Satu kekalahan atau timeout langsung memenangkan lawan | Jaring-jaring hanya terlihat 6 detik sebelum dilipat otomatis | Simbol papan diacak tiap 20 detik pada fase perencanaan |
+| Blitz Aritmatika | Satu jawaban salah mengakhiri sesi | Hasil bersandi: tambahkan offset sebelum menjawab; soal basis mengubah angka sebelum konversi | Selesaikan jumlah soal terpilih dalam 180 detik waktu aktif |
+
+Timer variasi berhenti saat tab disembunyikan, dialog dibuka, game dijeda, atau sesi berakhir. Fase yang tidak menerima input, seperti feedback dan animasi tertentu, dapat dikecualikan dari waktu aktif. Perubahan dinamis menunggu batas interaksi yang aman, sehingga pilihan kartu, target AI, atau animasi lempar tidak rusak di tengah aksi.
+
+Maze yang berubah selalu dibangun kembali sebagai labirin terhubung, sehingga posisi pemain masih memiliki rute ke pintu keluar. Rotasi Sudoku/Nonogram memutar data dan isian bersamaan. Aturan duel presisi berlaku untuk kedua pemain dan AI; pada papan prima tersembunyi, AI menunggu angka muncul dan timer giliran juga berhenti selama angka tersembunyi.
+
+## Permainan
+
+| Permainan | Fokus | Contoh SMA+ / Universitas |
+| --- | --- | --- |
+| Blitz Aritmatika | Hitung cepat dan akurat | Materi SMA dengan angka lebih besar / faktorial, akar, eksponen, basis |
+| Perburuan Prima | Prima dan faktor bilangan | 1501–4000, 20 dtk / 9001–20000, 12 dtk |
+| Digit Piksel | Menggabungkan pecahan tanpa tumpang tindih | 4 target / 5 target dengan pecahan lebih kecil |
+| Match & Mix | Hafalan pasangan dan perpindahan ubin | 20 pasangan / 45 pasangan |
+| Hitung Kubus | Penalaran spasial | Grid 5×5, tinggi hingga 5 / 7×7, tinggi hingga 7 |
+| Duel Dadu | Orientasi dadu dan strategi | 4–5 langkah, 15 dtk / 6–7 langkah, 9 dtk |
+| Sudoku Buta | Mengingat dan melengkapi papan asli | 38–44 angka tersembunyi, 1 intip / 52–58, tanpa intip |
+| Minesweeper | Deduksi ranjau | 16×30, 99 ranjau / 24×36, 240 ranjau |
+| Maze Escape | Navigasi dan perencanaan jalur | 20×20 / 32×32 |
+| Memory Matrix | Hafalan posisi | 6×6, 8 ronde / 8×8, 9 ronde |
+| Nonogram | Deduksi baris dan kolom | 15×15 / 20×20 |
+| 2048 | Rantai penggabungan angka | Target 1024 / target 4096 |
+
+Universitas pada seluruh game memakai satu aturan acak dari tabel di atas. Beberapa game mempunyai duel lokal pada perangkat yang sama; tidak ada multiplayer online.
 
 ## Menjalankan
 
-Gunakan **Node.js 24** dan npm. Versi lain yang didukung tercantum pada `engines` di `package.json`.
+Gunakan **Node.js 24** dan npm. Dukungan versi Node lainnya tercantum pada `engines` di `package.json`.
 
-### Mencoba build yang disertakan
+### Mencoba build dalam paket
 
-Ekstrak seluruh paket, buka terminal di folder proyek, lalu jalankan:
+Ekstrak seluruh paket. Jalankan `JALANKAN-WINDOWS.bat` di Windows, atau gunakan:
 
 ```bash
 node scripts/serve.mjs
 ```
 
-Buka **http://localhost:4173**. Di Windows, jalankan `JALANKAN-WINDOWS.bat` untuk membuka server yang sama. Hentikan server dengan `Ctrl+C`.
+Buka `http://localhost:4173`. Hentikan server dengan `Ctrl+C`. Build harus dilayani melalui server HTTP, bukan dibuka sebagai file HTML langsung.
 
 ### Development
 
@@ -25,111 +109,44 @@ npm ci
 npm run dev
 ```
 
-Buka alamat yang ditampilkan Vite. `node_modules` dipasang melalui `npm ci` agar dependensi sesuai sistem operasi.
-
-### Build produksi
-
-```bash
-npm run build
-npm run serve:dist
-```
-
-Hasil build berada di `dist/`. Unggah isi folder tersebut ke hosting statis. Konfigurasi `base: './'` mendukung penggunaan subfolder. Workflow GitHub Pages tersedia di `.github/workflows/`.
-
-## Permainan
-
-| Permainan | Fokus |
-| --- | --- |
-| Blitz Aritmatika | Ketepatan dan kecepatan berhitung |
-| Perburuan Prima | Identifikasi bilangan prima |
-| Digit Piksel | Menyusun kepingan pola angka |
-| Match & Mix | Memori pasangan dan perpindahan ubin |
-| Hitung Kubus | Penalaran spasial dan kubus tersembunyi |
-| Duel Dadu | Orientasi dadu dan strategi gunting-batu-kertas |
-| Sudoku Buta | Mengingat dan melengkapi papan asli |
-| Minesweeper | Deduksi posisi ranjau |
-| Maze Escape | Navigasi labirin |
-| Memory Matrix | Mengingat pola petak |
-| Nonogram | Deduksi berdasarkan petunjuk baris dan kolom |
-| 2048 | Menggabungkan ubin hingga target |
-
-Jenjang tersedia dari SD sampai Universitas. Universitas memiliki pilihan Hard, Very Hard, dan Impossible. Practice memberi progress tanpa perubahan RP; Ranked memengaruhi peringkat lokal. Arena Run dan Arena Cup menyusun beberapa game menjadi rangkaian tantangan.
-
-## Pembaruan v1.21.0
-
-- **Navigasi mobile:** lima tab bawah untuk Beranda, Permainan, Tantangan, Progres, dan Profil. Tab disembunyikan selama sesi aktif agar ruang layar dipakai untuk bermain.
-- **Header ringkas:** judul halaman/game, pencarian, dan menu opsi cepat. Suara, bahasa, notifikasi, pengaturan, Brain Coach, dan mode fokus tetap tersedia melalui menu opsi.
-- **Layar permainan:** dekorasi dipadatkan; papan, skor, dan kontrol menjadi fokus. Panduan dapat dilipat pada mobile dan terbuka secara default di desktop.
-- **Setup lebih singkat:** pengaturan Challenge Code berada dalam panel yang dapat dibuka. Pilihan jenjang, mode dan kesulitan tetap dapat dijangkau.
-- **Zoom papan:** Nonogram, Minesweeper dan Maze menyediakan tombol −/+, reset 100%, serta ukuran dasar yang mengikuti lebar container. Papan besar tetap memakai area geser khusus.
-- **Petunjuk tetap terlihat:** clue Nonogram menempel pada sisi atas/kiri area papan. Maze mengikuti posisi pemain; pembuka Minesweeper BA2 dibawa ke area terlihat.
-- **Kontrol sentuh:** keypad Sudoku lima kolom, D-pad lebih ringkas, papan 2048 mendukung swipe, dan ukuran tombol utama disesuaikan untuk ponsel.
-- **Landscape:** Duel Dadu dan 2048 memakai susunan papan/kontrol berdampingan pada layar mendatar yang cukup lebar.
-- **Halaman fitur:** kartu, formulir, statistik, leaderboard, riwayat, profil, turnamen, pengaturan dan panduan menyesuaikan lebar layar. Statistik berubah menjadi kartu berlabel pada ponsel.
-- **Dialog dan keyboard:** tinggi dialog mengikuti area layar yang tersedia; safe area perangkat diperhitungkan dan tab bawah disembunyikan saat keyboard layar terdeteksi.
-
-Fondasi sesi v1.20 tetap dipertahankan:
-
-- **Checkpoint untuk 12 game:** papan, isian, posisi, ronde, nyawa/skor, dan state generator acak dapat dipulihkan dari titik aman terakhir. Penyimpanan berjalan setiap 0,8 detik dan saat halaman ditinggalkan.
-- **Clock sesi aktif:** durasi hasil/PB/Ranked mengabaikan tab tersembunyi, dialog, jeda, dan fase non-interaktif. Hafalan dan animasi tidak dihitung sebagai waktu menjawab. Waktu giliran AI pada mode PvE juga dipisahkan.
-- **Penalti eksplisit:** intip Sudoku menambah 4 detik dan jawaban salah Aritmatika menambah 10 detik pada clock hasil, sejalan dengan aturan game.
-- **Generator acak sesi:** pemulihan melanjutkan urutan acak tersimpan; game tidak mengganti `Math.random` global.
-- **Challenge BA2:** kode berbagi membawa seed, jenjang, difficulty, versi aturan, serta opsi tambahan game. Materi/jumlah soal Aritmatika dan pilihan PvP/PvE ikut dibawa. Kode BA lama tetap diterima dengan pengaturan manual.
-- **Reset Ranked:** reset papan aktif pada 2048, Nonogram, Maze, Minesweeper, Sudoku, Match & Mix, dan Digit Piksel menyelesaikan sesi lama sebagai kekalahan sebelum membuat sesi baru. Menyerah di Aritmatika juga dicatat kalah. Kembali ke Beranda menyimpan sesi untuk dilanjutkan.
-- **Keamanan hasil:** reward tetap ditautkan ke ID sesi; hasil yang sama tidak memberi reward dua kali. Hitung Kubus mensyaratkan minimal 3/5 benar untuk lulus.
-- **Fondasi sebelumnya dipertahankan:** pengaman backup, isolasi Arena/Practice, shuffle Fisher–Yates, serta layout mobile yang lebih ringkas.
-
-## Data dan batas fitur
-
-Progress, profil lokal, rekor, dan backup berada di browser. Pergantian browser/perangkat tidak memindahkan progress secara otomatis. Ekspor backup melalui Pengaturan sebelum membersihkan data browser.
-
-- Profil dan leaderboard masih lokal; fitur akun, sinkronisasi Supabase, dan multiplayer online belum aktif.
-- **Lanjutkan permainan tersimpan** memulihkan checkpoint yang valid. Saat keluar di tengah animasi, penilaian jawaban, atau giliran AI, pemulihan kembali ke titik aman terakhir. Waktu selama aplikasi ditutup tidak ditambahkan. Simpanan lama tanpa checkpoint masih menawarkan **Ulang challenge tersimpan**. Checkpoint dari awal preview Memory Matrix belum tersedia sampai fase menjawab pertama.
-- Replay saat ini menampilkan timeline aksi, bukan rekonstruksi visual papan.
-- Nonogram menerima semua jawaban yang sesuai clue. Generator belum menjamin solusi unik atau penyelesaian tanpa menebak.
-- Klik pertama Minesweeper aman; susunan ranjau dipengaruhi petak awal. Mode tanpa menebak belum dijamin.
-- Challenge BA2 memuat konfigurasi dan versi aturan. Pada Minesweeper BA2, petak pembuka ditetapkan dan ditandai agar susunan ranjau konsisten. Minesweeper dengan kode lama masih mengamankan petak pertama yang dipilih pemain. Kode lama tidak membawa seluruh konfigurasi.
-- Durasi hasil menggunakan clock aktif yang sama lintas sesi. Countdown giliran dan timer preview tetap mengikuti aturan masing-masing game; tampilan detik dibulatkan sehingga dapat berbeda sedikit dari waktu internal milidetik.
-- Jika backup terlalu besar, kurangi riwayat/replay melalui pengelolaan storage, lalu coba ekspor kembali. Rollback tetap bergantung pada browser yang mengizinkan penulisan data.
-
-## Struktur proyek
-
-```text
-src/games/          Komponen 12 game
-src/components/     Komponen UI bersama
-src/context/        State aplikasi dan sesi
-src/utils/          Aturan game, penyimpanan, dan utilitas
-src/data/           Katalog, navigasi, dan data lokal
-public/             Aset PWA dan service worker
-scripts/            Server preview, build, pemeriksaan rilis
-tests/              Tes perilaku dan regresi
-vendor/             Runtime build portable dan pemberitahuan lisensi
-```
-
-Dokumentasi rilis berulang, screenshot QA lama, hasil tes yang sudah usang, dan skrip browser khusus versi lama telah dibuang. Tes perilaku yang masih relevan dipertahankan dan diberi nama berdasarkan fitur.
-
-## Verifikasi
-
-```bash
-npm test
-npm run lint
-npm run build
-```
-
-Untuk seluruh pemeriksaan yang dipakai CI:
+### Pemeriksaan dan build produksi
 
 ```bash
 npm run ci:verify
 ```
 
-Tes melindungi aturan permainan, migrasi, backup, konfigurasi sesi, dan penilaian. Tes komponen memeriksa alur setup → mulai → checkpoint → unmount/remount → pulih untuk 12 game; tes provider memeriksa pemulihan, reward sekali, serta reset Ranked. Pengujian tersebut belum menggantikan uji browser/perangkat.
-
-Validasi komponen mencakup 40 halaman fitur, 12 game × 6 preset kesulitan, navigasi/menu cepat, zoom dan resize container. Skenario ukuran 320–1440 px diperiksa pada helper ukuran papan dan komponen. Ini bukan pengukuran posisi piksel atau tangkapan layar browser. Uji visual di Android/iPhone masih diperlukan, khususnya portrait/landscape, tema terang/gelap, notch, dan keyboard layar.
-
-Build portable bersifat opsional dan memerlukan TypeScript yang dapat diakses Node:
+Perintah ini memeriksa konsistensi rilis, menjalankan tes, lint, dan membuat build Vite. Hasil produksi berada di `dist/`.
 
 ```bash
-npm run build:portable
+npm run serve:dist
 ```
 
-Metadata aplikasi dan cache service worker sudah menggunakan versi 1.21.0. Saat membuat rilis berikutnya, naikkan versi secara konsisten agar pembaruan PWA terdeteksi. Pertahankan `vendor/THIRD-PARTY-NOTICES.txt` saat mendistribusikan runtime portable.
+Build ESM portabel lama tetap tersedia sebagai opsi `npm run build:portable` dan membutuhkan TypeScript yang terpasang. Build Vite adalah jalur utama untuk GitHub Pages.
+
+## Memperbarui repo GitHub
+
+Gunakan folder repo yang sudah di-clone, bukan folder ZIP hasil ekstrak. Buat branch pembaruan, lalu ganti **seluruh folder `src` dan `tests`** dengan versi dalam paket supaya halaman dan tes fitur yang dihapus tidak tertinggal. Salin pula `public`, `scripts`, `.github`, file konfigurasi, `package.json`, `package-lock.json`, dan README utama. Pertahankan folder `.git` repo. Jangan commit `node_modules`, `dist`, atau file ZIP.
+
+```bash
+git switch main
+git pull --ff-only origin main
+git switch -c five-new-games-v1.24
+# Salin isi paket pembaruan, lalu jalankan:
+npm ci
+npm run ci:verify
+git add -A
+git commit -m "Add Code Breaker, Lights Out, Sequence Recall, Kakuro and Slitherlink"
+git push -u origin five-new-games-v1.24
+```
+
+Buat pull request ke `main`. Pilih **GitHub Actions** pada Settings → Pages → Source. Workflow `.github/workflows/deploy.yml` melakukan build dan deployment setelah perubahan masuk ke `main`. `git pull` menyinkronkan komputer; deployment situs dijalankan GitHub Actions.
+
+## Pengujian dan batasan
+
+Pemeriksaan rilis: **120 tes lulus**, lint bersih, dan build Vite berhasil. Gunakan `npm run ci:verify` untuk mengulang pemeriksaan.
+
+Tes otomatis mencakup aturan papan, Sudoku, RNG terisolasi, rute, pilihan tingkat, filter katalog, pengaturan suara/tema, pemilihan variasi acak, timer yang berhenti dengan benar, serta kondisi kalah dan perubahan papan pada 51 variasi Universitas. Tes komponen menjalankan 17 game × 5 tingkat dan seluruh 51 variasi Universitas, termasuk variasi mode Paket Soal dan duel lokal. Ukuran viewport dalam fixture mencakup ponsel hingga desktop; fixture ini tidak mengukur layout CSS pada browser sungguhan.
+
+Papan besar mempertahankan petak yang terbaca melalui zoom dan area geser lokal. Layout mobile, safe area, keyboard layar, D-pad, dan keypad tetap tersedia. Tampilan visual serta interaksi pada Android/iPhone fisik belum diverifikasi pada rilis ini.
+
+Nonogram menerima solusi dengan petunjuk baris/kolom setara. Minesweeper menjamin pembukaan aman tetapi belum menjamin seluruh papan selesai tanpa menebak. Sudoku Buta meminta rekonstruksi papan yang dihafalkan, bukan teka-teki clue dengan solusi unik.

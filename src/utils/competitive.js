@@ -3,7 +3,6 @@ import { gameById } from '../data/games.js';
 const nativeRandom = Math.random.bind(Math);
 let activeRandom = null;
 
-export const COMPETITIVE_LEVEL_KEYS = ['sd','smp','sma','uni-hard','uni-very-hard','uni-impossible'];
 
 export function hashSeed(input='brain-arena') {
   let h = 2166136261 >>> 0;
@@ -49,7 +48,7 @@ export function challengeSeed(code='') {
   return hashSeed(normalizeChallengeCode(code) || 'BRAIN-ARENA');
 }
 
-const LEVEL_CODES={sd:'SD',smp:'SMP',sma:'SMA',universitas:'UNI'};
+const LEVEL_CODES={sd:'SD',smp:'SMP',sma:'SMA','sma-plus':'SMAP',universitas:'UNI'};
 const DIFFICULTY_CODES={hard:'H','very-hard':'V',impossible:'I'};
 export function challengeConfiguration(code) {
   const parts=normalizeChallengeCode(code).split('-');
@@ -112,65 +111,6 @@ export function resetSeededRandom(code) {
 
 export function restoreNativeRandom() {
   activeRandom = null;
-}
-
-export function nativeShuffle(values=[]) {
-  const result=[...values];
-  for (let i=result.length-1;i>0;i-=1) {
-    const j=Math.floor(nativeRandom()*(i+1));
-    [result[i],result[j]]=[result[j],result[i]];
-  }
-  return result;
-}
-
-export function levelCompletionKey(level='sd', universityDifficulty='hard') {
-  if (level !== 'universitas') return ['sd','smp','sma'].includes(level) ? level : 'sd';
-  const difficulty=['hard','very-hard','impossible'].includes(universityDifficulty) ? universityDifficulty : 'hard';
-  return `uni-${difficulty}`;
-}
-
-export function bestKey(gameId, level='sd', universityDifficulty='hard') {
-  return `${gameId}:${levelCompletionKey(level, universityDifficulty)}`;
-}
-
-export function formatDuration(ms=0) {
-  const total=Math.max(0,Math.round((Number(ms)||0)/1000));
-  const minutes=Math.floor(total/60);
-  const seconds=total%60;
-  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-}
-
-export function performanceForRun({ durationMs=0, previousBestMs=0, outcome='completed', hintsUsed=0, accuracy=null }={}) {
-  const duration=Math.max(1,Number(durationMs)||1);
-  const previous=Math.max(0,Number(previousBestMs)||0);
-  let score;
-  if (outcome === 'loss') score=48;
-  else if (outcome === 'draw') score=68;
-  else if (!previous) score=84;
-  else {
-    const ratio=previous/duration;
-    score=Math.round(Math.max(55,Math.min(100,70 + (ratio-0.75)*80)));
-    if (duration < previous) score=Math.max(score,96);
-  }
-  if (accuracy !== null && Number.isFinite(Number(accuracy))) score=Math.min(score,Math.round(Math.max(0,Math.min(1,Number(accuracy)))*100));
-  score=Math.max(35,Math.min(100,score-(Math.max(0,hintsUsed)*4)));
-  const grade=score>=96?'S':score>=88?'A':score>=78?'B':score>=65?'C':'D';
-  return { score, grade };
-}
-
-export function rankedDeltaFor({ grade='C', outcome='completed', hintsUsed=0 }={}) {
-  if (outcome === 'loss') return -12;
-  if (outcome === 'draw') return Math.max(2,6-(hintsUsed*2));
-  const values={S:30,A:24,B:18,C:12,D:6};
-  return Math.max(2,(values[grade]||8)-(hintsUsed*3));
-}
-
-export function runPreset(size) {
-  const count=Math.max(3,Math.min(12,Number(size)||3));
-  if (count<=3) return { id:'quick',count:3,label:{id:'Quick Run',en:'Quick Run'} };
-  if (count<=5) return { id:'standard',count:5,label:{id:'Standard Run',en:'Standard Run'} };
-  if (count<=8) return { id:'master',count:8,label:{id:'Master Run',en:'Master Run'} };
-  return { id:'ultimate',count:12,label:{id:'Ultimate Run',en:'Ultimate Run'} };
 }
 
 export function sessionRandom(gameId) {

@@ -1,3 +1,5 @@
+import {useUniversityGameplay,useUniversityEvent} from '../hooks/useUniversityGameplay.js';
+import {revealWindow,shuffleValues} from '../utils/universityGameplay.js';
 import { useArena } from '../context/ArenaContext.jsx';
 import { sessionRandom } from '../utils/competitive.js';
 import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
@@ -7,11 +9,10 @@ import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
-import { readText, writeText } from '../utils/storage.js';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
+import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell';
 
 // Digital numbers 0-9 in a 3x5 grid (15 boolean values)
 const random=()=>sessionRandom('pixel');
@@ -110,7 +111,7 @@ const UNIVERSITY_LEVELS = {
   'very-hard': { targets: 4, cards: 20, splitMin: 3, splitMax: 4 },
   impossible: { targets: 5, cards: 26, splitMin: 4, splitMax: 5 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+const UNIVERSITY_LABELS = { impossible: 'Universitas' };
 
 export default function GamePixel({ onBack, onNavigate }) {
   const {restartGameSession}=useArena();
@@ -129,18 +130,15 @@ export default function GamePixel({ onBack, onNavigate }) {
   const [messageType, setMessageType] = useState('info'); // 'info', 'error', 'success', 'warning'
   const [elapsedTime, setElapsedTime] = useState(0);
   const [attempts, setAttempts] = useState(0);
-  const [bestTime, setBestTime] = useState(null);
   const [hintActive, setHintActive] = useState(false);
   const [shakePreview, setShakePreview] = useState(false);
+  const challenge=useUniversityGameplay('pixel',schoolLevel,gameState==='playing'&&!shakePreview);
+  const targetsVisible=challenge.id!=='hidden-targets'||revealWindow(challenge.seconds,8,20,4);
+  useUniversityEvent(challenge,'shuffled-cards',20,gameState==='playing'&&selectedCardIdxs.length===0&&!shakePreview&&!hintActive,()=>setCards(shuffleValues(cards,random)));
   const checkSelectionRef = useRef(() => {});
 
-  const recordKey = schoolLevel === 'universitas' ? `pixel_best_${schoolLevel}_${universityDifficulty}` : `pixel_best_${schoolLevel}`;
 
   // Load best time on level change
-  useEffect(() => {
-    const saved = readText(recordKey);
-    setBestTime(saved !== null && Number.isFinite(Number(saved)) && Number(saved) >= 0 ? Number(saved) : null);
-  }, [recordKey]);
 
   const rules = lang === 'en' ? [
     "Pixel Number is a visual logic puzzle where you combine fragmented cards without overlaps to reconstruct digital numbers.",
@@ -149,8 +147,8 @@ export default function GamePixel({ onBack, onNavigate }) {
     "Click cards on the board to stack them into the Live Preview area.",
     "Look at the Live Preview: if any pixels clash, they will glow red with an overlap alert.",
     "When you have assembled the exact shape of an unsolved target, press 'Check Selection' (or Space/Enter) to claim it!",
-    "University Arena Mode adds Hard, Very Hard, and Impossible with more randomized target digits, more cards, and finer fragments.",
-    "Clear all target digits in the fastest time to record a high score!"
+    "Five levels: SD, SMP, SMA, SMA+, Universitas. Universitas randomly selects one of three gameplay rules on every start.",
+    "Clear all target digits without overlapping fragments!"
   ] : [
     "Piksel Angka adalah teka-teki logika visual di mana Anda menggabungkan pecahan kartu tanpa tumpang tindih untuk merekonstruksi angka digital.",
     "Di bagian atas terdapat Digit Target (0–9) dalam format matriks 3×5.",
@@ -158,8 +156,8 @@ export default function GamePixel({ onBack, onNavigate }) {
     "Klik kartu di papan untuk menumpuknya ke area Pratinjau Langsung.",
     "Perhatikan Pratinjau: jika ada piksel yang bentrok, piksel tersebut akan menyala merah sebagai peringatan overlap.",
     "Setelah bentuknya cocok persis dengan salah satu target yang belum selesai, tekan 'Periksa Terpilih' (atau Spasi/Enter)!",
-    "Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible dengan lebih banyak digit target acak, kartu, dan pecahan.",
-    "Selesaikan semua angka target secepat mungkin untuk mencatatkan rekor waktu terbaik!"
+    "Lima tingkat: SD, SMP, SMA, SMA+, Universitas. Universitas memilih satu dari tiga aturan gameplay secara acak setiap mulai.",
+    "Selesaikan semua angka target tanpa menumpuk piksel!"
   ];
 
   // Bitwise/matrix helpers
@@ -177,7 +175,7 @@ export default function GamePixel({ onBack, onNavigate }) {
 
   // Guaranteed robust board generator
   const initGame = useCallback((level = schoolLevel) => {
-    const arena = level === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : null;
+    const arena = level === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : level === 'sma-plus' ? {targets:4,cards:20,splitMin:3,splitMax:4} : null;
     const targetsCount = level === 'sd' ? 1 : level === 'smp' ? 2 : level === 'sma' ? 3 : arena.targets;
     const totalCardsCount = level === 'sd' ? 6 : level === 'smp' ? 10 : level === 'sma' ? 12 : arena.cards;
 
@@ -200,7 +198,7 @@ export default function GamePixel({ onBack, onNavigate }) {
 
       // Determine split count based on difficulty and number of pixels available
       let splitsCount = 2;
-      if (level === 'universitas') {
+      if (level === 'universitas' || level === 'sma-plus') {
         const upper = Math.min(arena.splitMax, activeIndices.length);
         const lower = Math.min(arena.splitMin, upper);
         splitsCount = lower + Math.floor(random() * (upper - lower + 1));
@@ -309,6 +307,8 @@ export default function GamePixel({ onBack, onNavigate }) {
   const hasOverlap = cellCounts.some(c => c > 1);
   const compositeGrid = cellCounts.map(c => c > 0);
 
+  useEffect(()=>{if(gameState==='playing'&&challenge.id==='fatal-overlap'&&hasOverlap)challenge.fail({id:'Kepingan kartu membuat piksel tumpang tindih.',en:'The selected fragments created overlapping pixels.'});},[gameState,challenge,hasOverlap]);
+
   // Check if live preview matches any unsolved target
   const previewMatchIdx = targets.findIndex((t, idx) => {
     if (solvedTargets[idx]) return false;
@@ -352,11 +352,6 @@ export default function GamePixel({ onBack, onNavigate }) {
       // Check win condition
       if (nextSolved.every(Boolean)) {
         playSound('win');
-        const finalTime = elapsedTime;
-        if (bestTime === null || finalTime < bestTime) {
-          writeText(recordKey, finalTime.toString());
-          setBestTime(finalTime);
-        }
         setTimeout(() => {
           setGameState('ended');
         }, 900);
@@ -449,7 +444,7 @@ export default function GamePixel({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD Level: 1 Target Number, 6 cards pool' : 'Level SD: 1 Digit Target, pool 6 kartu',
     smpDesc: lang === 'en' ? 'SMP Level: 2 Target Numbers, 10 cards pool' : 'Level SMP: 2 Digit Target, pool 10 kartu',
     smaDesc: lang === 'en' ? 'SMA Level: 3 Target Numbers, 12 cards pool' : 'Level SMA: 3 Digit Target, pool 12 kartu',
-    univDesc: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} random target digits · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} cards` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} digit target acak · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} kartu`,
+    univDesc: lang === 'en' ? `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} random target digits · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} cards` : `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · ${UNIVERSITY_LEVELS[universityDifficulty].targets} digit target acak · ~${UNIVERSITY_LEVELS[universityDifficulty].cards} kartu`,
     startPuzzle: lang === 'en' ? 'Start Puzzle' : 'Mulai Teka-Teki',
     targetDigits: lang === 'en' ? 'TARGET DIGITS' : 'DIGIT TARGET',
     stackArea: lang === 'en' ? 'STACKING SYNTHESIZER' : 'SINTESIS TUMPUKAN',
@@ -471,7 +466,7 @@ export default function GamePixel({ onBack, onNavigate }) {
   useGameCheckpoint('pixel',{gameState,schoolLevel,universityDifficulty,targets,solvedTargets,cards,selectedCardIdxs,message,messageType,elapsedTime,attempts,hintActive,shakePreview},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setTargets(saved.targets);setSolvedTargets(saved.solvedTargets);setCards(saved.cards);setSelectedCardIdxs(saved.selectedCardIdxs);setMessage(saved.message);setMessageType(saved.messageType);setElapsedTime(saved.elapsedTime);setAttempts(saved.attempts);setHintActive(saved.hintActive);setShakePreview(saved.shakePreview);},gameState==='playing'&&!hintActive&&!shakePreview,gameState==='playing');
 
   return (
-    <GameScreen gameId="pixel" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{elapsedTime}s</span>{bestTime !== null && <span><Icon name="trophy" size={14}/>{bestTime}s</span>}</>}>
+    <GameScreen universityMode={challenge} gameId="pixel" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{elapsedTime}s</span></>}>
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
@@ -489,7 +484,7 @@ export default function GamePixel({ onBack, onNavigate }) {
           desc={schoolLevel === 'sd' ? t.sdDesc : schoolLevel === 'smp' ? t.smpDesc : schoolLevel === 'sma' ? t.smaDesc : t.univDesc}
           lang={lang}
         >
-          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
+          
           <div style={{ display: 'flex', gap: 'var(--uw-space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"
@@ -552,10 +547,10 @@ export default function GamePixel({ onBack, onNavigate }) {
                       fontWeight: 800,
                       color: isSolved ? '#22c55e' : '#f8fafc'
                     }}>
-                      {target}
+                      {isSolved||targetsVisible?target:'?'}
                     </span>
                     <MatrixDisplay
-                      grid={DIGIT_TEMPLATES[target]}
+                      grid={isSolved||targetsVisible?DIGIT_TEMPLATES[target]:Array(15).fill(false)}
                       width={28}
                       activeColor={isSolved ? '#22c55e' : '#cbb5ff'}
                     />
@@ -638,7 +633,7 @@ export default function GamePixel({ onBack, onNavigate }) {
               </button>
               <button
                 className="uw-btn uw-btn-neutral"
-                onClick={handleHint}
+                disabled={schoolLevel==='universitas'} onClick={handleHint}
                 style={{ padding: '6px 14px', fontSize: '0.85rem' }}
               >
                 💡 {t.hint}

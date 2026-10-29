@@ -1,7 +1,7 @@
 {
   "name": "Brain Arena",
   "short_name": "Brain Arena",
-  "description": "Brain Arena v1.21 Mobile & Responsive - 12 game matematika, logika, memori dan strategi dengan navigasi mobile, zoom papan, checkpoint dan progress lokal.",
+  "description": "17 game hafalan, logika, strategi dan hitung. Lima tingkat kesulitan dan 51 variasi Universitas.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -30,64 +30,15 @@
   ],
   "shortcuts": [
     {
-      "name": "Arena Run",
-      "short_name": "Arena Run",
-      "url": "./#/arena-run",
-      "icons": [
-        {
-          "src": "./pwa-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+      "name": "Permainan",
+      "short_name": "Game",
+      "url": "./#/games"
     },
     {
-      "name": "Match History",
-      "short_name": "History",
-      "url": "./#/history",
-      "icons": [
-        {
-          "src": "./pwa-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Game Completion",
-      "short_name": "Completion",
-      "url": "./#/completion",
-      "icons": [
-        {
-          "src": "./pwa-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Player Statistics",
-      "short_name": "Statistics",
-      "url": "./#/statistics",
-      "icons": [
-        {
-          "src": "./pwa-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Feedback & Suggestions",
-      "short_name": "Feedback",
-      "url": "./#/feedback",
-      "icons": [
-        {
-          "src": "./pwa-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+      "name": "Panduan",
+      "short_name": "Panduan",
+      "url": "./#/guides"
     }
-  ]
+  ],
+  "version": "1.24.0"
 }

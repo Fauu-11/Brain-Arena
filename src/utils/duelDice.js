@@ -12,14 +12,15 @@ export const LEVELS = {
   sd: { minMoves: 3, maxMoves: 3, seconds: 25 },
   smp: { minMoves: 3, maxMoves: 4, seconds: 22 },
   sma: { minMoves: 3, maxMoves: 5, seconds: 20 },
-  universitas: { minMoves: 4, maxMoves: 5, seconds: 16 },
+  'sma-plus': { minMoves: 4, maxMoves: 5, seconds: 15 },
+  universitas: { minMoves: 6, maxMoves: 7, seconds: 9 },
 };
 export const UNIVERSITY_LEVELS = {
   hard: { minMoves: 4, maxMoves: 5, seconds: 16 },
   'very-hard': { minMoves: 5, maxMoves: 6, seconds: 12 },
   impossible: { minMoves: 6, maxMoves: 7, seconds: 9 },
 };
-export function getDuelConfig(level = 'sma', universityDifficulty = 'hard') {
+export function getDuelConfig(level = 'sma', universityDifficulty = 'impossible') {
   if (level === 'universitas') return UNIVERSITY_LEVELS[universityDifficulty] || UNIVERSITY_LEVELS.hard;
   return LEVELS[level] || LEVELS.sma;
 }
@@ -105,11 +106,11 @@ function randomInt(max, random) {
   if (!Number.isFinite(value) || value < 0 || value >= 1) throw new RangeError('Random source must return [0, 1)');
   return Math.floor(value * max);
 }
-export function nextMoveCount(level = 'sma', random = Math.random, universityDifficulty = 'hard') {
+export function nextMoveCount(level = 'sma', random = Math.random, universityDifficulty = 'impossible') {
   const { minMoves, maxMoves } = getDuelConfig(level, universityDifficulty);
   return minMoves + randomInt(maxMoves - minMoves + 1, random);
 }
-export function createGame(level = 'sma', random = Math.random, universityDifficulty = 'hard') {
+export function createGame(level = 'sma', random = Math.random, universityDifficulty = 'impossible') {
   if (!Object.hasOwn(LEVELS, level)) throw new RangeError('Unknown school level');
   const pool = [...SYMBOLS, ...SYMBOLS];
   for (let i = pool.length - 1; i > 0; i--) {
@@ -135,6 +136,8 @@ export function duelReducer(state, action) {
   if (action.turn !== undefined && action.turn !== state.turn) return state;
   switch (action.type) {
     case 'RESET': return action.state;
+    case 'SUDDEN_LOSS': return state.phase==='playing'&&state.status==='feedback'&&state.battle?.delta<0?{...state,phase:'ended',status:'ended',winner:3-state.activePlayer,battle:null}:state;
+    case 'SHIFT_BOARD': return isPlanning(state)&&Array.isArray(action.board)&&action.board.length===49&&action.board.every(symbol=>SYMBOLS.includes(symbol))?{...state,board:[...action.board]}:state;
     case 'NET': return state.phase === 'setup' ? { ...state, phase: 'planar' } : state;
     case 'FOLD': return state.phase === 'planar' ? { ...state, phase: 'folding' } : state;
     case 'START': return state.phase === 'folding' ? { ...state, phase: 'playing' } : state;

@@ -1,11 +1,14 @@
+import {EXTRA_SCREEN_GUIDES} from '../data/newGameGuides.js';
+import {useArena} from '../context/ArenaContext.jsx';
+import {SoloEndCard} from './GameShell.jsx';
 import React, {useEffect,useState} from 'react';
 import Icon from './Icon.jsx';
 import Artwork from './Artwork.jsx';
 import { gameById, CATEGORIES } from '../data/games.js';
-import { useArena } from '../context/ArenaContext.jsx';
 
 // Presentation only: game state, timers, scoring and generators stay in each game.
 const GUIDES = {
+  ...EXTRA_SCREEN_GUIDES,
   '300': {
     steps: {
       id: ['Pilih jenjang dan mode latihan atau arena.', 'Tentukan materi dan tingkat tantangan.', 'Ketik jawaban dengan teliti, lalu kirim.'],
@@ -72,16 +75,16 @@ const GUIDES = {
   },
   maze: {
     steps: {
-      id: ['Pilih jenjang; Arena Universitas memiliki Hard, Very Hard, dan Impossible.', 'Setiap sesi mengacak labirin sekaligus posisi START dan EXIT di tepi arena.', 'Baca dinding, hindari jalan buntu, lalu capai EXIT dengan langkah sesedikit mungkin.'],
-      en: ['Choose a level; University Arena has Hard, Very Hard, and Impossible.', 'Every run randomizes the maze plus the START and EXIT positions on the perimeter.', 'Read the walls, avoid dead ends, and reach EXIT in as few moves as possible.'],
+      id: ['Pilih jenjang; tersedia SD, SMP, SMA, SMA+, dan Universitas.', 'Setiap sesi mengacak labirin sekaligus posisi START dan EXIT di tepi arena.', 'Baca dinding, hindari jalan buntu, lalu capai EXIT dengan langkah sesedikit mungkin.'],
+      en: ['Choose a level; choose SD, SMP, SMA, SMA+, or Universitas.', 'Every run randomizes the maze plus the START and EXIT positions on the perimeter.', 'Read the walls, avoid dead ends, and reach EXIT in as few moves as possible.'],
     },
     tip: { id: 'Saat menemui percabangan, ingat titik terakhir agar tidak mengulang jalur yang sama.', en: 'At a junction, remember your last decision so you do not repeat the same dead end.' },
     input: { id: 'Desktop: tombol panah atau WASD. Mobile: gunakan D-pad di bawah labirin.', en: 'Desktop: Arrow Keys or WASD. Mobile: use the D-pad below the maze.' },
   },
   matrix: {
     steps: {
-      id: ['Pilih jenjang; Arena Universitas memiliki Hard, Very Hard, dan Impossible.', 'Setiap ronde menghasilkan pola petak baru yang benar-benar acak.', 'Hafalkan lalu pilih kembali petak yang sama sebelum tiga nyawa habis.'],
-      en: ['Choose a level; University Arena has Hard, Very Hard, and Impossible.', 'Every round generates a fresh randomized cell pattern.', 'Memorize and reselect the same cells before all three lives are gone.'],
+      id: ['Pilih jenjang; tersedia SD, SMP, SMA, SMA+, dan Universitas.', 'Setiap ronde menghasilkan pola petak baru yang benar-benar acak.', 'Hafalkan lalu pilih kembali petak yang sama sebelum tiga nyawa habis.'],
+      en: ['Choose a level; choose SD, SMP, SMA, SMA+, or Universitas.', 'Every round generates a fresh randomized cell pattern.', 'Memorize and reselect the same cells before all three lives are gone.'],
     },
     tip: { id: 'Kelompokkan pola menjadi bagian kecil: sudut, baris, atau bentuk sederhana. Ini lebih mudah daripada mengingat petak satu per satu.', en: 'Chunk the pattern into corners, rows, or simple shapes instead of memorizing cells one by one.' },
     input: { id: 'Klik atau ketuk petak yang kamu ingat. Petak benar akan terkunci; petak salah mengurangi nyawa.', en: 'Click or tap remembered cells. Correct cells lock in; mistakes cost a life.' },
@@ -103,20 +106,20 @@ const GUIDES = {
   },
 };
 
-export default function GameScreen({ gameId, lang = 'id', state = 'setup', level, onBack, onNavigate, onRules, stats, children }) {
+export default function GameScreen({ gameId, lang = 'id', state = 'setup', level, onBack, onNavigate, onRules, stats, children, universityMode }) {
   const [guideOpen,setGuideOpen]=useState(()=>!window.matchMedia('(max-width:800px)').matches);
   useEffect(()=>{const media=window.matchMedia('(max-width:800px)');const change=()=>setGuideOpen(!media.matches);media.addEventListener('change',change);return()=>media.removeEventListener('change',change);},[]);
+  const {currentSession}=useArena();
+  const failure=currentSession?.gameId===gameId?currentSession.failure:null;
   const game = gameById(gameId);
-  const { favorites, toggleFavorite } = useArena();
   const copy = (id, en) => lang === 'en' ? en : id;
   const setup = !state || state.includes('setup');
   const memo = state === 'start' || state === 'planar' || state === 'folding';
-  const ended = state === 'ended';
+  const ended = state === 'ended'||Boolean(failure);
   const phase = setup ? 'setup' : memo ? 'memory' : ended ? 'result' : 'play';
   const phaseText = setup ? copy('Persiapan', 'Setup') : memo ? copy('Fase menghafal', 'Memorize') : ended ? copy('Selesai', 'Complete') : copy('Sedang bermain', 'In progress');
   const guide = GUIDES[gameId];
-  const favorite = favorites.includes(gameId);
-  const levelLabel = level === 'universitas' ? copy('Universitas', 'University') : level?.toUpperCase();
+  const levelLabel = level === 'universitas' ? 'Universitas' : level === 'sma-plus' ? 'SMA+' : level?.toUpperCase();
   const modeLabel = gameId === 'rps' ? copy('Duel lokal', 'Local duel') : game.mode === 'solo' ? copy('Pemain tunggal', 'Single player') : copy('Solo / duel lokal', 'Solo / local duel');
 
   return <section className={`arena-game color-${game.color} phase-${phase}`} data-game={gameId} data-state={state || 'setup'} aria-labelledby={`game-title-${gameId}`}>
@@ -124,24 +127,23 @@ export default function GameScreen({ gameId, lang = 'id', state = 'setup', level
       <button className="play-back" onClick={onBack}><Icon name="back" size={17}/>{copy('Kembali ke beranda', 'Back to home')}</button>
       <div className="play-page-tools">{onRules&&<button type="button" className="play-tool play-mobile-rules" onClick={onRules} aria-label={copy('Aturan permainan','Game rules')}><Icon name="book" size={17}/></button>}
         <span className={`play-status ${phase}`}><i/>{phaseText}</span>
-        <button className={`play-tool ${favorite ? 'selected' : ''}`} aria-pressed={favorite} aria-label={favorite ? copy('Hapus dari favorit', 'Remove from favorites') : copy('Tambah ke favorit', 'Add to favorites')} onClick={() => toggleFavorite(gameId)}><Icon name="star" size={17} filled={favorite}/></button>
       </div>
     </div>
 
     <header className="play-hero">
       <div className="play-hero-copy">
-        <div className="play-eyebrow"><span>{copy('MUSIM', 'SEASON')} {String(game.season).padStart(2, '0')}</span><b/>{CATEGORIES[game.category][lang]}</div>
+        <div className="play-eyebrow">{CATEGORIES[game.category][lang]}</div>
         <h1 id={`game-title-${gameId}`}>{game.title[lang]}<span>.</span></h1>
         <p>{game.description[lang]}</p>
-        <div className="play-meta"><span><Icon name={game.mode === 'solo' ? 'user' : 'users'} size={14}/>{modeLabel}</span><span><Icon name="layers" size={14}/>{levelLabel || copy('4 jenjang', '4 levels')}</span><span className="play-local"><i/>{copy('Langsung main, tanpa akun', 'No account needed')}</span></div>
+        <div className="play-meta"><span><Icon name={game.mode === 'solo' ? 'user' : 'users'} size={14}/>{modeLabel}</span><span><Icon name="layers" size={14}/>{levelLabel || copy('5 tingkat', '5 levels')}</span><span className="play-local"><i/>{copy('Langsung main, tanpa akun', 'No account needed')}</span></div>
       </div>
       <div className="play-hero-art"><Artwork id={gameId}/></div>
     </header>
 
     <div className="play-layout">
       <div className="play-stage">
-        <div className="play-stage-top"><span><Icon name={setup ? 'sliders' : memo ? 'brain' : ended ? 'trophy' : 'play'} size={17}/>{setup ? copy('Pengaturan permainan', 'Game settings') : memo ? copy('Amati. Ingat. Siap?', 'Look. Remember. Ready?') : ended ? copy('Hasil permainan', 'Your results') : copy('Arena bermain', 'The playing field')}</span>{stats ? <div className="play-live-stats">{stats}</div> : <span className="play-stage-label">{levelLabel || 'BRAIN ARENA'}</span>}</div>
-        <div className="play-stage-body">{children}</div>
+        <div className="play-stage-top"><span><Icon name={setup ? 'sliders' : memo ? 'brain' : ended ? 'trophy' : 'play'} size={17}/>{setup ? copy('Pengaturan permainan', 'Game settings') : memo ? copy('Amati. Ingat. Siap?', 'Look. Remember. Ready?') : ended ? copy('Hasil permainan', 'Your results') : copy('Papan permainan', 'The playing field')}</span>{stats ? <div className="play-live-stats">{stats}</div> : <span className="play-stage-label">{levelLabel || 'BRAIN ARENA'}</span>}</div>
+        <div className="play-stage-body">{universityMode?.variant&&!setup&&!ended&&<div className="university-active-rule" data-university-variant={universityMode.id}><div><Icon name="spark" size={20}/><strong>{universityMode.variant.name[lang]}</strong><small>Universitas · {copy('variasi acak','random variation')}</small></div><p>{universityMode.variant.note[lang]}</p>{universityMode.variant.period>0&&<span className="university-next-change">{copy('Siklus berikutnya','Next cycle')}: {universityMode.variant.period-universityMode.seconds%universityMode.variant.period}s</span>}</div>}{failure?<SoloEndCard heading={copy('Tantangan berakhir','Challenge ended')} subtext={failure[lang]||failure.id} onBack={onBack} onPlayAgain={()=>window.dispatchEvent(new CustomEvent('ba-retry-game'))} playAgainLabel={copy('Siapkan tantangan baru','Set up a new challenge')} lang={lang} outcome="loss"/>:children}</div>
         <div className="play-stage-bottom"><Icon name="shield" size={14}/><span>{copy('Satu tantangan, satu langkah lebih baik.', 'One challenge. One step forward.')}</span>{onRules && <button onClick={onRules}><Icon name="book" size={14}/>{copy('Aturan', 'Rules')}</button>}</div>
       </div>
 

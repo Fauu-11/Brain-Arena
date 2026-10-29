@@ -1,5 +1,7 @@
+import {useUniversityGameplay,useUniversityEvent} from '../hooks/useUniversityGameplay.js';
+import {revealWindow,shuffleValues,currentUniversityVariant} from '../utils/universityGameplay.js';
 import { sessionRandom } from '../utils/competitive.js';
-import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameTimeout } from '../utils/sessionClock.js';
 import { initialGameOption } from '../utils/sessionRules.js';
 import { gameInterval as setInterval } from '../utils/sessionClock.js';
 import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
@@ -11,7 +13,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import Scoreboard from '../components/Scoreboard';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell';
+import { SetupCard, TipsButton, MultiEndCard } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external files needed)
 const random=()=>sessionRandom('prime');
@@ -118,10 +120,13 @@ const UNIVERSITY_LEVELS = {
   'very-hard': { min: 4001, max: 9000, seconds: 18, hitChance: 0.90, hiddenAccuracy: 0.90 },
   impossible: { min: 9001, max: 20000, seconds: 12, hitChance: 0.96, hiddenAccuracy: 0.97 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+const UNIVERSITY_LABELS = { impossible: 'Universitas' };
 
 export default function GamePrime({ onBack, onNavigate }) {
   const { lang } = useLanguage();
+  const pendingTimers=useRef(new Set());
+  const setTimeout=(callback,delay)=>{const timer=gameTimeout(()=>{pendingTimers.current.delete(timer);callback();},delay);pendingTimers.current.add(timer);return timer;};
+  useEffect(()=>()=>{pendingTimers.current.forEach(clearTimeout);pendingTimers.current.clear();},[]);
   const [showRules, setShowRules] = useState(false);
   const [mode, setMode] = useState(()=>initialGameOption('prime','mode',null)); // 'pvp' | 'pve'
   const [difficulty, setDifficulty] = useState(()=>initialGameSetting('prime','schoolLevels','smp')); // 'sd', 'smp', 'sma', 'universitas'
@@ -139,11 +144,22 @@ export default function GamePrime({ onBack, onNavigate }) {
   const [aiThinking, setAiThinking] = useState(false);
   const [aiTargetIdx, setAiTargetIdx] = useState(null);
   const [actionNotice, setActionNotice] = useState(null);
+  const [hiddenGuessModal, setHiddenGuessModal] = useState(null);
+  const challenge=useUniversityGameplay('prime',difficulty,gameState==='playing'&&hiddenGuessModal===null);
+  const numbersVisible=challenge.id!=='hidden-numbers'||revealWindow(challenge.seconds,8,20,5);
+  const numbersVisibleRef=useRef(numbersVisible);numbersVisibleRef.current=numbersVisible;
+  useUniversityEvent(challenge,'shuffled-numbers',20,gameState==='playing'&&!aiThinking&&hiddenGuessModal===null,()=>{
+    const pending=shuffleValues(board.filter(cell=>!cell.isFound),random);let index=0;
+    setBoard(board.map(cell=>cell.isFound?cell:pending[index++]));
+  });
+  const loseForMistake=player=>{
+    if(currentUniversityVariant('prime')!=='prime-or-lose')return false;
+    setWinner(3-player);setGameState('ended');setIsTimerActive(false);setAiThinking(false);return true;
+  };
   const universityConfig = UNIVERSITY_LEVELS[universityDifficulty];
-  const turnSeconds = difficulty === 'universitas' ? universityConfig.seconds : 30;
+  const turnSeconds = difficulty === 'universitas' ? universityConfig.seconds : difficulty === 'sma-plus' ? 20 : 30;
 
   // Hidden Cube Modal
-  const [hiddenGuessModal, setHiddenGuessModal] = useState(null);
 
   // Refs for race-condition prevention in AI timeouts
   const boardRef = useRef(board);
@@ -168,14 +184,14 @@ export default function GamePrime({ onBack, onNavigate }) {
 
   const rules = lang === 'en' ? [
     "The board is filled with 25 unique number cubes. The goal is to identify Prime Numbers.",
-    "Players take turns selecting one cube per move. University Arena Mode uses Hard, Very Hard, and Impossible timers and number ranges.",
+    "Five levels: SD, SMP, SMA, SMA+, Universitas. Universitas randomly selects one of three gameplay rules on every start.",
     "Selecting a Prime Number scores +1 Point and lets you KEEP your turn for another guess!",
     "Selecting a Composite (Non-Prime) Number reveals its prime factor breakdown and passes the turn to your opponent immediately.",
     "One cube is hidden as '?'. If you choose it and correctly guess whether it is Prime or Not Prime, you earn +3 Points!",
     "First player to reach 6 points wins the match immediately. If the board runs out of primes, the highest score wins."
   ] : [
     "Papan diisi dengan 25 kubus angka unik. Tujuannya adalah menemukan Bilangan Prima.",
-    "Pemain bergantian memilih satu kubus per giliran. Mode Arena Universitas memakai timer dan rentang angka Hard, Very Hard, dan Impossible.",
+    "Lima tingkat: SD, SMP, SMA, SMA+, Universitas. Universitas memilih satu dari tiga aturan gameplay secara acak setiap mulai.",
     "Memilih Bilangan Prima menghasilkan +1 Poin dan Anda MEMPERTAHANKAN giliran untuk menebak lagi!",
     "Memilih Bilangan Komposit (Bukan Prima) akan mengungkap faktor pembaginya dan langsung mengalihkan giliran ke lawan.",
     "Satu kubus disembunyikan sebagai '?'. Jika Anda menebak dengan benar apakah nilainya Prima atau Bukan, Anda mendapat +3 Poin!",
@@ -191,6 +207,8 @@ export default function GamePrime({ onBack, onNavigate }) {
       min = 101; max = 500;
     } else if (level === 'sma') {
       min = 501; max = 1500;
+    } else if(level === 'sma-plus') {
+      min=1501;max=4000;
     } else {
       const arena = UNIVERSITY_LEVELS[arenaDifficulty] || UNIVERSITY_LEVELS.hard;
       min = arena.min; max = arena.max;
@@ -270,6 +288,7 @@ export default function GamePrime({ onBack, onNavigate }) {
 
   // Start game
   const startChallenge = (chosenMode) => {
+    pendingTimers.current.forEach(clearTimeout);pendingTimers.current.clear();
     const newBoard = generateUniqueBoard(difficulty, universityDifficulty);
     setBoard(newBoard);
     setScore1(0);
@@ -310,6 +329,7 @@ export default function GamePrime({ onBack, onNavigate }) {
     let timerId = null;
     if (isTimerActive && turnTimer > 0 && gameState === 'playing') {
       timerId = setInterval(() => {
+        if(!numbersVisibleRef.current)return;
         setTurnTimer(t => {
           if (t <= 4 && t > 1) playSound('tick');
           return t - 1;
@@ -384,7 +404,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       // University/SMA AI is sharper (80% / 65% chance of picking a prime if available)
       const activeDifficulty = difficultyRef.current;
       const activeArena = UNIVERSITY_LEVELS[universityDifficultyRef.current] || UNIVERSITY_LEVELS.hard;
-      const hitChance = activeDifficulty === 'universitas' ? activeArena.hitChance : activeDifficulty === 'sma' ? 0.65 : 0.45;
+      const hitChance = activeDifficulty === 'universitas' ? activeArena.hitChance : activeDifficulty === 'sma-plus' ? 0.82 : activeDifficulty === 'sma' ? 0.65 : 0.45;
 
       if (hiddenAvailable.length > 0 && random() < 0.25) {
         targetIdx = hiddenAvailable[0];
@@ -408,6 +428,7 @@ export default function GamePrime({ onBack, onNavigate }) {
   scheduleAITurnRef.current = scheduleAITurn;
 
   const executeAIMove = (targetIdx) => {
+    if(!numbersVisibleRef.current){setAiThinking(true);setTimeout(()=>{setAiThinking(false);executeAIMove(targetIdx);},500);return;}
     const currentBoard = [...boardRef.current];
     const cell = currentBoard[targetIdx];
     cell.isFound = true;
@@ -435,6 +456,7 @@ export default function GamePrime({ onBack, onNavigate }) {
           scheduleAITurn();
         }
       } else {
+        if(loseForMistake(2))return;
         playSound('wrong');
         setActionNotice({
           type: 'error',
@@ -457,6 +479,7 @@ export default function GamePrime({ onBack, onNavigate }) {
           scheduleAITurn();
         }
       } else {
+        if(loseForMistake(2))return;
         playSound('wrong');
         setActionNotice({
           type: 'info',
@@ -499,6 +522,7 @@ export default function GamePrime({ onBack, onNavigate }) {
         setTurnTimer(turnSecondsRef.current);
       }
     } else {
+      if(loseForMistake(activePlayer))return;
       playSound('wrong');
       setActionNotice({
         type: 'error',
@@ -538,6 +562,7 @@ export default function GamePrime({ onBack, onNavigate }) {
         setTurnTimer(turnSecondsRef.current);
       }
     } else {
+      if(loseForMistake(activePlayer))return;
       playSound('wrong');
       setActionNotice({
         type: 'error',
@@ -554,7 +579,7 @@ export default function GamePrime({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD Level: Numbers 2 – 99 (Fundamentals)' : 'Level SD: Angka 2 – 99 (Dasar)',
     smpDesc: lang === 'en' ? 'SMP Level: Numbers 101 – 500 (Intermediate)' : 'Level SMP: Angka 101 – 500 (Menengah)',
     smaDesc: lang === 'en' ? 'SMA Level: Numbers 501 – 1500 (Advanced divisibility)' : 'Level SMA: Angka 501 – 1500 (Keterbagian lanjutan)',
-    univDesc: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · Numbers ${universityConfig.min}–${universityConfig.max} · ${turnSeconds}s turns · randomized board` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Angka ${universityConfig.min}–${universityConfig.max} · ${turnSeconds} dtk/giliran · papan acak`,
+    univDesc: lang === 'en' ? `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Numbers ${universityConfig.min}–${universityConfig.max} · ${turnSeconds}s turns · randomized board` : `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Angka ${universityConfig.min}–${universityConfig.max} · ${turnSeconds} dtk/giliran · papan acak`,
     pvp: lang === 'en' ? 'Local 1v1 Hotseat' : 'Duel 1v1 Lokal',
     pve: lang === 'en' ? 'vs AI Bot' : 'Lawan AI Bot',
     passTurn: lang === 'en' ? 'Skip / Pass Turn' : 'Lewati Giliran',
@@ -581,7 +606,7 @@ export default function GamePrime({ onBack, onNavigate }) {
   useGameCheckpoint('prime',{mode,difficulty,universityDifficulty,gameState,board,activePlayer,score1,score2,turnTimer,isTimerActive,winner,aiThinking,aiTargetIdx,actionNotice,hiddenGuessModal},saved=>{setMode(saved.mode);setDifficulty(saved.difficulty);setUniversityDifficulty(saved.universityDifficulty);setGameState(saved.gameState);setBoard(saved.board);setActivePlayer(saved.activePlayer);setScore1(saved.score1);setScore2(saved.score2);setTurnTimer(saved.turnTimer);setIsTimerActive(saved.isTimerActive);setWinner(saved.winner);setAiThinking(saved.aiThinking);setAiTargetIdx(saved.aiTargetIdx);setActionNotice(saved.actionNotice);setHiddenGuessModal(saved.hiddenGuessModal);},gameState==='playing'&&!aiThinking&&!hiddenGuessModal&&(activePlayer===1||mode==='pvp'),gameState==='playing'&&isTimerActive&&(activePlayer===1||mode==='pvp'));
 
   return (
-    <GameScreen gameId="prime" lang={lang} state={gameState} level={difficulty} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
+    <GameScreen universityMode={challenge} gameId="prime" lang={lang} state={gameState} level={difficulty} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
@@ -599,7 +624,7 @@ export default function GamePrime({ onBack, onNavigate }) {
           desc={difficulty === 'sd' ? t.sdDesc : difficulty === 'smp' ? t.smpDesc : difficulty === 'sma' ? t.smaDesc : t.univDesc}
           lang={lang}
         >
-          {difficulty === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
+          
           <div style={{ display: 'flex', gap: 'var(--uw-space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"
@@ -694,7 +719,7 @@ export default function GamePrime({ onBack, onNavigate }) {
               return (
                 <button
                   key={idx}
-                  aria-label={`${lang === "en" ? "Number" : "Angka"} ${cell.isHidden && !cell.isFound ? "?" : cell.value}`}
+                  aria-label={`${lang === "en" ? "Number" : "Angka"} ${!numbersVisible&&!cell.isFound ? "?" : cell.isHidden && !cell.isFound ? "?" : cell.value}`}
                   disabled={!isCellClickable}
                   onClick={() => handleCellClick(idx)}
                   style={{
@@ -743,7 +768,7 @@ export default function GamePrime({ onBack, onNavigate }) {
                         {cell.isPrime ? '✓ PRIME' : cell.factorHint}
                       </span>
                     </>
-                  ) : cell.isHidden ? (
+                  ) : cell.isHidden||!numbersVisible ? (
                     <span style={{ fontSize: '1.6rem', color: '#fbbf24', fontWeight: 800 }}>?</span>
                   ) : (
                     cell.value
@@ -767,12 +792,13 @@ export default function GamePrime({ onBack, onNavigate }) {
         </div>
       ) : (
         <MultiEndCard
+          mode={mode}
           winner={winner}
           score1={score1}
           score2={score2}
           p1Label={t.player1}
           p2Label={t.player2}
-          onBack={() => setGameState('setup')}
+          onBack={onBack}
           onPlayAgain={() => startChallenge(mode)}
           lang={lang}
         />
