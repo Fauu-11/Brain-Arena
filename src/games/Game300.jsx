@@ -1,3 +1,11 @@
+import { useArena } from '../context/ArenaContext.jsx';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { addClockPenalty } from '../utils/sessionClock.js';
+import { initialGameOption } from '../utils/sessionRules.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -6,6 +14,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Normalisasi jawaban untuk toleransi format (koma/titik desimal, pemisah ribuan, spasi, huruf besar/kecil)
+const random=()=>sessionRandom('300');
+
 const normalizeAns = (val) => {
   if (val === undefined || val === null) return '';
   let s = val.toString().trim().toLowerCase();
@@ -24,16 +34,17 @@ const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
 const lcm = (a, b) => (a * b) / gcd(a, b);
 
 export default function Game300({ onBack, onNavigate }) {
+  const {recordGameCompletion}=useArena();
   const { lang } = useLanguage();
-  const [mode, setMode] = useState(null); // null, 'practice_setup', 'war_setup', 'practice', 'war'
-  const [schoolLevel, setSchoolLevel] = useState('universitas'); // 'sd', 'smp', 'sma', 'universitas'
+  const [mode, setMode] = useState(()=>initialGameOption('300','mode',null)); // null, 'practice_setup', 'war_setup', 'practice', 'war'
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('300','schoolLevels','universitas')); // 'sd', 'smp', 'sma', 'universitas'
   const [showRules, setShowRules] = useState(false);
-  const [difficulty, setDifficulty] = useState('medium'); // non-University scale
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
-  const [warPagesCount, setWarPagesCount] = useState(10); // 1 to 10 pages (30 to 300 questions)
-  const [practiceQuestionsCount, setPracticeQuestionsCount] = useState(30);
+  const [difficulty, setDifficulty] = useState(()=>initialGameOption('300','difficulty','medium')); // non-University scale
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('300','universityDifficulties','hard'));
+  const [warPagesCount, setWarPagesCount] = useState(()=>initialGameOption('300','warPagesCount',10)); // 1 to 10 pages (30 to 300 questions)
+  const [practiceQuestionsCount, setPracticeQuestionsCount] = useState(()=>initialGameOption('300','practiceQuestionsCount',30));
 
-  const [categories, setCategories] = useState({
+  const [categories, setCategories] = useState(()=>initialGameOption('300','categories',{
     // SD
     sdIntegersValue: true,
     sdBasicOps: true,
@@ -64,7 +75,7 @@ export default function Game300({ onBack, onNavigate }) {
     exponentiation: true,
     root: true,
     baseConversion: true,
-  });
+  }));
 
   // Game Arena State
   const [timer, setTimer] = useState(0);
@@ -167,10 +178,10 @@ export default function Game300({ onBack, onNavigate }) {
         if (categories.sdFractionDecimal) active.push('fractionDecimal');
         if (categories.sdProportionScale) active.push('proportionScale');
         if (categories.sdSocialBasic) active.push('socialBasic');
-        const cat = active.length > 0 ? active[Math.floor(Math.random() * active.length)] : 'basicOps';
+        const cat = active.length > 0 ? active[Math.floor(random() * active.length)] : 'basicOps';
 
         if (cat === 'integersValue') {
-          const num = Math.floor(Math.random() * 8999) + 1000;
+          const num = Math.floor(random() * 8999) + 1000;
           const sNum = num.toString();
           const types = [
             { labelId: 'Angka ribuan dari', labelEn: 'Thousands digit of', ans: sNum[0] },
@@ -180,45 +191,45 @@ export default function Game300({ onBack, onNavigate }) {
             { labelId: 'Nilai angka ' + sNum[1] + ' dalam', labelEn: 'Value of ' + sNum[1] + ' in', ans: (parseInt(sNum[1], 10) * 100).toString() },
             { labelId: 'Nilai angka ' + sNum[2] + ' dalam', labelEn: 'Value of ' + sNum[2] + ' in', ans: (parseInt(sNum[2], 10) * 10).toString() },
           ];
-          const chosen = types[Math.floor(Math.random() * types.length)];
+          const chosen = types[Math.floor(random() * types.length)];
           return {
             equation: `${lang === 'en' ? chosen.labelEn : chosen.labelId} ${num}`,
             answer: chosen.ans,
           };
         } else if (cat === 'basicOps') {
           const ops = ['+', '-', '×', '÷'];
-          const op = ops[Math.floor(Math.random() * (difficulty === 'easy' ? 2 : 4))];
+          const op = ops[Math.floor(random() * (difficulty === 'easy' ? 2 : 4))];
           if (op === '+') {
-            const a = Math.floor(Math.random() * 80 * multiplier) + 10;
-            const b = Math.floor(Math.random() * 80 * multiplier) + 10;
+            const a = Math.floor(random() * 80 * multiplier) + 10;
+            const b = Math.floor(random() * 80 * multiplier) + 10;
             return { equation: `${a} + ${b}`, answer: (a + b).toString() };
           } else if (op === '-') {
-            const b = Math.floor(Math.random() * 60 * multiplier) + 10;
-            const a = b + Math.floor(Math.random() * 60 * multiplier) + 5;
+            const b = Math.floor(random() * 60 * multiplier) + 10;
+            const a = b + Math.floor(random() * 60 * multiplier) + 5;
             return { equation: `${a} - ${b}`, answer: (a - b).toString() };
           } else if (op === '×') {
-            const a = Math.floor(Math.random() * 12) + 2;
-            const b = Math.floor(Math.random() * 12) + 2;
+            const a = Math.floor(random() * 12) + 2;
+            const b = Math.floor(random() * 12) + 2;
             return { equation: `${a} × ${b}`, answer: (a * b).toString() };
           } else {
-            const b = Math.floor(Math.random() * 10) + 2;
-            const ans = Math.floor(Math.random() * 12) + 2;
+            const b = Math.floor(random() * 10) + 2;
+            const ans = Math.floor(random() * 12) + 2;
             const a = b * ans;
             return { equation: `${a} ÷ ${b}`, answer: ans.toString() };
           }
         } else if (cat === 'properties') {
-          const a = Math.floor(Math.random() * 20) + 5;
-          const b = Math.floor(Math.random() * 15) + 3;
-          const c = Math.floor(Math.random() * 15) + 3;
+          const a = Math.floor(random() * 20) + 5;
+          const b = Math.floor(random() * 15) + 3;
+          const c = Math.floor(random() * 15) + 3;
           return {
             equation: `${a} × (${b} + ${c}) = (${a} × ${b}) + (${a} × x). x`,
             answer: c.toString(),
           };
         } else if (cat === 'gcdLcm') {
-          const isGcd = Math.random() < 0.5;
-          const g = Math.floor(Math.random() * 6) + 2;
-          const m1 = [2, 3, 5][Math.floor(Math.random() * 3)];
-          let m2 = [2, 3, 5, 7][Math.floor(Math.random() * 4)];
+          const isGcd = random() < 0.5;
+          const g = Math.floor(random() * 6) + 2;
+          const m1 = [2, 3, 5][Math.floor(random() * 3)];
+          let m2 = [2, 3, 5, 7][Math.floor(random() * 4)];
           if (m1 === m2) m2 += 1;
           const a = g * m1;
           const b = g * m2;
@@ -237,8 +248,8 @@ export default function Game300({ onBack, onNavigate }) {
             { f: '3/5', p: '60', d: '0.6' },
             { f: '4/5', p: '80', d: '0.8' },
           ];
-          const pick = pairs[Math.floor(Math.random() * pairs.length)];
-          const modeChoice = Math.random();
+          const pick = pairs[Math.floor(random() * pairs.length)];
+          const modeChoice = random();
           if (modeChoice < 0.5) {
             return {
               equation: `${pick.f} ${lang === 'en' ? 'in percent (%)' : 'dalam persen (%)'}`,
@@ -251,16 +262,16 @@ export default function Game300({ onBack, onNavigate }) {
             };
           }
         } else if (cat === 'proportionScale') {
-          const scale = [100, 200, 500, 1000][Math.floor(Math.random() * 4)];
-          const mapCm = Math.floor(Math.random() * 8) + 2;
+          const scale = [100, 200, 500, 1000][Math.floor(random() * 4)];
+          const mapCm = Math.floor(random() * 8) + 2;
           const realM = (mapCm * scale) / 100;
           return {
             equation: `${lang === 'en' ? 'Scale' : 'Skala'} 1:${scale}, ${lang === 'en' ? 'Map' : 'Peta'} ${mapCm}cm. ${lang === 'en' ? 'Real dist (m)' : 'Jarak asli (m)'}`,
             answer: realM.toString(),
           };
         } else {
-          const buy = (Math.floor(Math.random() * 40) + 10) * 1000;
-          const profit = (Math.floor(Math.random() * 15) + 5) * 1000;
+          const buy = (Math.floor(random() * 40) + 10) * 1000;
+          const profit = (Math.floor(random() * 15) + 5) * 1000;
           return {
             equation: `${lang === 'en' ? 'Buy' : 'Beli'} ${buy}, ${lang === 'en' ? 'Profit' : 'Untung'} ${profit}. ${lang === 'en' ? 'Sell price' : 'Harga jual'}`,
             answer: (buy + profit).toString(),
@@ -277,52 +288,52 @@ export default function Game300({ onBack, onNavigate }) {
         if (categories.smpSequences) active.push('sequences');
         if (categories.smpProportions) active.push('proportions');
         if (categories.smpSocialMid) active.push('socialMid');
-        const cat = active.length > 0 ? active[Math.floor(Math.random() * active.length)] : 'negComplex';
+        const cat = active.length > 0 ? active[Math.floor(random() * active.length)] : 'negComplex';
 
         if (cat === 'negComplex') {
-          const a = (Math.floor(Math.random() * 15) + 3) * -1;
-          const b = Math.floor(Math.random() * 6) + 2;
-          const c = Math.floor(Math.random() * 5) + 1;
+          const a = (Math.floor(random() * 15) + 3) * -1;
+          const b = Math.floor(random() * 6) + 2;
+          const c = Math.floor(random() * 5) + 1;
           const ans = a + b * c;
           return { equation: `${a} + (${b}) × ${c}`, answer: ans.toString() };
         } else if (cat === 'exponentRoot') {
-          const a = Math.floor(Math.random() * 12) + 4;
-          const b = Math.floor(Math.random() * 10) + 2;
-          const isAdd = Math.random() < 0.5;
+          const a = Math.floor(random() * 12) + 4;
+          const b = Math.floor(random() * 10) + 2;
+          const isAdd = random() < 0.5;
           return {
             equation: `√${a * a} ${isAdd ? '+' : '-'} √${b * b}`,
             answer: (isAdd ? a + b : a - b).toString(),
           };
         } else if (cat === 'numberPattern') {
-          const start = Math.floor(Math.random() * 10) + 1;
-          const diff = Math.floor(Math.random() * 5) + 2;
+          const start = Math.floor(random() * 10) + 1;
+          const diff = Math.floor(random() * 5) + 2;
           return {
             equation: `${start}, ${start + diff}, ${start + 2 * diff}, ${start + 3 * diff}, ... ?`,
             answer: (start + 4 * diff).toString(),
           };
         } else if (cat === 'sequences') {
-          const a = Math.floor(Math.random() * 8) + 2;
-          const b = Math.floor(Math.random() * 4) + 2;
-          const n = Math.floor(Math.random() * 5) + 6;
+          const a = Math.floor(random() * 8) + 2;
+          const b = Math.floor(random() * 4) + 2;
+          const n = Math.floor(random() * 5) + 6;
           const ans = a + (n - 1) * b;
           return {
             equation: `${lang === 'en' ? `Term ${n} of` : `Suku ke-${n} dari`} ${a}, ${a + b}, ${a + 2 * b}...`,
             answer: ans.toString(),
           };
         } else if (cat === 'proportions') {
-          const w1 = [4, 6, 8, 10][Math.floor(Math.random() * 4)];
-          const days1 = [6, 12, 18, 24][Math.floor(Math.random() * 4)];
+          const w1 = [4, 6, 8, 10][Math.floor(random() * 4)];
+          const days1 = [6, 12, 18, 24][Math.floor(random() * 4)];
           const totalWork = w1 * days1;
           const w2Options = [2, 3, 4, 6, 8, 9, 12].filter((w) => w !== w1 && totalWork % w === 0);
-          const w2 = w2Options[Math.floor(Math.random() * w2Options.length)] || 2;
+          const w2 = w2Options[Math.floor(random() * w2Options.length)] || 2;
           const days2 = totalWork / w2;
           return {
             equation: `${w1} ${lang === 'en' ? 'workers' : 'orang'} = ${days1} ${lang === 'en' ? 'days' : 'hari'}. ${w2} ${lang === 'en' ? 'workers' : 'orang'} = ?`,
             answer: days2.toString(),
           };
         } else {
-          const price = (Math.floor(Math.random() * 10) + 2) * 20000;
-          const disc = [10, 20, 25, 50][Math.floor(Math.random() * 4)];
+          const price = (Math.floor(random() * 10) + 2) * 20000;
+          const disc = [10, 20, 25, 50][Math.floor(random() * 4)];
           const paid = price * (1 - disc / 100);
           return {
             equation: `${price} ${lang === 'en' ? `discount ${disc}%` : `diskon ${disc}%`}`,
@@ -339,12 +350,12 @@ export default function Game300({ onBack, onNavigate }) {
         if (categories.smaInfiniteGeom) active.push('infiniteGeom');
         if (categories.smaInduction) active.push('induction');
         if (categories.smaFinance) active.push('finance');
-        const cat = active.length > 0 ? active[Math.floor(Math.random() * active.length)] : 'advLog';
+        const cat = active.length > 0 ? active[Math.floor(random() * active.length)] : 'advLog';
 
         if (cat === 'advLog') {
-          const base = [2, 3, 5][Math.floor(Math.random() * 3)];
-          const p1 = Math.floor(Math.random() * 3) + 2;
-          const p2 = Math.floor(Math.random() * 2) + 1;
+          const base = [2, 3, 5][Math.floor(random() * 3)];
+          const p1 = Math.floor(random() * 3) + 2;
+          const p2 = Math.floor(random() * 2) + 1;
           const val1 = Math.pow(base, p1);
           const val2 = Math.pow(base, p2);
           return {
@@ -352,17 +363,17 @@ export default function Game300({ onBack, onNavigate }) {
             answer: (p1 + p2).toString(),
           };
         } else if (cat === 'advSequences') {
-          const a = Math.floor(Math.random() * 5) + 1;
-          const b = Math.floor(Math.random() * 4) + 2;
-          const n = [20, 25, 50][Math.floor(Math.random() * 3)];
+          const a = Math.floor(random() * 5) + 1;
+          const b = Math.floor(random() * 4) + 2;
+          const n = [20, 25, 50][Math.floor(random() * 3)];
           const ans = a + (n - 1) * b;
           return {
             equation: `${lang === 'en' ? `Term ${n} of` : `Suku ke-${n} dari`} ${a}, ${a + b}, ${a + 2 * b}...`,
             answer: ans.toString(),
           };
         } else if (cat === 'infiniteGeom') {
-          const rInv = [2, 3, 4][Math.floor(Math.random() * 3)];
-          const factor = Math.floor(Math.random() * 8) + 2;
+          const rInv = [2, 3, 4][Math.floor(random() * 3)];
+          const factor = Math.floor(random() * 8) + 2;
           const a = (rInv - 1) * factor * 2;
           const sInf = (a * rInv) / (rInv - 1);
           return {
@@ -370,15 +381,15 @@ export default function Game300({ onBack, onNavigate }) {
             answer: sInf.toString(),
           };
         } else if (cat === 'induction') {
-          const n = Math.floor(Math.random() * 15) + 6;
-          const isSquares = Math.random() < 0.5;
+          const n = Math.floor(random() * 15) + 6;
+          const isSquares = random() < 0.5;
           if (isSquares) {
             return { equation: `1 + 3 + ... + (2n-1). n=${n}`, answer: (n * n).toString() };
           } else {
             return { equation: `1 + 2 + ... + n. n=${n}`, answer: ((n * (n + 1)) / 2).toString() };
           }
         } else {
-          const p = (Math.floor(Math.random() * 5) + 1) * 100000;
+          const p = (Math.floor(random() * 5) + 1) * 100000;
           return {
             equation: `${lang === 'en' ? 'Compound 10%/yr' : 'Bunga Majemuk 10%/th'}: ${p} (2 ${lang === 'en' ? 'yrs' : 'thn'})`,
             answer: Math.round(p * 1.21).toString(),
@@ -395,58 +406,58 @@ export default function Game300({ onBack, onNavigate }) {
       if (categories.exponentiation) active.push('exponentiation');
       if (categories.root) active.push('root');
       if (categories.baseConversion) active.push('baseConversion');
-      const cat = active.length > 0 ? active[Math.floor(Math.random() * active.length)] : 'addsub';
+      const cat = active.length > 0 ? active[Math.floor(random() * active.length)] : 'addsub';
 
       if (cat === 'addsub') {
-        const a = Math.floor((Math.random() * 700 + 100) * multiplier);
-        const b = Math.floor((Math.random() * 500 + 50) * multiplier);
-        const c = Math.floor((Math.random() * 200 + 20) * multiplier);
-        const isPlus = Math.random() < 0.5;
+        const a = Math.floor((random() * 700 + 100) * multiplier);
+        const b = Math.floor((random() * 500 + 50) * multiplier);
+        const c = Math.floor((random() * 200 + 20) * multiplier);
+        const isPlus = random() < 0.5;
         const ans = isPlus ? a + b - c : a - b + c;
         return {
           equation: `${a} ${isPlus ? '+' : '-'} ${b} ${isPlus ? '-' : '+'} ${c}`,
           answer: ans.toString(),
         };
       } else if (cat === 'muldiv') {
-        const c = [2, 3, 4, 5, 6, 8, 9][Math.floor(Math.random() * 7)];
-        const k = Math.floor(Math.random() * 12 * multiplier) + 2;
+        const c = [2, 3, 4, 5, 6, 8, 9][Math.floor(random() * 7)];
+        const k = Math.floor(random() * 12 * multiplier) + 2;
         const b = c * k;
-        const a = Math.floor((Math.random() * 200 + 50) * multiplier);
+        const a = Math.floor((random() * 200 + 50) * multiplier);
         const ans = (a * b) / c;
         return { equation: `${a} × ${b} ÷ ${c}`, answer: ans.toString() };
       } else if (cat === 'mixed') {
-        const a = Math.floor((Math.random() * 150 + 20) * multiplier);
-        const b = Math.floor((Math.random() * 30 + 5) * multiplier);
-        const c = Math.floor(Math.random() * 15) + 3;
+        const a = Math.floor((random() * 150 + 20) * multiplier);
+        const b = Math.floor((random() * 30 + 5) * multiplier);
+        const c = Math.floor(random() * 15) + 3;
         return { equation: `${a} + ${b} × ${c}`, answer: (a + b * c).toString() };
       } else if (cat === 'factorial') {
         const factorial = (n) => { let out = 1; for (let i = 2; i <= n; i++) out *= i; return out; };
         const minN = universityDifficulty === 'impossible' ? 8 : universityDifficulty === 'very-hard' ? 7 : 6;
         const maxN = universityDifficulty === 'impossible' ? 10 : universityDifficulty === 'very-hard' ? 9 : 8;
-        const n = minN + Math.floor(Math.random() * (maxN - minN + 1));
-        const style = Math.floor(Math.random() * 3);
+        const n = minN + Math.floor(random() * (maxN - minN + 1));
+        const style = Math.floor(random() * 3);
         if (style === 0) return { equation: `${n}! - ${n - 1}!`, answer: (factorial(n) - factorial(n - 1)).toString() };
         if (style === 1) return { equation: `${n}! ÷ ${n - 2}!`, answer: (factorial(n) / factorial(n - 2)).toString() };
         return { equation: `${n - 1}! + ${n - 2}!`, answer: (factorial(n - 1) + factorial(n - 2)).toString() };
       } else if (cat === 'exponentiation') {
-        const baseA = Math.floor(Math.random() * (universityDifficulty === 'impossible' ? 7 : 5)) + 3;
-        const baseB = Math.floor(Math.random() * 4) + 2;
-        const powA = universityDifficulty === 'impossible' ? Math.floor(Math.random() * 3) + 4 : Math.floor(Math.random() * 2) + 3;
-        const powB = universityDifficulty === 'hard' ? 3 : Math.floor(Math.random() * 2) + 3;
-        const bonus = Math.floor(Math.random() * 80 * multiplier) + 20;
+        const baseA = Math.floor(random() * (universityDifficulty === 'impossible' ? 7 : 5)) + 3;
+        const baseB = Math.floor(random() * 4) + 2;
+        const powA = universityDifficulty === 'impossible' ? Math.floor(random() * 3) + 4 : Math.floor(random() * 2) + 3;
+        const powB = universityDifficulty === 'hard' ? 3 : Math.floor(random() * 2) + 3;
+        const bonus = Math.floor(random() * 80 * multiplier) + 20;
         const answer = (baseA ** powA) - (baseB ** powB) + bonus;
         return { equation: `${baseA}^${powA} - ${baseB}^${powB} + ${bonus}`, answer: answer.toString() };
       } else if (cat === 'root') {
-        const x = Math.floor(Math.random() * 80 + 30);
+        const x = Math.floor(random() * 80 + 30);
         return { equation: `√${x * x}`, answer: x.toString() };
       } else {
-        const val = Math.floor(Math.random() * Math.round(120 * multiplier)) + 20;
+        const val = Math.floor(random() * Math.round(120 * multiplier)) + 20;
         const bases = [
           { name: lang === 'en' ? 'bin' : 'biner', b: 2 },
           { name: lang === 'en' ? 'oct' : 'oktal', b: 8 },
           { name: lang === 'en' ? 'hex' : 'heksa', b: 16 },
         ];
-        const base = bases[Math.floor(Math.random() * bases.length)];
+        const base = bases[Math.floor(random() * bases.length)];
         let ans = val.toString(base.b).toUpperCase();
         return { equation: `${val} → ${base.name}`, answer: ans };
       }
@@ -616,7 +627,7 @@ export default function Game300({ onBack, onNavigate }) {
     } else {
       // Ada kesalahan -> Berikan penalti 10 detik
       setTotalErrorsEncountered((prev) => prev + errors);
-      setPenaltyTime(10);
+      setPenaltyTime(10); addClockPenalty(10000);
       setPageResults((prev) => ({
         ...prev,
         [currentPageIdx]: { checked: true, errorsCount: errors },
@@ -625,6 +636,7 @@ export default function Game300({ onBack, onNavigate }) {
   };
 
   const handleExit = () => {
+    if(['war','practice'].includes(mode))recordGameCompletion('300',{outcome:'loss',reason:'surrender'});
     setMode(null);
     setTimerActive(false);
     setPenaltyTime(0);
@@ -667,6 +679,8 @@ export default function Game300({ onBack, onNavigate }) {
     selectAll: lang === 'en' ? 'Select All' : 'Pilih Semua',
     clearAll: lang === 'en' ? 'Reset' : 'Reset',
   };
+
+  useGameCheckpoint('300',{mode,schoolLevel,difficulty,universityDifficulty,warPagesCount,practiceQuestionsCount,categories,timer,timerActive,pages,currentPageIdx,userAnswers,pageResults,penaltyTime,isCompleted,totalErrorsEncountered,practiceQuestion,practiceInput,practiceFeedback,practiceCount},saved=>{setMode(saved.mode);setSchoolLevel(saved.schoolLevel);setDifficulty(saved.difficulty);setUniversityDifficulty(saved.universityDifficulty);setWarPagesCount(saved.warPagesCount);setPracticeQuestionsCount(saved.practiceQuestionsCount);setCategories(saved.categories);setTimer(saved.timer);setTimerActive(saved.timerActive);setPages(saved.pages);setCurrentPageIdx(saved.currentPageIdx);setUserAnswers(saved.userAnswers);setPageResults(saved.pageResults);setPenaltyTime(saved.penaltyTime);setIsCompleted(saved.isCompleted);setTotalErrorsEncountered(saved.totalErrorsEncountered);setPracticeQuestion(saved.practiceQuestion);setPracticeInput(saved.practiceInput);setPracticeFeedback(saved.practiceFeedback);setPracticeCount(saved.practiceCount);},(mode==='war'&&!isCompleted&&penaltyTime===0)||(mode==='practice'&&!practiceFeedback),(mode==='war'&&timerActive&&!isCompleted&&penaltyTime===0)||(mode==='practice'&&!practiceFeedback));
 
   return (
     <GameScreen gameId="300" lang={lang} state={isCompleted || (mode === 'practice' && practiceCount >= practiceQuestionsCount) ? 'ended' : (mode || 'setup')} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
@@ -1046,7 +1060,7 @@ export default function Game300({ onBack, onNavigate }) {
             /* Grid 30 Soal per Halaman */
             <div>
               <div
-                ref={gridContainerRef}
+                ref={gridContainerRef} className="arithmetic-question-grid"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
@@ -1165,6 +1179,7 @@ export default function Game300({ onBack, onNavigate }) {
 
 // Komponen Pembantu Item Checkbox
 function CategoryItem({ label, checked, onChange }) {
+
   return (
     <label className="arithmetic-topic" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', color: 'var(--uw-text)', cursor: 'pointer' }}>
       <input

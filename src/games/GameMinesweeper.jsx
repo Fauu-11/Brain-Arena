@@ -1,11 +1,23 @@
+import BoardZoom from '../components/BoardZoom.jsx';
+import { useBoardSizing } from '../hooks/useBoardSizing.js';
+import { challengeOpeningIndex } from '../utils/minesweeper.js';
+import { mulberry32, challengeSeed } from '../utils/competitive.js';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import RulesModal from '../components/RulesModal.jsx';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useArena } from '../context/ArenaContext.jsx';
 import { readText, writeText } from '../utils/storage.js';
 import { chordReveal, createMinefield, formatMinesweeperTime, revealArea } from '../utils/minesweeper.js';
+
+const random=()=>sessionRandom('minesweeper');
 
 const BASE_LEVELS = {
   sd: { rows: 9, cols: 9, mines: 10, cell: 38 },
@@ -23,11 +35,12 @@ const NUMBER_CLASS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
 
 export default function GameMinesweeper({ onBack, onNavigate }) {
   const { lang } = useLanguage();
+  const { restartGameSession, currentSession, setNotice } = useArena();
   const copy = useCallback((id, en) => lang === 'en' ? en : id, [lang]);
   const [showRules, setShowRules] = useState(false);
   const [gameState, setGameState] = useState('setup');
-  const [schoolLevel, setSchoolLevel] = useState('sd');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('minesweeper','schoolLevels','sd'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('minesweeper','universityDifficulties','hard'));
   const [board, setBoard] = useState([]);
   const [revealed, setRevealed] = useState(() => new Set());
   const [flags, setFlags] = useState(() => new Set());
@@ -42,7 +55,13 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
 
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (BASE_LEVELS[schoolLevel] || BASE_LEVELS.sd);
   const recordKey = schoolLevel === 'universitas' ? `minesweeper_best_${schoolLevel}_${universityDifficulty}` : `minesweeper_best_${schoolLevel}`;
+  const boardSizing=useBoardSizing(config.cols,{gap:2,gutter:14,min:24,max:44});
   const totalCells = config.rows * config.cols;
+  const fixedOpening=challengeOpeningIndex(config.rows,config.cols,currentSession?.challengeCode||'');
+  useEffect(()=>{
+    const node=boardSizing.element;if(!node||hasStarted||fixedOpening===null)return;
+    node.scrollTo({left:Math.max(0,(fixedOpening%config.cols+.5)*(boardSizing.cell+2)-node.clientWidth/2),top:Math.max(0,(Math.floor(fixedOpening/config.cols)+.5)*(boardSizing.cell+2)-node.clientHeight/2),behavior:'instant'});
+  },[boardSizing.element,boardSizing.cell,fixedOpening,config.cols,hasStarted]);
   const safeCells = totalCells - config.mines;
   const revealedSafeCount = useMemo(() => board.length ? [...revealed].filter(index => !board[index]?.mine).length : 0, [board, revealed]);
 
@@ -127,7 +146,8 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
     if (gameState !== 'playing' || paused || flags.has(index)) return;
     let activeBoard = board;
     if (!hasStarted) {
-      activeBoard = createMinefield(config.rows, config.cols, config.mines, index);
+      if(fixedOpening!==null && index!==fixedOpening){setNotice(copy('Mulai dari petak bertanda untuk challenge yang sama.','Start from the marked cell for this challenge.'));return;}
+      activeBoard = createMinefield(config.rows, config.cols, config.mines, index, fixedOpening===null?random:mulberry32(challengeSeed(currentSession.challengeCode)));
       setBoard(activeBoard);
       setHasStarted(true);
     }
@@ -139,17 +159,17 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
     }
     const next = revealArea(activeBoard, config.rows, config.cols, index, revealed, flags);
     evaluateReveal(activeBoard, next);
-  }, [gameState, paused, flags, board, hasStarted, config, revealed, evaluateReveal]);
+  }, [gameState, paused, flags, board, hasStarted, config, revealed, evaluateReveal, fixedOpening, setNotice, currentSession, copy]);
 
   const toggleFlag = useCallback((index) => {
-    if (gameState !== 'playing' || paused || revealed.has(index)) return;
+    if (gameState !== 'playing' || paused || revealed.has(index) || (!hasStarted && index===fixedOpening)) return;
     setFlags(previous => {
       const next = new Set(previous);
       if (next.has(index)) next.delete(index);
       else if (next.size < config.mines) next.add(index);
       return next;
     });
-  }, [gameState, paused, revealed, config.mines]);
+  }, [gameState, paused, revealed, config.mines, hasStarted, fixedOpening]);
 
   const handlePrimary = useCallback((index) => {
     if (longPressTriggered.current === index) {
@@ -189,8 +209,8 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
       type="button"
       key={index}
       data-ms-cell="true"
-      className={`ms-cell ${isOpen ? 'open' : ''} ${isFlagged ? 'flagged' : ''} ${isOpen && cell.mine ? 'mine-hit' : ''} ${isOpen && cell.adjacent ? `n-${NUMBER_CLASS[cell.adjacent]}` : ''}`}
-      aria-label={aria}
+      className={`ms-cell ${!hasStarted&&index===fixedOpening?'ms-challenge-start':''} ${isOpen ? 'open' : ''} ${isFlagged ? 'flagged' : ''} ${isOpen && cell.mine ? 'mine-hit' : ''} ${isOpen && cell.adjacent ? `n-${NUMBER_CLASS[cell.adjacent]}` : ''}`}
+      aria-label={!hasStarted&&index===fixedOpening?`${aria}, ${copy('Mulai di sini','Start here')}`:aria}
       aria-pressed={isFlagged}
       onClick={() => handlePrimary(index)}
       onContextMenu={event => { event.preventDefault(); toggleFlag(index); }}
@@ -199,15 +219,18 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
       onPointerCancel={stopLongPress}
       onPointerLeave={stopLongPress}
     >
+      {!hasStarted&&index===fixedOpening?<span aria-hidden="true">◎</span>:null}
       {isFlagged ? <Icon name="flag" size={Math.max(13, config.cell * 0.46)}/> : isOpen && cell.mine ? <Icon name="mine" size={Math.max(14, config.cell * 0.5)}/> : isOpen && cell.adjacent > 0 ? <span>{cell.adjacent}</span> : null}
     </button>;
-  }), [totalCells, board, revealed, flags, config, copy, handlePrimary, toggleFlag, onPointerDown, stopLongPress]);
+  }), [totalCells, board, revealed, flags, config, copy, handlePrimary, toggleFlag, onPointerDown, stopLongPress, hasStarted, fixedOpening]);
 
   const stats = gameState === 'playing' ? <>
     <span><Icon name="clock" size={14}/>{formatMinesweeperTime(elapsed)}</span>
     <span><Icon name="mine" size={14}/>{Math.max(0, config.mines - flags.size)}</span>
     <span><Icon name="flag" size={14}/>{flags.size}</span>
   </> : null;
+
+  useGameCheckpoint('minesweeper',{gameState,schoolLevel,universityDifficulty,board,revealed,flags,hasStarted,elapsed,paused,flagMode,outcome},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setBoard(saved.board);setRevealed(saved.revealed);setFlags(saved.flags);setHasStarted(saved.hasStarted);setElapsed(saved.elapsed);setPaused(saved.paused);setFlagMode(saved.flagMode);setOutcome(saved.outcome);},gameState==='playing',gameState==='playing'&&hasStarted&&!paused);
 
   return <GameScreen gameId="minesweeper" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={stats}>
     {gameState === 'setup' && <SetupCard
@@ -234,13 +257,13 @@ export default function GameMinesweeper({ onBack, onNavigate }) {
         <div className="ms-toolbar-actions">
           <button type="button" className={`ms-flag-mode ${flagMode ? 'active' : ''}`} aria-pressed={flagMode} onClick={() => setFlagMode(value => !value)}><Icon name="flag" size={16}/>{flagMode ? copy('Mode Bendera ON', 'Flag Mode ON') : copy('Mode Bendera', 'Flag Mode')}</button>
           <button type="button" className="ms-small-button" onClick={() => setPaused(value => !value)}><Icon name={paused ? 'play' : 'clock'} size={15}/>{paused ? copy('Lanjut', 'Resume') : copy('Jeda', 'Pause')}</button>
-          <button type="button" className="ms-small-button" onClick={startGame}><Icon name="refresh" size={15}/>{copy('Ulang', 'Reset')}</button>
+          <button type="button" className="ms-small-button" onClick={()=>{restartGameSession('minesweeper');startGame();}}><Icon name="refresh" size={15}/>{copy('Ulang', 'Reset')}</button>
         </div>
       </div>
 
-      <div className="ms-board-shell">
-        <div className="ms-board-scroll" aria-label={copy('Papan Minesweeper', 'Minesweeper board')}>
-          <div className={`ms-board ${paused ? 'is-paused' : ''}`} style={{ '--ms-cols': config.cols, '--ms-cell': `${config.cell}px` }}>
+      <BoardZoom value={boardSizing.zoom} onChange={boardSizing.setZoom} lang={lang}/><p className="board-pan-hint">{copy('Gunakan +/− untuk zoom. Geser papan untuk melihat area lainnya.','Use +/− to zoom. Scroll the board to explore more cells.')}</p><div className="ms-board-shell">
+        <div ref={boardSizing.ref} tabIndex={0} role="region" className="ms-board-scroll" aria-label={copy('Papan Minesweeper', 'Minesweeper board')}>
+          <div className={`ms-board ${paused ? 'is-paused' : ''}`} style={{ '--ms-cols': config.cols, '--ms-cell': `${boardSizing.cell}px` }}>
             {boardCells}
             {paused && <div className="ms-pause-cover"><Icon name="brain" size={28}/><strong>{copy('Permainan dijeda', 'Game paused')}</strong><span>{copy('Tekan Lanjut saat siap.', 'Resume when you are ready.')}</span></div>}
           </div>

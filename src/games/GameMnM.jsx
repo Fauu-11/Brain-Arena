@@ -1,3 +1,10 @@
+import { useArena } from '../context/ArenaContext.jsx';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { initialGameOption } from '../utils/sessionRules.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
@@ -8,6 +15,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Web Audio API Engine
+const random=()=>sessionRandom('mnm');
+
 const playSound = (type) => {
   try {
     const ctx = getAudioContext();
@@ -106,12 +115,13 @@ const UNIVERSITY_LEVELS = {
 const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 export default function GameMnM({ onBack, onNavigate }) {
+  const {restartGameSession}=useArena();
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [phase, setPhase] = useState('setup'); // 'setup', 'start' (memo), 'match', 'mix', 'ended'
-  const [schoolLevel, setSchoolLevel] = useState('smp');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
-  const [mode, setMode] = useState('pve'); // 'pve' or 'pvp'
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('mnm','schoolLevels','smp'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('mnm','universityDifficulties','hard'));
+  const [mode, setMode] = useState(()=>initialGameOption('mnm','mode','pve')); // 'pve' or 'pvp'
 
   // Board state
   const [chips, setChips] = useState([]);
@@ -191,7 +201,7 @@ export default function GameMnM({ onBack, onNavigate }) {
     for (let i = 1; i <= pairs; i++) {
       numberPool.push(i, i);
     }
-    numberPool.sort(() => Math.random() - 0.5);
+    numberPool.sort(() => random() - 0.5);
 
     // Build chips
     const initChips = numberPool.map((num, idx) => ({
@@ -424,13 +434,13 @@ export default function GameMnM({ onBack, onNavigate }) {
       }
 
       let firstPick, secondPick;
-      if (pairFound && Math.random() < 0.85) {
+      if (pairFound && random() < 0.85) {
         // AI executes remembered pair
         firstPick = pairFound[0];
         secondPick = pairFound[1];
       } else {
         // Pick random unfound
-        const shuffled = [...unfoundIndices].sort(() => Math.random() - 0.5);
+        const shuffled = [...unfoundIndices].sort(() => random() - 0.5);
         firstPick = shuffled[0];
         secondPick = shuffled[1];
       }
@@ -457,8 +467,8 @@ export default function GameMnM({ onBack, onNavigate }) {
     // Filter out last moved tile if possible
     const candidates = validMoves.filter(slot => currentTiles[slot] !== lastMovedTile);
     const chosenSlot = candidates.length > 0
-      ? candidates[Math.floor(Math.random() * candidates.length)]
-      : validMoves[Math.floor(Math.random() * validMoves.length)];
+      ? candidates[Math.floor(random() * candidates.length)]
+      : validMoves[Math.floor(random() * validMoves.length)];
 
     performTileSlide(chosenSlot);
   };
@@ -685,6 +695,8 @@ export default function GameMnM({ onBack, onNavigate }) {
     resetMatch: lang === 'en' ? 'Restart Match' : 'Mulai Ulang'
   };
 
+  useGameCheckpoint('mnm',{phase,schoolLevel,universityDifficulty,mode,chips,tiles,lastMovedTile,activePlayer,score1,score2,timer,memoTimer,isTimerActive,winner,isLocked,selectedChipIndexes,aiMemory:aiMemory.current},saved=>{setPhase(saved.phase);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setMode(saved.mode);setChips(saved.chips);setTiles(saved.tiles);setLastMovedTile(saved.lastMovedTile);setActivePlayer(saved.activePlayer);setScore1(saved.score1);setScore2(saved.score2);setTimer(saved.timer);setMemoTimer(saved.memoTimer);setIsTimerActive(saved.isTimerActive);setWinner(saved.winner);setIsLocked(saved.isLocked);setSelectedChipIndexes(saved.selectedChipIndexes);aiMemory.current=saved.aiMemory;clearPendingActions();},['match','mix','start'].includes(phase)&&!isLocked&&selectedChipIndexes.length<2&&(activePlayer===1||mode==='pvp'),['match','mix'].includes(phase)&&!isLocked&&(activePlayer===1||mode==='pvp'));
+
   return (
     <GameScreen gameId="mnm" lang={lang} state={phase} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
       <RulesModal
@@ -853,7 +865,7 @@ export default function GameMnM({ onBack, onNavigate }) {
           <div style={{ textAlign: 'center' }}>
             <button
               className="uw-btn uw-btn-neutral"
-              onClick={() => initBoard(schoolLevel, mode)}
+              onClick={() => {restartGameSession('mnm');initBoard(schoolLevel, mode);}}
               style={{ padding: '8px 22px', fontSize: '0.9rem' }}
             >
               ↻ {t.resetMatch}

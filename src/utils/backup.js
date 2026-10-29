@@ -8,19 +8,23 @@ const EXCLUDED_PREFIXES = ['ba_local_profile_slot_'];
 const allowedKey = key => { const value=String(key); return !EXCLUDED_KEYS.has(value) && !EXCLUDED_PREFIXES.some(prefix=>value.startsWith(prefix)) && (SAFE_EXACT.has(value) || SAFE_PREFIXES.some(prefix=>value.startsWith(prefix))); };
 export const isBackupKeyAllowed = allowedKey;
 
-function allowedStorageSnapshot(storage) {
+function allowedStorageSnapshot(storage, enforceExportLimits = false) {
   const data = {};
-  for (let i=0;i<storage.length && Object.keys(data).length<MAX_KEYS;i+=1) {
-    const key=storage.key(i);
+  for (let i = 0; i < storage.length; i += 1) {
+    const key = storage.key(i);
     if (!key || !allowedKey(key)) continue;
-    const value=storage.getItem(key);
-    if (typeof value === 'string' && value.length <= MAX_VALUE) data[key]=value;
+    const value = storage.getItem(key);
+    if (typeof value !== 'string') continue;
+    if (enforceExportLimits && (Object.keys(data).length >= MAX_KEYS || value.length > MAX_VALUE)) {
+      throw new Error('backup-too-large');
+    }
+    data[key] = value;
   }
   return data;
 }
 
 export function createProgressBackup(storage = window.localStorage) {
-  return { format:'brain-arena-backup',version:1,appVersion:'1.19.1',exportedAt:new Date().toISOString(),data:allowedStorageSnapshot(storage) };
+  return { format:'brain-arena-backup',version:1,appVersion:'1.21.0',exportedAt:new Date().toISOString(),data:allowedStorageSnapshot(storage, true) };
 }
 
 export function validateProgressBackup(raw) {

@@ -1,7 +1,7 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.19.1",
+  "version": "1.21.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,9 +26,10 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "oxlint": "^1.71.0",
+    "react-test-renderer": "19.2.7",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena v1.19.1 - Supabase readiness CI/lint hotfix with IndexedDB local data layer, repositories, guest UUID, sync queue, mutation journal, normalized data, migration export, feature flags, migration simulation, and CI hardening",
+  "description": "Brain Arena v1.21.0 - mobile game shell, bottom navigation, responsive feature pages, board zoom and touch layouts for 12 games",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }

@@ -1,3 +1,9 @@
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { initialGameOption } from '../utils/sessionRules.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
@@ -8,6 +14,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, TipsButton, MultiEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external files needed)
+const random=()=>sessionRandom('prime');
+
 const playSound = (type) => {
   try {
     const ctx = getAudioContext();
@@ -115,9 +123,9 @@ const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 
 export default function GamePrime({ onBack, onNavigate }) {
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
-  const [mode, setMode] = useState(null); // 'pvp' | 'pve'
-  const [difficulty, setDifficulty] = useState('smp'); // 'sd', 'smp', 'sma', 'universitas'
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [mode, setMode] = useState(()=>initialGameOption('prime','mode',null)); // 'pvp' | 'pve'
+  const [difficulty, setDifficulty] = useState(()=>initialGameSetting('prime','schoolLevels','smp')); // 'sd', 'smp', 'sma', 'universitas'
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('prime','universityDifficulties','hard'));
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing', 'ended'
 
   // Board & Game loop
@@ -192,7 +200,7 @@ export default function GamePrime({ onBack, onNavigate }) {
     const getRandomNum = (forcePrime) => {
       let attempts = 0;
       while (attempts < 2500) {
-        const num = Math.floor(Math.random() * (max - min + 1)) + min;
+        const num = Math.floor(random() * (max - min + 1)) + min;
         if (!usedNumbers.has(num)) {
           const prime = isPrime(num);
           if (forcePrime && prime) {
@@ -241,11 +249,11 @@ export default function GamePrime({ onBack, onNavigate }) {
       });
     }
 
-    cells.sort(() => Math.random() - 0.5);
+    for (let i=cells.length-1;i>0;i--) { const j=Math.floor(random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
 
     // Place the hidden '?' cube
-    const hiddenIndex = Math.floor(Math.random() * 25);
-    const hiddenIsPrime = Math.random() < 0.5;
+    const hiddenIndex = Math.floor(random() * 25);
+    const hiddenIsPrime = random() < 0.5;
     const hiddenValue = getRandomNum(hiddenIsPrime);
     const hiddenFactor = hiddenIsPrime ? null : `${getSmallestFactor(hiddenValue)} × ${hiddenValue / getSmallestFactor(hiddenValue)}`;
 
@@ -378,14 +386,14 @@ export default function GamePrime({ onBack, onNavigate }) {
       const activeArena = UNIVERSITY_LEVELS[universityDifficultyRef.current] || UNIVERSITY_LEVELS.hard;
       const hitChance = activeDifficulty === 'universitas' ? activeArena.hitChance : activeDifficulty === 'sma' ? 0.65 : 0.45;
 
-      if (hiddenAvailable.length > 0 && Math.random() < 0.25) {
+      if (hiddenAvailable.length > 0 && random() < 0.25) {
         targetIdx = hiddenAvailable[0];
-      } else if (primesAvailable.length > 0 && Math.random() < hitChance) {
-        targetIdx = primesAvailable[Math.floor(Math.random() * primesAvailable.length)];
+      } else if (primesAvailable.length > 0 && random() < hitChance) {
+        targetIdx = primesAvailable[Math.floor(random() * primesAvailable.length)];
       } else {
         targetIdx = compositesAvailable.length > 0
-          ? compositesAvailable[Math.floor(Math.random() * compositesAvailable.length)]
-          : unrevealedIdxs[Math.floor(Math.random() * unrevealedIdxs.length)];
+          ? compositesAvailable[Math.floor(random() * compositesAvailable.length)]
+          : unrevealedIdxs[Math.floor(random() * unrevealedIdxs.length)];
       }
 
       setAiTargetIdx(targetIdx);
@@ -410,7 +418,7 @@ export default function GamePrime({ onBack, onNavigate }) {
       const activeDifficulty = difficultyRef.current;
       const activeArena = UNIVERSITY_LEVELS[universityDifficultyRef.current] || UNIVERSITY_LEVELS.hard;
       const aiAccuracy = activeDifficulty === 'universitas' ? activeArena.hiddenAccuracy : 0.6;
-      const guessedPrime = Math.random() < aiAccuracy ? cell.isPrime : !cell.isPrime;
+      const guessedPrime = random() < aiAccuracy ? cell.isPrime : !cell.isPrime;
       const isCorrect = guessedPrime === cell.isPrime;
 
       if (isCorrect) {
@@ -569,6 +577,8 @@ export default function GamePrime({ onBack, onNavigate }) {
     if (len === 3) return '1.1rem';
     return '1.3rem';
   };
+
+  useGameCheckpoint('prime',{mode,difficulty,universityDifficulty,gameState,board,activePlayer,score1,score2,turnTimer,isTimerActive,winner,aiThinking,aiTargetIdx,actionNotice,hiddenGuessModal},saved=>{setMode(saved.mode);setDifficulty(saved.difficulty);setUniversityDifficulty(saved.universityDifficulty);setGameState(saved.gameState);setBoard(saved.board);setActivePlayer(saved.activePlayer);setScore1(saved.score1);setScore2(saved.score2);setTurnTimer(saved.turnTimer);setIsTimerActive(saved.isTimerActive);setWinner(saved.winner);setAiThinking(saved.aiThinking);setAiTargetIdx(saved.aiTargetIdx);setActionNotice(saved.actionNotice);setHiddenGuessModal(saved.hiddenGuessModal);},gameState==='playing'&&!aiThinking&&!hiddenGuessModal&&(activePlayer===1||mode==='pvp'),gameState==='playing'&&isTimerActive&&(activePlayer===1||mode==='pvp'));
 
   return (
     <GameScreen gameId="prime" lang={lang} state={gameState} level={difficulty} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>

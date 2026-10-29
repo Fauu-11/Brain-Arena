@@ -13,7 +13,7 @@ const checks=[
   ['runtime-health',read('src/utils/runtimeHealth.js').includes(`APP_VERSION = '${expected}'`)],
   ['feedback',read('src/pages/Feedback.jsx').includes(`APP_VERSION = '${expected}'`)],
   ['schema-v19',/DATA_SCHEMA_VERSION\s*=\s*19/.test(read('src/utils/migration.js'))],
-  ['manifest-v1.19',read('public/manifest.webmanifest').includes('v1.19')],
+  ['manifest-version',read('public/manifest.webmanifest').includes(`v${expected.split('.').slice(0,2).join('.')}`)],
   ['lint-first-party',pkg.scripts?.lint==='oxlint src tests scripts'],
   ['actions-node24',deploy.includes('actions/checkout@v7')&&deploy.includes('actions/setup-node@v7')&&deploy.includes('node-version: 24')&&ci.includes('actions/checkout@v7')&&ci.includes('actions/setup-node@v7')],
   ['ubuntu-24.04',deploy.includes('runs-on: ubuntu-24.04')&&ci.includes('runs-on: ubuntu-24.04')],

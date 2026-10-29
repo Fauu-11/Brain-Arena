@@ -1,3 +1,10 @@
+import { useArena } from '../context/ArenaContext.jsx';
+import { sessionRandom } from '../utils/competitive.js';
+import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
+import { addClockPenalty } from '../utils/sessionClock.js';
+import { gameInterval as setInterval } from '../utils/sessionClock.js';
+import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
+import { initialGameSetting } from '../utils/sessionRules.js';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { generateSudokuMatrix } from '../utils/sudoku.js';
@@ -9,6 +16,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external sound files required)
+const random=()=>sessionRandom('sudoku');
+
 const playSound = (type) => {
   try {
     const ctx = getAudioContext();
@@ -107,11 +116,12 @@ const UNIVERSITY_LEVELS = {
 const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
 
 export default function GameSudoku({ onBack, onNavigate }) {
+  const {restartGameSession}=useArena();
   const { lang } = useLanguage();
   const [showRules, setShowRules] = useState(false);
   const [phase, setPhase] = useState('setup'); // 'setup', 'start' (memo), 'playing', 'ended'
-  const [schoolLevel, setSchoolLevel] = useState('smp');
-  const [universityDifficulty, setUniversityDifficulty] = useState('hard');
+  const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('sudoku','schoolLevels','smp'));
+  const [universityDifficulty, setUniversityDifficulty] = useState(()=>initialGameSetting('sudoku','universityDifficulties','hard'));
 
   // Sudoku Board Data
   const [solution, setSolution] = useState([]);
@@ -156,18 +166,18 @@ export default function GameSudoku({ onBack, onNavigate }) {
   // Initialize Puzzle
   const startNewSudoku = useCallback((lvl = schoolLevel) => {
     const conf = lvl === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_CONFIG[lvl] || LEVEL_CONFIG.smp);
-    const fullGrid = generateSudokuMatrix(conf.size, conf.boxRows, conf.boxCols);
+    const fullGrid = generateSudokuMatrix(conf.size, conf.boxRows, conf.boxCols, random);
     const totalCells = conf.size * conf.size;
 
     // Create masked cells
     const mask = Array(totalCells).fill(true); // true = given clue, false = hidden
     const hiddenCount = Math.floor(
-      Math.random() * (conf.hiddenMax - conf.hiddenMin + 1)
+      random() * (conf.hiddenMax - conf.hiddenMin + 1)
     ) + conf.hiddenMin;
 
     let placed = 0;
     while (placed < hiddenCount) {
-      const randIdx = Math.floor(Math.random() * totalCells);
+      const randIdx = Math.floor(random() * totalCells);
       if (mask[randIdx]) {
         mask[randIdx] = false;
         placed++;
@@ -253,7 +263,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
     playSound('peek');
     setIsPeeking(true);
     setPeeksLeft(p => p - 1);
-    setElapsedTime(t => t + 4); // 4 seconds penalty
+    setElapsedTime(t => t + 4); addClockPenalty(4000); // 4 seconds penalty
 
     setTimeout(() => {
       setIsPeeking(false);
@@ -360,6 +370,8 @@ export default function GameSudoku({ onBack, onNavigate }) {
       isSameVal
     };
   };
+
+  useGameCheckpoint('sudoku',{phase,schoolLevel,universityDifficulty,solution,cluesMask,userAnswers,selectedCell,feedback,elapsedTime,memoTime,peeksLeft,isPeeking},saved=>{setPhase(saved.phase);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setSolution(saved.solution);setCluesMask(saved.cluesMask);setUserAnswers(saved.userAnswers);setSelectedCell(saved.selectedCell);setFeedback(saved.feedback);setElapsedTime(saved.elapsedTime);setMemoTime(saved.memoTime);setPeeksLeft(saved.peeksLeft);setIsPeeking(saved.isPeeking);},['start','playing'].includes(phase)&&!feedback&&!isPeeking,phase==='playing');
 
   return (
     <GameScreen gameId="sudoku" lang={lang} state={phase} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{phase === "start" ? `${memoTime}s` : `${elapsedTime}s`}</span>{bestTime !== null && <span><Icon name="trophy" size={14}/>{bestTime}s</span>}</>}>
@@ -707,7 +719,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
           }}>
             <button
               className="uw-btn uw-btn-neutral"
-              onClick={() => startNewSudoku(schoolLevel)}
+              onClick={() => {restartGameSession('sudoku');startNewSudoku(schoolLevel);}}
               style={{ padding: '10px 20px' }}
             >
               ↻ {t.newPuzzle}

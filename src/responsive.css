@@ -1,0 +1,340 @@
+/* v1.21: shared responsive shell, feature pages and game-specific touch layouts. */
+:root { --mobile-tabs-height: 68px; --mobile-header-height: 56px; }
+.mobile-tabbar, .mobile-tools-button, .play-mobile-rules { display: none; }
+.main-content > *, .main-content :is(section, article, aside, form, fieldset) { min-inline-size: 0; }
+.main-content :is(img, video, canvas, svg) { max-inline-size: 100%; }
+.main-content :is(input, textarea, select) { max-inline-size: 100%; box-sizing: border-box; }
+.main-content :is(code, pre) { overflow-wrap: anywhere; }
+.main-content table { display: block; max-width: 100%; overflow-x: auto; }
+.play-guide-panel { width: 100%; border: 1px solid var(--theme-border); border-radius: 14px; background: var(--theme-surface); }
+.play-guide-panel > summary, .setup-advanced > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 12px 16px; color: var(--theme-text); font-size: 14px; font-weight: 700; cursor: pointer; list-style: none; }
+.play-guide-panel > summary::-webkit-details-marker, .setup-advanced > summary::-webkit-details-marker { display: none; }
+.play-guide-panel > summary > svg:last-child, .setup-advanced > summary > svg:last-child { margin-left: auto; transition: transform .15s; }
+.play-guide-panel[open] > summary > svg:last-child, .setup-advanced[open] > summary > svg:last-child { transform: rotate(180deg); }
+.play-guide-content { display: grid; gap: 12px; padding: 0 10px 10px; }
+.play-guide-content :is(.play-guide-card, .play-tip-card) { margin: 0; box-shadow: none; }
+.play-guide-content .play-input-hint { padding: 12px; }
+.setup-advanced { align-self: start; border: 1px solid var(--theme-border); border-radius: 12px; background: var(--theme-surface); }
+.setup-advanced[open] { padding-bottom: 12px; }
+.setup-advanced > :not(summary) { margin-inline: 12px; }
+.board-zoom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; width: 100%; color: var(--theme-text-muted); font-size: 13px; }
+.board-zoom > span, .board-zoom > div { display: flex; align-items: center; gap: 6px; }
+.board-zoom button { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 8px; border: 1px solid var(--theme-border-strong); border-radius: 10px; background: var(--theme-control); color: var(--theme-text); font: inherit; font-weight: 700; cursor: pointer; }
+.board-zoom button:disabled { opacity: .4; cursor: default; }
+.board-zoom .board-zoom-reset { min-width: 64px; font-variant-numeric: tabular-nums; }
+.arena-game .nonogram-wrap[data-size] { --ng-board: calc(var(--ng-size) * var(--ng-cell, 32px)); }
+.arena-game :is(.nonogram-scroll, .ms-board-scroll, .maze-scroll) { min-width: 0; max-width: 100%; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y pinch-zoom; }
+.arena-game :is(.nonogram-scroll, .ms-board-scroll, .maze-scroll):focus-visible { outline: 3px solid var(--theme-accent-text); outline-offset: 2px; }
+.arena-game .nonogram-scroll { max-height: min(68svh, 720px); isolation: isolate; }
+.arena-game .nonogram-wrap { margin: 0 auto; }
+.arena-game :is(.nonogram-corner, .nonogram-col-clues, .nonogram-row-clues) { background: var(--theme-surface); }
+.arena-game .nonogram-corner { position: sticky; top: 0; left: 0; z-index: 4; }
+.arena-game .nonogram-col-clues { position: sticky; top: 0; z-index: 3; }
+.arena-game .nonogram-row-clues { position: sticky; left: 0; z-index: 2; }
+.arena-game .nonogram-grid { position: relative; z-index: 0; }
+.arena-game .ms-board-scroll { max-height: min(65svh, 700px); }
+.arena-game .maze-scroll { max-height: min(57svh, 640px); }
+
+/* Tablet: split content where useful and let large tools use the available width. */
+@media (max-width: 1100px) {
+  .ba-app .main-content :is(.builder-layout, .archive-layout, .share-challenge-card, .feedback-layout, .replay-shell, .run-builder, .profile-columns, .statistics-grid, .statistics-grid.lower, .daily-grid, .settings-grid) { grid-template-columns: minmax(0, 1fr); }
+  .ba-app .main-content :is(.local-profile-grid, .practice-lab-grid, .mastery-grid, .completion-grid, .achievement-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content :is(.statistics-kpis, .analytics-v2-kpis, .activity-calendar-kpis, .profile-stat-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content :is(.builder-options, .replay-timeline, .feedback-side) { position: static; max-width: 100%; }
+}
+@media (max-width: 800px) {
+  .ba-app.layout-refresh { --navigation-width: 0px; }
+  .ba-app.layout-refresh .app-body { margin-left: 0; padding-bottom: calc(var(--mobile-tabs-height) + env(safe-area-inset-bottom)); }
+  .ba-app.layout-refresh:is(.sidebar-expanded, .sidebar-collapsed) > :is(.sidebar, .sidebar-rail) { display: none; }
+  .ba-app.layout-refresh .topbar { position: sticky; top: 0; z-index: 25; height: auto; min-height: var(--mobile-header-height); gap: 4px; padding: max(4px, env(safe-area-inset-top)) 8px 4px; background: var(--theme-surface); border-bottom: 1px solid var(--theme-border); }
+  .ba-app.layout-refresh .topbar-left { flex: 1 1 auto; min-width: 0; gap: 4px; }
+  .ba-app.layout-refresh .topbar-actions { flex: 0 0 auto; gap: 4px; }
+  .ba-app.layout-refresh .topbar .navigation-tooltip-trigger { flex: none; }
+  .ba-app.layout-refresh .topbar .navigation-tooltip-trigger:has(:is(.language-button, .sound-button, .coach-top-button, .notification-button, .topbar-profile, .help-button, .pwa-install, .pwa-install-button, .pwa-install-compact, .sidebar-toggle)) { display: none; }
+  .ba-app.layout-refresh .topbar-actions > .navigation-tooltip-trigger:has(button[aria-pressed]) { display: none; }
+  .ba-app.layout-refresh .topbar-actions > .navigation-tooltip-trigger:has(.pwa-install-button) { display: none; }
+  .ba-app.layout-refresh .topbar-actions > .toolbar-divider { display: none; }
+  .ba-app.layout-refresh .topbar .global-search { display: flex; width: 44px; min-width: 44px; min-height: 44px; padding: 10px; border: 0; background: transparent; }
+  .ba-app.layout-refresh .topbar .global-search :is(span, kbd) { display: none; }
+  .ba-app.layout-refresh .topbar :is(.mobile-menu, .mobile-tools-button) { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+  .ba-app.layout-refresh .breadcrumb { flex: 1; overflow: hidden; }
+  .ba-app.layout-refresh .breadcrumb > :is(button, svg) { display: none; }
+  .ba-app.layout-refresh .breadcrumb > span { display: block; max-width: 100%; font-size: 15px; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ba-app.layout-refresh .main-content { width: 100%; max-width: 100%; padding: 20px 16px 24px; }
+  .ba-app.layout-refresh .main-content.game-page { padding: 12px 12px 20px; }
+  .ba-app.layout-refresh .site-footer { padding: 18px 16px; flex-wrap: wrap; gap: 10px; font-size: 12px; }
+  .ba-app .mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 35; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: var(--mobile-tabs-height); padding: 5px max(8px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--theme-surface); border-top: 1px solid var(--theme-border); box-shadow: 0 -4px 22px #00000008; }
+  .mobile-tabbar button { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; min-width: 0; min-height: 54px; border: 0; border-radius: 12px; padding: 6px 2px; background: transparent; color: var(--theme-text-muted); font: inherit; font-size: 11px; font-weight: 650; cursor: pointer; }
+  .mobile-tabbar button[aria-current="page"] { color: var(--theme-accent-text); background: var(--theme-accent-surface); }
+  .ba-app.is-playing .mobile-tabbar, html[data-keyboard-open="true"] .mobile-tabbar { display: none; }
+  .ba-app.layout-refresh.is-playing .app-body { padding-bottom: env(safe-area-inset-bottom); }
+  .ba-app.is-playing .site-footer { display: none; }
+  .ba-app.layout-refresh .competitive-hud { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 0; padding: 7px 16px; font-size: 12px; border-bottom: 1px solid var(--theme-border); background: var(--theme-surface); }
+  .ba-app .competitive-hud > code { display: none; }
+  .ba-app .competitive-hud > button { margin-left: auto; min-height: 36px; padding: 6px 10px; font-size: 12px; }
+  .ba-app.layout-refresh .toast { left: 50%; bottom: calc(var(--mobile-tabs-height) + 12px + env(safe-area-inset-bottom)); max-width: calc(100vw - 24px); width: max-content; font-size: 13px; text-align: center; }
+  .ba-app.layout-refresh.is-playing .toast { bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .pwa-update-banner { max-width: calc(100vw - 24px); bottom: calc(var(--mobile-tabs-height) + 12px + env(safe-area-inset-bottom)); }
+
+  /* Dialogs respect both the small viewport and the on-screen keyboard. */
+  .ba-dialog { width: min(560px, calc(100vw - 24px)); min-width: 0; max-width: calc(100vw - 24px); max-height: min(88dvh, calc(var(--visual-height, 100dvh) - 24px)); padding: 16px; border-radius: 20px; overflow: auto; overscroll-behavior: contain; scroll-padding-top: 64px; }
+  .ba-dialog .dialog-header { position: sticky; top: -16px; z-index: 8; padding: 12px 0; margin: -4px 0 12px; background: var(--theme-surface); }
+  .ba-dialog .dialog-header h2 { min-width: 0; font-size: 18px; overflow-wrap: anywhere; }
+  .ba-dialog .dialog-header .icon-button { min-width: 44px; min-height: 44px; }
+  .ba-dialog :is(input, textarea, select) { font-size: 16px; max-width: 100%; }
+  .ba-dialog .dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ba-dialog .dialog-actions button { flex: 1 1 130px; min-height: 46px; }
+  .ba-dialog.mobile-tools-dialog { position: fixed; inset: auto 0 0; width: 100%; max-width: 100%; margin: 0; padding: 16px 16px max(16px, env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; }
+  .mobile-tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .mobile-tool-grid > button { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 60px; padding: 12px; border: 1px solid var(--theme-border); border-radius: 14px; background: var(--theme-control); color: var(--theme-text); font: inherit; font-size: 14px; text-align: left; }
+  .mobile-tool-grid > button > svg { flex: none; }
+  .ba-dialog.mobile-menu-dialog.layout-refresh { width: min(340px, 92vw); max-height: var(--visual-height, 100dvh); }
+  .ba-dialog .command-input { min-width: 0; }
+  .ba-dialog .search-results button { min-height: 56px; }
+  .ba-dialog .notification-list > button { grid-template-columns: 32px minmax(0, 1fr) 8px; gap: 10px; }
+
+  /* Dashboard, catalog and all feature pages share the same responsive rhythm. */
+  .ba-app .main-content :is(.home-refresh, .catalog-refresh) { gap: 24px; }
+  .ba-app .main-content :is(.dashboard-top, .dashboard-choices, .dashboard-progress-grid, .dashboard-daily, .hub-overview-grid, .hub-card-grid, .hub-card-grid-two, .hub-tool-links, .settings-grid, .profile-columns, .daily-grid, .daily-main-card, .statistics-grid, .statistics-grid.lower, .builder-layout, .archive-layout, .feedback-layout, .share-challenge-card, .replay-shell, .run-builder, .guide-learning-path, .guide-library-hero, .manual-hero, .manual-overview-grid, .manual-strategy-grid, .manual-example, .manual-mistakes, .manual-footer-cta, .rank-overview-grid, .rank-transparency, .rank-hero, .profile-hero, .profile-custom-hero, .showcase-config, .cup-start-card, .cloud-readiness-hero, .cloud-settings-score) { grid-template-columns: minmax(0, 1fr); }
+  .ba-app .main-content :is(.game-grid, .pinned-v2-grid, .local-profile-grid, .practice-lab-grid, .mastery-grid, .completion-grid, .achievement-grid, .guides-grid, .event-game-grid, .goal-list, .offline-grid, .control-mapping-grid, .cloud-readiness-grid, .cloud-flag-grid, .storage-actions, .builder-game-grid, .custom-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content :is(.activity-stats, .statistics-kpis, .analytics-v2-kpis, .activity-calendar-kpis, .profile-stat-grid, .hub-stats, .hub-cloud-metrics, .storage-breakdown-grid, .diagnostic-grid, .health-summary, .records-grid, .showcase-stats, .run-kpis) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content :is(.page-heading, .hub-heading, .dashboard-section-heading, .section-heading, .leaderboard-toolbar, .analytics-v2-toolbar, .profile-manager-hero, .run-summary-head, .health-actions, .storage-total, .controls-status) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+  .ba-app .main-content :is(.page-heading, .hub-heading, .dashboard-section-heading, .section-heading) > div { min-width: 0; flex: 1 1 200px; }
+  .ba-app .main-content :is(.progression-hero, .competitive-hero, .daily-hero, .feedback-hero, .event-hero, .season-hero) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 20px; }
+  .ba-app .main-content :is(.page-heading, .hub-heading, .progression-hero, .competitive-hero, .daily-hero, .feedback-hero, .guide-library-hero, .event-hero, .season-hero) h1 { font-size: clamp(25px, 6vw, 34px); line-height: 1.2; letter-spacing: -.7px; overflow-wrap: anywhere; }
+  .ba-app .main-content :is(.meta-page, .progression-page, .competitive-page, .daily-page, .profile-page, .guides-page, .manual-page, .hub-page) p { font-size: 14px; line-height: 1.65; }
+  .ba-app .main-content :is(.meta-page, .progression-page, .competitive-page, .daily-page, .profile-page, .hub-page) small { font-size: 12px; line-height: 1.45; }
+  .ba-app .main-content :is(.ba-button, .hub-button, .dashboard-button, .dashboard-link, .card-play, .card-guide) { min-height: 44px; font-size: 14px; white-space: normal; }
+  .ba-app .main-content :is(input, textarea, select):not([type="range"]):not([type="checkbox"]):not([type="radio"]) { min-width: 0; font-size: 16px; min-height: 44px; }
+  .ba-app .main-content :is(.profile-name-row, .profile-name-form, .profile-create-card, .save-slot-create, .goal-create, .showcase-config, .backup-actions, .auto-backup-actions, .result-card-actions, .health-actions, .offline-actions, .history-toolbar, .run-builder-actions, .run-actions, .feedback-form-actions) { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ba-app .main-content :is(.profile-create-card, .save-slot-create, .goal-create, .profile-name-form) > :is(input, select, label) { flex: 1 1 180px; width: 100%; }
+  .ba-app .main-content :is(.match-row, .run-stage, .setup-recovery-card, .continue-playing-card, .auto-backup-list article) { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ba-app .main-content :is(.match-metrics, .run-v2-scoreboard, .result-v2-grid, .performance-details) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content :is(.match-row, .run-stage, .cup-round article, .mission-card) :is(code, strong, p) { overflow-wrap: anywhere; }
+  .ba-app .main-content :is(.cup-rounds, .season-track, .rank-ladder) { grid-template-columns: minmax(0, 1fr); }
+  .ba-app .main-content :is(.analytics-range, .replay-controls, .replay-speeds, .season-tabs) { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ba-app .main-content :is(.analytics-range, .replay-controls, .replay-speeds, .season-tabs) button { min-height: 44px; min-width: 44px; }
+  .ba-app .main-content :is(.calendar-heatmap, .heatmap, .calendar-heatmap-grid, .analytics-trend-chart, .activity-chart, .manual-tabs) { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+  .ba-app .main-content :is(.diagnostic-report pre, .share-link-box code, .cloud-migration-preview, .cloud-integrity-preview) { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ba-app .main-content .share-link-box { flex-direction: column; align-items: stretch; }
+  .ba-app .main-content .share-qr img { width: min(240px, 100%); height: auto; }
+  .ba-app .main-content .result-card-preview { width: 100%; padding: 22px 16px; aspect-ratio: auto; }
+  .ba-app .main-content .archive-calendar { padding: 10px; gap: 4px; }
+  .ba-app .main-content .archive-calendar button { min-width: 0; min-height: 54px; padding: 5px 2px; }
+  .ba-app .main-content .archive-calendar small { font-size: 9px; }
+  .ba-app .main-content .archive-calendar strong { font-size: 16px; }
+  .ba-app .main-content .archive-calendar svg { width: 12px; height: 12px; right: 2px; bottom: 2px; }
+
+  /* The playing surface uses the screen; instructions and decoration are secondary. */
+  .arena-game .play-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .arena-game .play-aside { display: block; }
+  .arena-game .play-page-nav { margin-bottom: 8px; }
+  .arena-game .play-back { font-size: 12px; gap: 5px; }
+  .arena-game .play-page-tools { gap: 4px; }
+  .arena-game .play-mobile-rules { display: inline-flex; align-items: center; justify-content: center; }
+  .arena-game .play-hero { padding: 20px; min-height: 132px; margin-bottom: 12px; }
+  .arena-game .play-hero h1 { font-size: 28px; }
+  .arena-game .play-hero-copy { max-width: 100%; }
+  .arena-game:is(.phase-play, .phase-memory) .play-hero { display: none; }
+  .arena-game:is(.phase-play, .phase-memory) .play-stage { border-radius: 16px; }
+  .arena-game .play-stage-top { padding: 12px; gap: 8px; min-height: 44px; }
+  .arena-game .play-stage-top > span { font-size: 12px; }
+  .arena-game .play-live-stats { gap: 8px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .arena-game .play-stage-body { padding: 16px 12px; }
+  .arena-game:is(.phase-play, .phase-memory) .play-stage-body { padding: 12px 8px; }
+  .arena-game .play-stage-bottom { padding: 10px 12px; }
+  .arena-game:is(.phase-play, .phase-memory) .play-stage-bottom > :is(svg, span) { display: none; }
+  .arena-game .play-stage-bottom button { margin-left: auto; min-height: 40px; }
+  .arena-game .play-levels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .arena-game .play-levels button { min-height: 76px; padding: 12px; }
+  .arena-game .play-levels strong { font-size: 15px; }
+  .arena-game .play-levels small { font-size: 12px; }
+  .arena-game .play-university-difficulty { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .arena-game .play-university-difficulty button { min-width: 0; padding: 10px 5px; min-height: 60px; }
+  .arena-game .play-university-difficulty button span { font-size: 12px; }
+  .arena-game .play-university-difficulty button small { font-size: 10px; }
+  .arena-game .competitive-setup { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .arena-game .competitive-mode-toggle { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .arena-game .competitive-mode-toggle button { min-height: 60px; }
+  .arena-game .competitive-mode-toggle small { white-space: normal; font-size: 11px; }
+  .arena-game .play-setup-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .arena-game .play-setup-actions > .uw-btn { flex: 1 1 100%; min-height: 50px; font-size: 16px; padding: 12px; }
+  .arena-game .play-setup-actions > .play-tips-button { min-height: 44px; font-size: 14px; }
+  .arena-game .play-setup-heading h2 { font-size: 23px; line-height: 1.3; }
+  .arena-game .play-setup-heading p, .arena-game .play-level-description p { font-size: 13px; line-height: 1.6; }
+  .arena-game .play-setup-footnote { font-size: 12px; line-height: 1.6; }
+  .arena-game .play-result { padding: 16px 4px; }
+  .arena-game .play-result h2 { font-size: 25px; line-height: 1.25; }
+  .arena-game .play-result-scores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .arena-game .play-result-scores > div { min-width: 0; padding: 12px; }
+  .arena-game .play-result-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .arena-game .play-result-actions button { min-width: 0; min-height: 48px; padding: 10px; font-size: 13px; }
+  .arena-game .result-challenge-code { flex-wrap: wrap; }
+  .arena-game .result-challenge-code code { white-space: normal; overflow-wrap: anywhere; }
+  .arena-game .performance-result { grid-template-columns: 80px minmax(0, 1fr); }
+  .arena-game .post-game-insights-grid { grid-template-columns: minmax(0, 1fr); }
+  .arena-game .play-scoreboard { margin-bottom: 10px; }
+  .arena-game .play-player { padding: 10px 6px; gap: 6px; }
+  .arena-game .play-player-name { font-size: 12px; }
+  .arena-game .play-player-score { font-size: 22px; }
+
+  /* Individual game boards and controls. */
+  .arena-game .rps-board-wrap { max-width: min(100%, max(196px, calc(100svh - 350px))); }
+  .arena-game .rps-control-actions { width: 100%; justify-content: center; gap: 12px; }
+  .arena-game .rps-controls { padding: 10px; }
+  .arena-game .rps-move-slot { height: 30px; }
+  .arena-game .rps-control-label { margin-bottom: 6px; }
+  .arena-game .rps-direction { width: 44px; height: 44px; }
+  .arena-game .rps-symbol-legend { gap: 6px; }
+  .arena-game .maze-controls { flex-direction: row; gap: 16px; padding: 10px; border: 1px solid var(--theme-border); border-radius: 14px; background: var(--theme-surface); }
+  .arena-game .maze-dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 46px); }
+  .arena-game .maze-dpad .center { display: none; }
+  .arena-game .maze-dpad .down { grid-row: 2; grid-column: 2; }
+  .arena-game .maze-route-note { min-width: 0; flex: 1; }
+  .arena-game .maze-route-note strong { font-size: 25px; }
+  .arena-game :is(.maze-toolbar, .ms-toolbar, .memory-toolbar) { padding: 12px; gap: 10px; }
+  .arena-game :is(.maze-toolbar, .ms-toolbar) { display: flex; flex-direction: column; align-items: stretch; }
+  .arena-game :is(.maze-toolbar-actions, .ms-toolbar-actions) { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+  .arena-game :is(.maze-toolbar-actions, .ms-toolbar-actions) button { flex: 1 1 auto; min-height: 44px; font-size: 12px; }
+  .arena-game :is(.maze-toolbar, .ms-toolbar, .memory-toolbar) small { font-size: 12px; line-height: 1.5; }
+  .arena-game :is(.maze-shell, .ms-board-shell) { min-width: 0; padding: 6px; }
+  .arena-game :is(.maze-board, .ms-board) { margin-inline: auto; }
+  .arena-game .memory-board-shell { padding: 14px 8px; min-height: 0; align-items: stretch; }
+  .arena-game .memory-board { --matrix-cell: clamp(28px, calc((100vw - 100px) / var(--matrix-size) - 4px), 64px); gap: 4px; margin-inline: auto; }
+  .arena-game .memory-cell { border-radius: 8px; }
+  .arena-game .memory-footer { gap: 10px; font-size: 12px; }
+  .arena-game .memory-footer small { font-size: 11px; }
+  .arena-game .nonogram-toolbar { gap: 10px; }
+  .arena-game .nonogram-tools { display: flex; width: 100%; }
+  .arena-game .nonogram-tools button { flex: 1; justify-content: center; font-size: 13px; min-height: 44px; }
+  .arena-game .nonogram-wrap { margin-inline: 0; }
+  .arena-game .nonogram-hint { font-size: 12px; }
+  .arena-game .g2048-board { width: min(100%, max(220px, calc(100svh - 330px))); max-width: 420px; margin-inline: auto; touch-action: none; }
+  .arena-game .g2048-toolbar { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .arena-game .g2048-toolbar small { flex-basis: 100%; max-width: 34ch; }
+  .arena-game .g2048-dpad { grid-template-columns: repeat(4, minmax(44px, 1fr)); width: min(100%, 300px); gap: 8px; margin-inline: auto; }
+  .arena-game .g2048-dpad button { min-height: 50px; }
+  .arena-game .prime-board { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 5px !important; }
+  .arena-game .prime-board > button { min-width: 0; min-height: 44px; padding: 4px !important; font-size: clamp(11px, 2.8vw, 17px) !important; }
+  .arena-game .mnm-board { gap: 6px !important; padding: 8px !important; }
+  .arena-game .mnm-board > div { min-width: 0; gap: 4px !important; padding: 5px !important; }
+  .arena-game .mnm-board > div > button { max-width: none; min-width: 0; min-height: 24px; border-radius: 6px !important; }
+  .arena-game :is(.sudoku-board, .sudoku-memory-board) { width: 100%; max-width: 460px; margin-inline: auto; }
+  .arena-game .sudoku-keypad { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; gap: 6px !important; padding: 10px 0; }
+  .arena-game .sudoku-keypad button { min-width: 0 !important; width: 100% !important; min-height: 48px; height: auto !important; font-size: 20px !important; }
+  .arena-game .sudoku-actions { display: flex; flex-wrap: wrap; gap: 8px !important; }
+  .arena-game .sudoku-actions button { flex: 1 1 120px; min-height: 48px; font-size: 14px !important; padding: 10px !important; }
+  .arena-game .cube-play-panel { padding: 12px !important; }
+  .arena-game .cube-play-panel svg[viewBox="0 0 500 450"] { width: 100%; height: auto; max-height: 48svh !important; }
+  .arena-game[data-game="cube"] form { display: flex; flex-wrap: wrap; gap: 8px; }
+  .arena-game[data-game="cube"] form input { flex: 1 1 100px; width: 100%; }
+  .arena-game[data-game="cube"] form button { flex: 1 1 100px; min-height: 48px; }
+  .arena-game .pixel-board { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; padding: 6px !important; }
+  .arena-game .pixel-workbench { padding: 12px !important; }
+  .arena-game .pixel-targets { gap: 6px !important; flex-wrap: wrap; }
+  .arena-game[data-game="300"] .arithmetic-question-grid { grid-template-columns: minmax(0, 1fr) !important; padding: 8px !important; max-height: none !important; overflow: visible !important; }
+  .arena-game[data-game="300"] .arithmetic-practice { padding: 18px 12px !important; }
+  .arena-game[data-game="300"] .arithmetic-practice input { width: 100%; max-width: 100%; }
+}
+
+@media (max-width: 520px) {
+  .ba-app .main-content :is(.game-grid, .pinned-v2-grid, .local-profile-grid, .practice-lab-grid, .mastery-grid, .completion-grid, .achievement-grid, .guides-grid, .event-game-grid, .goal-list, .offline-grid, .control-mapping-grid, .cloud-readiness-grid, .cloud-flag-grid, .storage-actions, .builder-game-grid, .custom-grid, .custom-grid.avatar-grid, .feedback-fields.two-col) { grid-template-columns: minmax(0, 1fr); }
+  .ba-app .main-content :is(.dashboard-hero, .dashboard-daily, .hub-overview-card, .hub-section, .settings-panel, .stats-panel, .feedback-form, .builder-games, .builder-options, .archive-detail) { padding: 18px 14px; }
+  .ba-app .main-content .dashboard-hero-copy { width: 100%; }
+  .ba-app .main-content .dashboard-art { opacity: .12; }
+  .ba-app .main-content .dashboard-hero h1 { font-size: 30px; }
+  .ba-app .main-content .dashboard-actions { flex-direction: column; align-items: stretch; }
+  .ba-app .main-content .dashboard-actions .dashboard-button { width: 100%; }
+  .ba-app .main-content .game-art { height: 150px; }
+  .ba-app .main-content .game-card-body { padding: 16px; }
+  .ba-app .main-content .game-card-body > p { font-size: 14px; line-height: 1.55; }
+  .ba-app .main-content .card-heading h3 { font-size: 18px; }
+  .ba-app .main-content .card-heading { flex-wrap: wrap; gap: 8px; }
+  .ba-app .main-content :is(.catalog-controls, .catalog-search, .leaderboard-toolbar label) { width: 100%; min-width: 0; }
+  .ba-app .main-content .leaderboard-toolbar select { width: 100%; min-width: 0; }
+  .ba-app .main-content .podium { gap: 6px; padding-inline: 0; }
+  .ba-app .main-content .podium article { padding-inline: 5px; min-width: 0; }
+  .ba-app .main-content .podium article strong { overflow-wrap: anywhere; font-size: 12px; }
+  .ba-app .main-content .leaderboard-table > div { grid-template-columns: 28px 32px minmax(0, 1fr); gap: 8px; padding: 12px 8px; }
+  .ba-app .main-content .leaderboard-table > div > b { grid-column: 3; font-size: 15px; }
+  .ba-app .main-content .leaderboard-table .you-pill { grid-column: 2; grid-row: 2; padding: 3px; font-size: 8px; }
+  .ba-app .main-content :is(.stats-table-head, .performance-v2-head) { display: none; }
+  .ba-app .main-content :is(.stats-game-table, .performance-v2-table) > button { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 14px 10px; text-align: left; }
+  .ba-app .main-content :is(.stats-game-table, .performance-v2-table) > button > span:first-child { grid-column: 1 / -1; }
+  .ba-app .main-content [data-stat-label] { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; font-size: 15px; }
+  .ba-app .main-content [data-stat-label]::before { content: attr(data-stat-label); font-size: 11px; color: var(--theme-text-muted); font-weight: 500; }
+  .ba-app .main-content :is(.health-table > div, .save-slot-list > article) { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; }
+  .ba-app .main-content .health-table code { flex: 1 1 100%; }
+  .ba-app .main-content :is(.run-presets, .run-mode-choice, .health-summary, .cloud-settings-score, .season-reward) { grid-template-columns: minmax(0, 1fr); }
+  .ba-app .main-content .result-card-preview > div { gap: 12px; flex-wrap: wrap; }
+  .ba-app .main-content .manual-tutorial-step { grid-template-columns: 30px minmax(0, 1fr); }
+  .ba-app .main-content .manual-tabs { display: flex; flex-wrap: nowrap; gap: 6px; }
+  .ba-app .main-content .manual-tabs button { flex: 0 0 auto; min-height: 48px; padding: 10px; }
+  .arena-game .play-status { font-size: 10px; }
+  .arena-game .play-page-tools .play-tool { min-width: 36px; width: 36px; }
+  .arena-game .play-back { max-width: 155px; }
+}
+
+/* Short landscape screens get a board/control split rather than a squeezed column. */
+@media (min-width: 540px) and (max-width: 960px) and (max-height: 540px) and (orientation: landscape) {
+  .ba-app.layout-refresh .topbar { position: static; }
+  .arena-game .rps-gameplay { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .85fr); align-items: start; gap: 10px; }
+  .arena-game .rps-gameplay > .play-scoreboard { grid-column: 1 / -1; }
+  .arena-game .rps-board-wrap { grid-column: 1; grid-row: 2 / span 3; max-width: min(100%, 300px); }
+  .arena-game .rps-controls, .arena-game .rps-turn-hint, .arena-game .rps-symbol-legend, .arena-game .rps-score-note { grid-column: 2; }
+  .arena-game .rps-controls { grid-row: 2; }
+  .arena-game .g2048-gameplay { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 1fr); gap: 12px; }
+  .arena-game .g2048-toolbar { grid-column: 1 / -1; }
+  .arena-game .g2048-board { grid-column: 1; grid-row: 2 / span 2; width: min(100%, 290px); }
+  .arena-game .g2048-dpad, .arena-game .g2048-gameplay .nonogram-hint { grid-column: 2; }
+  .arena-game :is(.nonogram-scroll, .maze-scroll, .ms-board-scroll) { max-height: 65svh; }
+}
+@media (pointer: coarse) {
+  .main-content :is(button, summary, a) { touch-action: manipulation; }
+  .main-content :is(.nonogram-scroll, .ms-board-scroll, .maze-scroll) { touch-action: pan-x pan-y pinch-zoom; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-tabbar *, .play-guide-panel > summary > svg, .setup-advanced > summary > svg { transition: none; }
+}
+@media print { .mobile-tabbar, .mobile-tools-button, .board-zoom { display: none !important; } }
+
+@media (max-width: 800px) {
+  .ba-app .main-content :is(.stats-game-table, .performance-v2-table) > button > span:first-child { white-space: normal; overflow-wrap: anywhere; }
+  .ba-app .main-content .custom-grid.avatar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ba-app .main-content .custom-option { min-width: 0; }
+  .ba-app .main-content :is(.profile-name-row, .profile-name-form, .save-slot-create) input { flex-basis: 100%; }
+}
+
+.board-pan-hint { margin: -4px 0 0; color: var(--theme-text-muted); font-size: 12px; line-height: 1.5; }
+.mobile-tool-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.mobile-tool-grid > button { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 12px; border: 1px solid var(--theme-border); border-radius: 12px; background: var(--theme-control); color: var(--theme-text); font: inherit; font-size: 14px; text-align: left; }
+@media (max-width: 800px) {
+  .ba-app.layout-refresh .main-content { padding-inline: max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right)); }
+  .ba-app.layout-refresh .main-content.game-page { padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right)); }
+  .ba-app .main-content :is(.profile-game-copy, .replay-timeline strong, .notification-list strong) { overflow-wrap: anywhere; }
+  .ba-app .main-content :is(.local-profile-grid footer, .save-slot-list footer, .profile-progression-links) { flex-wrap: wrap; }
+  .ba-app .main-content :is(.hub-card, .hub-tool-links > button) { min-width: 0; }
+  .pwa-update-banner { grid-template-columns: 32px minmax(0,1fr); gap: 10px; padding: 12px; }
+  .pwa-update-banner .pwa-update-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; }
+}
+@media (max-width: 380px) {
+  .arena-game .play-page-nav { gap: 4px; }
+  .arena-game .play-back { max-width: 130px; font-size: 11px; }
+  .arena-game .play-page-tools .play-tool { width: 32px; min-width: 32px; }
+  .arena-game .play-status { padding-inline: 5px; font-size: 9px; }
+  .arena-game .play-hero h1 { font-size: 25px; }
+}
+
+@media (max-width: 800px) {
+  .arena-game .rps-planar { padding: 16px 10px; }
+  .arena-game .rps-planar h2 { font-size: 22px; }
+  .arena-game .rps-net-grid { grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(4, 64px); gap: 6px; max-width: 100%; }
+  .arena-game .nonogram-scroll, .arena-game .ms-board-scroll { max-height: min(60svh, max(180px, calc(var(--visual-height, 100svh) - 330px))); }
+  .arena-game .maze-scroll { max-height: min(52svh, max(160px, calc(var(--visual-height, 100svh) - 420px))); }
+}
+
+.arena-game .play-aside { display: block; }
+@media (min-width: 801px) and (max-width: 1060px) {
+  .arena-game .play-guide-content { grid-template-columns: repeat(2, minmax(0,1fr)); align-items: start; }
+  .arena-game .play-guide-content .play-guide-card { grid-row: span 2; }
+}
