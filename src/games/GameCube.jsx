@@ -1,9 +1,11 @@
+import {useUniversityGameplay,useUniversityEvent} from '../hooks/useUniversityGameplay.js';
+import {rotateSquare90} from '../utils/universityGameplay.js';
 import { sessionRandom } from '../utils/competitive.js';
 import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
 import { gameInterval as setInterval } from '../utils/sessionClock.js';
 import { useGameCheckpoint } from '../hooks/useGameCheckpoint.js';
 import { cubeResult, initialGameSetting } from '../utils/sessionRules.js';
-import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
+import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell.jsx';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -17,13 +19,14 @@ const GRID_CONFIG = {
   sd:  { size: 3, maxH: 2, minCubes: 4,  seconds: 40, label: 'SD' },
   smp: { size: 4, maxH: 3, minCubes: 8,  seconds: 40, label: 'SMP' },
   sma: { size: 5, maxH: 4, minCubes: 12, seconds: 38, label: 'SMA' },
+  'sma-plus': { size: 5, maxH: 5, minCubes: 20, seconds: 30, label: 'SMA+' },
 };
 const UNIVERSITY_CONFIG = {
   hard: { size: 5, maxH: 5, minCubes: 16, seconds: 34 },
   'very-hard': { size: 6, maxH: 6, minCubes: 28, seconds: 28 },
   impossible: { size: 7, maxH: 7, minCubes: 42, seconds: 22 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+const UNIVERSITY_LABELS = { impossible: 'Universitas' };
 
 // SVG isometric config per grid size
 const SVG_CONFIG = {
@@ -212,6 +215,9 @@ export default function GameCube({ onBack, onNavigate }) {
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [history, setHistory] = useState([]); // Ringkasan per level
 
+  const challenge=useUniversityGameplay('cube',schoolLevel,gameState==='playing'&&feedback===null&&isTimerActive);
+  const stackVisible=challenge.id!=='memory-stack'||timer>16||feedback!==null;
+  useUniversityEvent(challenge,'turning-stack',5,gameState==='playing'&&feedback===null,()=>setHeights(old=>rotateSquare90(old,gridSize)));
   const inputRef = useRef(null);
   const actionTimeoutRef = useRef(null);
 
@@ -221,14 +227,14 @@ export default function GameCube({ onBack, onNavigate }) {
     'A 3D stack of cubes is displayed on an isometric grid.',
     'Hidden cubes exist underneath visible ones to support them (no cubes float).',
     'Calculate the total count of cubes and enter your answer.',
-    'Time depends on difficulty. University Arena Mode offers Hard, Very Hard, and Impossible. 1 correct answer = 1 point.',
+    'Five levels: SD, SMP, SMA, SMA+, Universitas. Universitas randomly selects one of three gameplay rules on every start.',
     'If wrong or time expires, the correct answer is revealed before moving to the next level.',
     'Complete all 5 levels to see your final spatial reasoning score.',
   ] : [
     'Tumpukan kubus 3D ditampilkan di atas bidang isometris.',
     'Semua kubus bertumpu di lantai atau di atas kubus lain (tidak ada kubus melayang).',
     'Hitung total seluruh kubus (termasuk yang tertutup di bawahnya) dan kirim jawabanmu.',
-    'Waktu mengikuti tingkat kesulitan. Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible. Jawaban benar = 1 poin.',
+    'Lima tingkat: SD, SMP, SMA, SMA+, Universitas. Universitas memilih satu dari tiga aturan gameplay secara acak setiap mulai.',
     'Jika salah atau waktu habis, kunci jawaban akan ditampilkan sebelum lanjut.',
     'Selesaikan 5 level tantangan untuk melihat hasil evaluasi spasialmu.',
   ];
@@ -275,6 +281,7 @@ export default function GameCube({ onBack, onNavigate }) {
   }, [isTimerActive, timer, gameState]);
 
   const advance = useCallback((wasCorrect, currentTotal) => {
+    if(!wasCorrect&&challenge.id==='perfect-count'){challenge.fail({id:'Jawaban salah atau waktu habis pada variasi Hitungan Sempurna.',en:'A wrong answer or timeout ended Perfect Count.'});return;}
     setHistory(prev => [...prev, { level, total: currentTotal, isCorrect: wasCorrect }]);
     if (wasCorrect) setCorrectAnswers(c => c + 1);
 
@@ -286,19 +293,20 @@ export default function GameCube({ onBack, onNavigate }) {
       setLevel(next);
       loadLevel(next, schoolLevel, universityDifficulty);
     }
-  }, [level, schoolLevel, universityDifficulty, loadLevel]);
+  }, [level, schoolLevel, universityDifficulty, loadLevel,challenge]);
 
   // Timeout handler jika waktu habis
   useEffect(() => {
     if (timer === 0 && isTimerActive && gameState === 'playing') {
       setIsTimerActive(false);
+      if(challenge.id==='perfect-count'){challenge.fail({id:'Waktu menghitung kubus habis.',en:'The counting timer expired.'});return;}
       setFeedback('wrong');
       setRevealedAnswer(totalCubes);
       actionTimeoutRef.current = setTimeout(() => {
         advance(false, totalCubes);
       }, 2000);
     }
-  }, [timer, isTimerActive, gameState, totalCubes, advance]);
+  }, [timer, isTimerActive, gameState, totalCubes, advance,challenge]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -314,6 +322,7 @@ export default function GameCube({ onBack, onNavigate }) {
         advance(true, totalCubes);
       }, 1200);
     } else {
+      if(challenge.id==='perfect-count'){challenge.fail({id:'Hitungan kubus belum tepat.',en:'The cube count was incorrect.'});return;}
       setFeedback('wrong');
       setRevealedAnswer(totalCubes);
       actionTimeoutRef.current = setTimeout(() => {
@@ -337,7 +346,7 @@ export default function GameCube({ onBack, onNavigate }) {
     sd:          lang === 'en' ? 'Grid 3×3 · Height 1–2 · Foundational spatial' : 'Grid 3×3 · Tinggi 1–2 · Pemahaman dasar spasial',
     smp:         lang === 'en' ? 'Grid 4×4 · Height 1–3 · Moderate occlusion' : 'Grid 4×4 · Tinggi 1–3 · Penumpukan sedang',
     sma:         lang === 'en' ? 'Grid 5×5 · Height 1–4 · Competitive TPA standard' : 'Grid 5×5 · Tinggi 1–4 · Standar tes TPA/BUMN',
-    universitas: lang === 'en' ? `University Arena · ${UNIVERSITY_LABELS[universityDifficulty]} · Grid ${UNIVERSITY_CONFIG[universityDifficulty].size}×${UNIVERSITY_CONFIG[universityDifficulty].size} · Height 1–${UNIVERSITY_CONFIG[universityDifficulty].maxH}` : `Arena Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Grid ${UNIVERSITY_CONFIG[universityDifficulty].size}×${UNIVERSITY_CONFIG[universityDifficulty].size} · Tinggi 1–${UNIVERSITY_CONFIG[universityDifficulty].maxH}`, 
+    universitas: lang === 'en' ? `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Grid ${UNIVERSITY_CONFIG[universityDifficulty].size}×${UNIVERSITY_CONFIG[universityDifficulty].size} · Height 1–${UNIVERSITY_CONFIG[universityDifficulty].maxH}` : `Universitas · ${UNIVERSITY_LABELS[universityDifficulty]} · Grid ${UNIVERSITY_CONFIG[universityDifficulty].size}×${UNIVERSITY_CONFIG[universityDifficulty].size} · Tinggi 1–${UNIVERSITY_CONFIG[universityDifficulty].maxH}`, 
   };
 
   const scoreLabel = (n) => {
@@ -351,7 +360,7 @@ export default function GameCube({ onBack, onNavigate }) {
   useGameCheckpoint('cube',{gameState,schoolLevel,universityDifficulty,level,heights,gridSize,answerInput,feedback,revealedAnswer,correctAnswers,timer,isTimerActive,history},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setLevel(saved.level);setHeights(saved.heights);setGridSize(saved.gridSize);setAnswerInput(saved.answerInput);setFeedback(saved.feedback);setRevealedAnswer(saved.revealedAnswer);setCorrectAnswers(saved.correctAnswers);setTimer(saved.timer);setIsTimerActive(saved.isTimerActive);setHistory(saved.history);},gameState==='playing'&&feedback===null&&timer>0,gameState==='playing'&&isTimerActive&&feedback===null&&timer>0);
 
   return (
-    <GameScreen gameId="cube" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
+    <GameScreen universityMode={challenge} gameId="cube" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
@@ -367,7 +376,7 @@ export default function GameCube({ onBack, onNavigate }) {
           desc={`${SCHOOL_DESCS[schoolLevel]} · ${lang==='en'?'Pass: at least 3/5 correct':'Lulus: minimal 3/5 benar'}`}
           lang={lang}
         >
-          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
+          
           <button className="uw-btn uw-btn-primary" onClick={startGame}><Icon name="play" size={17}/>{lang === 'en' ? 'Start challenge' : 'Mulai Tes'}</button>
           {onNavigate && <TipsButton onClick={() => onNavigate('tips-cube')} lang={lang}/>}
         </SetupCard>
@@ -456,12 +465,14 @@ export default function GameCube({ onBack, onNavigate }) {
             position: 'relative',
             userSelect: 'none'
           }}>
+            {!stackVisible&&<p className="university-hidden-panel">{lang==='id'?'Susunan disembunyikan. Jawab dari ingatan.':'Stack hidden. Answer from memory.'}</p>}
             <svg
+              aria-hidden={!stackVisible}
               viewBox="0 0 500 450"
               style={{
                 width: '100%',
                 maxHeight: '420px',
-                display: 'block',
+                display: stackVisible?'block':'none',
                 filter: 'drop-shadow(0 14px 18px rgba(0, 0, 0, 0.12))'
               }}
             >
@@ -475,7 +486,7 @@ export default function GameCube({ onBack, onNavigate }) {
               />
 
               {/* Tumpukan Kubus */}
-              {cubes.map(cube => (
+              {(stackVisible?cubes:[]).map(cube => (
                 <IsoCube
                   key={`c_${cube.row}_${cube.col}_${cube.h}`}
                   row={cube.row}

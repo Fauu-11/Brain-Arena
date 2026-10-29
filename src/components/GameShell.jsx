@@ -1,157 +1,34 @@
-import { configuredChallengeCode } from '../utils/competitive.js';
-import { gameChallengeOptions } from '../utils/gameCheckpoint.js';
-import { restoreGameCheckpoint, validCheckpoint } from '../utils/gameCheckpoint.js';
-import React, { useEffect, useRef, useState } from 'react';
+import {UNIVERSITY_GAMEPLAY} from '../utils/universityGameplay.js';
+import React,{useEffect} from 'react';
 import Icon from './Icon.jsx';
 import Dialog from './Dialog.jsx';
-import { useArena } from '../context/ArenaContext.jsx';
-import { gameById, resolveRoute, routeHash } from '../data/games.js';
-import { formatDuration } from '../utils/competitive.js';
-import { postGameInsights } from '../utils/insights.js';
-import { brainCoachFocus } from '../utils/coachV2.js';
-import { challengeLink } from '../utils/challengeShare.js';
-
-export function StatBadge({ label, value, color = 'var(--uw-primary)' }) {
-  return <div className="play-stat"><span>{label}</span><strong style={{ color }}>{value}</strong></div>;
+import {useArena} from '../context/ArenaContext.jsx';
+import {gameById,resolveRoute} from '../data/games.js';
+import {DIFFICULTY_LEVELS} from '../data/difficulties.js';
+import {GAME_LEVEL_NOTES} from '../data/gameLevelNotes.js';
+export function StatBadge({label,value,color='var(--uw-primary)'}){return <div className="play-stat"><span>{label}</span><strong style={{color}}>{value}</strong></div>;}
+export function LevelSelector({value,onChange,lang='id'}){
+  return <div className="play-levels simple-levels" role="group" aria-label={lang==='en'?'Difficulty':'Tingkat kesulitan'}>{DIFFICULTY_LEVELS.map((item,index)=><button type="button" key={item.id} aria-pressed={value===item.id} className={value===item.id?'selected':''} onClick={()=>onChange(item.id)}><span className="play-level-top"><span className="play-level-bars" aria-hidden="true">{[0,1,2,3,4].map(n=><i key={n} className={n<=index?'filled':''} style={{height:5+n*3}}/>)}</span><span className="play-level-check">{value===item.id&&<Icon name="check" size={10}/>}</span></span><strong>{item.label}</strong><small>{item.description[lang]}</small></button>)}</div>;
 }
-
-// Retained as a public component for older pages using GameShell.
-export function GamePageHeader({ onBack, title, lang, right, subtitle, onRules, onOpenRules }) {
-  return <header className="play-legacy-header"><button className="uw-btn uw-btn-neutral" onClick={onBack}><Icon name="back" size={16}/>{lang === 'en' ? 'Back' : 'Kembali'}</button><div><h2>{title}</h2>{subtitle && <p>{subtitle}</p>}</div><div>{right}{(onRules || onOpenRules) && <button className="uw-btn uw-btn-neutral" onClick={onRules || onOpenRules}><Icon name="book" size={16}/>{lang === 'en' ? 'Rules' : 'Aturan'}</button>}</div></header>;
+export function TipsButton({onClick,lang,label}){return <button className="uw-btn uw-btn-neutral play-tips-button" onClick={onClick}><Icon name="book" size={16}/>{label??(lang==='en'?'Guide':'Panduan')}</button>;}
+export function SetupCard({heading,schoolLevel,onLevelChange,desc,lang='id',children,badge}){
+  const {setSessionSchoolLevel,beginGameSession}=useArena();
+  const gameId=resolveRoute(window.location.hash);
+  useEffect(()=>{setSessionSchoolLevel(gameId,schoolLevel);},[gameId,schoolLevel,setSessionSchoolLevel]);
+  const note=GAME_LEVEL_NOTES[gameId]?.[schoolLevel]?.[lang]||desc;
+  const capture=event=>{if(gameId!=='300'&&gameById(gameId)&&event.target.closest('button.uw-btn-primary,button.uw-btn-secondary'))beginGameSession(gameId);};
+  return <div className="play-setup-card"><div className="play-setup-heading"><span className="play-kicker">{lang==='en'?'CHOOSE YOUR CHALLENGE':'PILIH TANTANGANMU'}</span>{badge&&<span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang==='en'?'Choose one of five difficulty levels, then start playing.':'Pilih satu dari lima tingkat kesulitan, lalu mulai bermain.'}</p></div><div className="play-field-label">{lang==='en'?'Difficulty':'Tingkat kesulitan'}<span>5 {lang==='en'?'levels':'tingkat'}</span></div><LevelSelector value={schoolLevel} onChange={onLevelChange} lang={lang}/>{note&&<div className="play-level-description"><Icon name="layers" size={19}/><p>{note}</p></div>}{schoolLevel==='universitas'&&<div className="university-setup-note"><Icon name="brain" size={21}/><div><strong>{lang==='en'?'Universitas: a complete brain challenge':'Universitas: tantangan otak lengkap'}</strong><p>{lang==='en'?'One of three gameplay variations is drawn each time you start. Read the active rule before making your first move.':'Satu dari tiga variasi gameplay dipilih acak setiap mulai. Baca aturan aktif sebelum langkah pertama.'}</p><ul className="university-variant-list">{UNIVERSITY_GAMEPLAY[gameId]?.map(item=><li key={item.id}><strong>{item.name[lang]}</strong><span>{item.note[lang]}</span></li>)}</ul></div></div>}<div className="play-setup-actions" onClickCapture={capture}>{children}</div></div>;
 }
-
-export function LevelSelector({ value, onChange, lang, levels = null }) {
-  const defaults = [
-    { id: 'sd', en: 'SD', id_label: 'SD', desc: { id: 'Dasar', en: 'Primary' } },
-    { id: 'smp', en: 'SMP', id_label: 'SMP', desc: { id: 'Menengah', en: 'Middle' } },
-    { id: 'sma', en: 'SMA', id_label: 'SMA', desc: { id: 'Lanjutan', en: 'High school' } },
-    { id: 'universitas', en: 'University', id_label: 'Universitas', desc: { id: 'Tantangan', en: 'Advanced' } },
-  ];
-  const activeLevels = Array.isArray(levels) && levels.length ? levels : defaults;
-  return <div className="play-levels" role="group" aria-label={lang === 'en' ? 'Education level' : 'Jenjang pendidikan'}>
-    {activeLevels.map((item, index) => <button type="button" key={item.id} aria-pressed={value === item.id} className={value === item.id ? 'selected' : ''} onClick={() => onChange(item.id)}>
-      <span className="play-level-top"><span className="play-level-bars" aria-hidden="true">{[0, 1, 2, 3].map(n => <i key={n} className={n <= index ? 'filled' : ''} style={{ height: 5 + n * 3 }}/>)}</span><span className="play-level-check">{value === item.id && <Icon name="check" size={10}/>}</span></span>
-      <strong>{lang === 'en' ? (item.en || item.id) : (item.id_label || item.id)}</strong>{item.desc && <small>{item.desc[lang]}</small>}
-    </button>)}
-  </div>;
+function ResultActions({onBack,onPlayAgain,lang,label}){
+  const {prepareFreshSession,currentSession}=useArena();const gameId=resolveRoute(window.location.hash);
+  return <div className="play-result-actions"><button className="uw-btn uw-btn-neutral" onClick={onBack}><Icon name="home" size={16}/>{lang==='en'?'Back to games':'Ke permainan'}</button><button className="uw-btn uw-btn-primary" onClick={()=>{if(gameId!=='300'&&!currentSession?.failure)prepareFreshSession(gameId);onPlayAgain();}}><Icon name="refresh" size={16}/>{label??(lang==='en'?'Play again':'Main lagi')}</button></div>;
 }
-
-export function TipsButton({ onClick, lang, label }) {
-  return <button className="uw-btn uw-btn-neutral play-tips-button" onClick={onClick}><Icon name="spark" size={16}/>{label ?? (lang === 'en' ? 'Tips & tricks' : 'Tips & trik')}</button>;
+function useFinalResult(){const {recordGameCompletion}=useArena();useEffect(()=>{recordGameCompletion();},[recordGameCompletion]);}
+export function SoloEndCard({heading,subtext,onBack,onPlayAgain,playAgainLabel,lang,stats=null,children,outcome='completed'}){
+  useFinalResult();return <div className="play-result"><div className="play-result-icon"><Icon name={outcome==='loss'?'refresh':'check'} size={30}/></div><p className="play-kicker">{lang==='en'?'GAME RESULT':'HASIL PERMAINAN'}</p><h2>{heading}</h2>{subtext&&<p>{subtext}</p>}{Array.isArray(stats)&&<div className="play-result-scores">{stats.filter(stat=>!['Best','Rekor'].includes(stat.label)).map((stat,i)=><div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang} label={playAgainLabel}/></div>;
 }
-
-export function UniversityDifficultySelector({ value, onChange, lang = 'id' }) {
-  const { setSessionUniversityDifficulty } = useArena();
-  const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
-  useEffect(()=>{ if (gameById(gameId)) setSessionUniversityDifficulty(gameId,value); },[gameId,value,setSessionUniversityDifficulty]);
-  const levels = [
-    { id:'hard', label:'Hard', note:{ id:'Sulit', en:'Hard' } },
-    { id:'very-hard', label:'Very Hard', note:{ id:'Sangat sulit', en:'Very hard' } },
-    { id:'impossible', label:'Impossible', note:{ id:'Mustahil', en:'Impossible' } },
-  ];
-  return <div className="play-university-block">
-    <div className="play-university-heading"><span><Icon name="spark" size={15}/>{lang === 'en' ? 'University Arena Mode' : 'Mode Arena Universitas'}</span><small>Hard · Very Hard · Impossible</small></div>
-    <div className="play-university-difficulty" role="group" aria-label={lang === 'en' ? 'University difficulty' : 'Tingkat kesulitan Universitas'}>
-      {levels.map((item,index)=><button type="button" key={item.id} className={value===item.id?'selected':''} aria-pressed={value===item.id} onClick={()=>{setSessionUniversityDifficulty(gameId,item.id);onChange(item.id);}}><span>{item.label}</span><small>{item.note[lang]}</small><i aria-hidden="true" style={{ width:`${34 + index*22}%` }}/></button>)}
-    </div>
-  </div>;
+export function MultiEndCard({winner,score1,score2,p1Label,p2Label,onBack,onPlayAgain,lang}){
+  useFinalResult();const draw=winner==='draw';const p1=p1Label||(lang==='en'?'Player 1':'Pemain 1');const p2=p2Label||(lang==='en'?'Player 2':'Pemain 2');
+  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang==='en'?'DUEL RESULT':'HASIL DUEL'}</p><h2>{draw?(lang==='en'?'A draw!':'Hasil seri!'):`${winner===1?p1:p2} ${lang==='en'?'wins!':'menang!'}`}</h2><div className="play-result-scores">{[{name:p1,value:score1},{name:p2,value:score2}].map((item,i)=><div key={i}><span>{item.name}</span><strong>{item.value}</strong></div>)}</div><ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang}/></div>;
 }
-
-export function SetupCard({ heading, schoolLevel, onLevelChange, desc, lang, children, badge, bestRecord = null }) {
-  const cardRef = useRef(null);
-  const { adaptiveForGame,competitionSetup,setPlayMode,ensureCompetitionSetup,setChallengeCode,regenerateChallengeCode,setSessionSchoolLevel,beginGameSession,personalBestFor,setNotice,recoverySession,resumeRequestedId,resumeRecovery,discardRecovery } = useArena();
-  const gameId = typeof window !== 'undefined' ? resolveRoute(window.location.hash) : null;
-  const recommendation = gameById(gameId) ? adaptiveForGame(gameId) : null;
-  const showRecommendation = recommendation && recommendation.level !== schoolLevel;
-  const code=gameById(gameId) ? (competitionSetup.challengeCodes?.[gameId] || '') : '';
-  const mode=competitionSetup.mode || 'practice';
-  const ghostBest=gameById(gameId) ? personalBestFor(gameId,schoolLevel,competitionSetup.universityDifficulties?.[gameId]||'hard') : 0;
-  useEffect(()=>{ if (gameById(gameId)) { ensureCompetitionSetup(gameId); setSessionSchoolLevel(gameId,schoolLevel); } },[gameId,schoolLevel,ensureCompetitionSetup,setSessionSchoolLevel]);
-  const shareCode=()=>{const next=configuredChallengeCode(code,schoolLevel,competitionSetup.universityDifficulties?.[gameId]||'hard',gameChallengeOptions(gameId));setChallengeCode(gameId,next);return next;};
-  const copyCode=async()=>{ try { await navigator.clipboard?.writeText(shareCode()); setNotice(lang==='en'?'Challenge code copied':'Challenge code disalin'); } catch { setNotice(code); } };
-  const captureStart=e=>{ if (gameById(gameId) && e.target.closest('button.uw-btn-primary')) { const session=beginGameSession(gameId); if(session?.resumeCheckpoint && restoreGameCheckpoint(session.resumeCheckpoint,gameId)) e.stopPropagation(); } };
-  useEffect(()=>{
-    if (resumeRequestedId!==gameId) return;
-    const timer=setTimeout(()=>cardRef.current?.querySelector('.play-setup-actions button.uw-btn-primary')?.click(),80);
-    return()=>clearTimeout(timer);
-  },[resumeRequestedId,gameId]);
-  const recoverable=recoverySession?.gameId===gameId;
-  const fullRecovery=validCheckpoint(recoverySession?.boardCheckpoint,gameId);
-  return <div className="play-setup-card" ref={cardRef}>
-    <div className="play-setup-heading"><span className="play-kicker">{lang === 'en' ? 'YOUR CHALLENGE, YOUR PACE' : 'TANTANGANMU, RITMEMU'}</span>{badge && <span className="play-setup-badge">{badge}</span>}<h2>{heading}</h2><p>{lang === 'en' ? 'Choose the level, play mode, and challenge seed before entering the arena.' : 'Pilih jenjang, mode bermain, dan seed challenge sebelum masuk arena.'}</p></div>
-    <label className="play-field-label">{lang === 'en' ? 'Education level' : 'Jenjang pendidikan'}<span>{lang === 'en' ? '4 levels available' : '4 jenjang tersedia'}</span></label>
-    <LevelSelector value={schoolLevel} onChange={onLevelChange} lang={lang}/>
-    {recoverable && <div className="setup-recovery-card"><span><Icon name="refresh" size={18}/></span><div><small>{lang==='en'?'AUTOSAVED SESSION':'SESI TERSIMPAN OTOMATIS'}</small><strong>{fullRecovery?(lang==='en'?'Continue saved game':'Lanjutkan permainan tersimpan'):(lang==='en'?'Restart saved challenge':'Ulang challenge tersimpan')}</strong><p>{lang==='en'?`Saved ${Math.max(1,Math.round((Date.now()-(recoverySession.lastSavedAt||Date.now()))/60000))} min ago · ${fullRecovery?'board, inputs and active time restored.':'same seed; board progress restarts.'}`:`Disimpan ${Math.max(1,Math.round((Date.now()-(recoverySession.lastSavedAt||Date.now()))/60000))} menit lalu · ${fullRecovery?'papan, isian dan waktu aktif dipulihkan.':'seed sama; posisi papan dimulai ulang.'}`}</p></div><div><button type="button" className="ba-button outline" onClick={discardRecovery}>{lang==='en'?'Discard':'Buang'}</button><button type="button" className="ba-button primary" onClick={resumeRecovery}><Icon name="play" size={14}/>{fullRecovery?(lang==='en'?'Continue':'Lanjutkan'):(lang==='en'?'Restart':'Ulangi')}</button></div></div>}
-    <div className="competitive-setup">
-      <div className="competitive-mode-block"><div><small>{lang==='en'?'PLAY MODE':'MODE BERMAIN'}</small><strong>{lang==='en'?'Practice or Ranked':'Practice atau Ranked'}</strong></div><div className="competitive-mode-toggle" role="group" aria-label={lang==='en'?'Play mode':'Mode bermain'}><button type="button" className={mode==='practice'?'selected':''} onClick={()=>setPlayMode('practice')}><Icon name="gamepad" size={15}/><span>Practice<small>{lang==='en'?'No rank pressure':'Tidak memengaruhi rank'}</small></span></button><button type="button" className={mode==='ranked'?'selected':''} onClick={()=>setPlayMode('ranked')}><Icon name="shield" size={15}/><span>Ranked<small>{lang==='en'?'Earn Arena RP':'Dapatkan Arena RP'}</small></span></button></div></div>
-      <details className="challenge-code-block setup-advanced"><summary><Icon name="sliders" size={16}/>{lang==='en'?'Challenge options':'Opsi challenge'}<Icon name="down" size={15}/></summary><div className="challenge-code-head"><span><small>{lang==='en'?'SEED & CHALLENGE CODE':'SEED & CHALLENGE CODE'}</small><strong>{lang==='en'?'Same code = same random start':'Kode sama = pola awal yang sama'}</strong></span>{ghostBest>0&&<em><Icon name="clock" size={13}/>{lang==='en'?'Ghost PB':'Ghost PB'} {formatDuration(ghostBest)}</em>}</div><div className="challenge-code-input"><input value={code} onChange={e=>setChallengeCode(gameId,e.target.value)} aria-label={lang==='en'?'Challenge code':'Kode challenge'} spellCheck="false"/><button type="button" onClick={copyCode} title={lang==='en'?'Copy code':'Salin kode'}><Icon name="copy" size={15}/></button><button type="button" onClick={()=>{const shared=shareCode();const link=challengeLink(shared,window.location.href);if(link)window.location.hash=`#/challenge/${encodeURIComponent(shared)}`;}} title={lang==='en'?'Share challenge link & QR':'Bagikan link & QR'}><Icon name="send" size={15}/></button><button type="button" onClick={()=>regenerateChallengeCode(gameId)} title={lang==='en'?'New random code':'Kode acak baru'}><Icon name="shuffle" size={15}/></button></div></details>
-    </div>
-    {desc && <div className="play-level-description"><span><Icon name="layers" size={18}/></span><div><strong>{lang === 'en' ? 'Your challenge' : 'Tantangan yang kamu pilih'}</strong><p>{desc}</p></div></div>}
-    {showRecommendation && <div className="adaptive-suggestion"><span><Icon name="brain" size={18}/></span><div><small>{lang==='en'?'ADAPTIVE SUGGESTION':'SARAN ADAPTIF'}</small><strong>{lang==='en'?`Try ${recommendation.label.en}`:`Coba ${recommendation.label.id}`}</strong><p>{recommendation.reason[lang]}</p></div><button type="button" onClick={()=>onLevelChange(recommendation.level)}>{lang==='en'?'Use':'Pilih'}</button></div>}
-    {bestRecord !== null && <StatBadge label={lang === 'en' ? 'Best record' : 'Rekor terbaik'} value={bestRecord} color="var(--uw-secondary)"/>}
-    {children && <div className="play-setup-actions" onClickCapture={captureStart}>{children}</div>}
-    <p className="play-setup-footnote"><Icon name="check" size={13}/>{mode==='ranked'?(lang==='en'?'Ranked results affect Arena RP. Resetting an active board counts as a loss. Brain Coach is limited to 2 hints.':'Hasil Ranked memengaruhi Arena RP. Reset papan aktif dihitung kalah. Brain Coach dibatasi 2 hint.'):(lang==='en'?'Practice keeps progression without rank pressure.':'Practice tetap memberi progres tanpa tekanan rank.')}</p>
-  </div>;
-}
-
-function useCompletionReward(meta = {}) {
-  const { recordGameCompletion } = useArena();
-  const [reward, setReward] = useState(null);
-  const metaKey = JSON.stringify(meta);
-  useEffect(() => {
-    const gameId = resolveRoute(window.location.hash);
-    if (!gameById(gameId)) return;
-    setReward(recordGameCompletion(gameId, JSON.parse(metaKey || '{}')));
-  }, [recordGameCompletion, metaKey]);
-  return reward;
-}
-
-function XpRewardPanel({ reward, lang }) {
-  if (!reward) return null;
-  const leveledUp = reward.levelAfter > reward.levelBefore;
-  const masteryUp = reward.masteryLevelAfter > reward.masteryLevelBefore;
-  const seasonUp = reward.seasonLevelAfter > reward.seasonLevelBefore;
-  const diff=reward.previousBestMs&&reward.durationMs?reward.durationMs-reward.previousBestMs:0;
-  const insights=postGameInsights(reward,lang);
-  const coachFocus=brainCoachFocus(reward.gameId,lang);
-  return <div className={`play-xp-reward result-v2 ${reward.dailyCompleted ? 'daily' : ''}`} aria-live="polite">
-    <div className="result-v2-head"><span className="play-xp-icon"><Icon name={leveledUp ? 'trophy' : 'spark'} size={18}/></span><div className="play-xp-copy"><small>{reward.dailyCompleted ? (lang === 'en' ? 'DAILY CHALLENGE COMPLETE' : 'DAILY CHALLENGE SELESAI') : 'RESULT SCREEN v2'}</small><strong>+{reward.amount} XP</strong><p>{lang === 'en' ? `Base +${reward.baseXp}${reward.firstBonus ? ` · First play +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}` : `Dasar +${reward.baseXp}${reward.firstBonus ? ` · Main pertama +${reward.firstBonus}` : ''}${reward.dailyBonus ? ` · Daily +${reward.dailyBonus}` : ''}${reward.eventBonus ? ` · Event +${reward.eventBonus}` : ''}`}</p></div>{leveledUp && <span className="play-level-up">{lang === 'en' ? 'LEVEL UP' : 'NAIK LEVEL'}<b>Lv. {reward.levelAfter}</b></span>}</div>
-    <div className="performance-result"><div className={`performance-grade grade-${String(reward.grade||'B').toLowerCase()}`}><small>{lang==='en'?'PERFORMANCE':'PERFORMA'}</small><strong>{reward.grade}</strong><span>{reward.performance}/100</span></div><div className="performance-details"><div><span><Icon name="clock" size={14}/>{lang==='en'?'Run time':'Waktu sesi'}</span><strong>{formatDuration(reward.durationMs)}</strong></div><div><span><Icon name="shield" size={14}/>{reward.mode==='ranked'?'Ranked':'Practice'}</span><strong>{reward.mode==='ranked'?`${reward.rankedDelta>=0?'+':''}${reward.rankedDelta} RP`:(lang==='en'?'No RP':'Tanpa RP')}</strong></div><div><span><Icon name="ghost" size={14}/>{lang==='en'?'Personal best':'Personal best'}</span><strong>{reward.isPersonalBest?(lang==='en'?'NEW PB':'PB BARU'):(reward.previousBestMs?`${diff>=0?'+':'-'}${formatDuration(Math.abs(diff))}`:'—')}</strong></div><div><span><Icon name="brain" size={14}/>Brain Coach</span><strong>{reward.hintsUsed||0} hint</strong></div></div></div>
-    <div className="result-v2-grid"><div><span><Icon name="trophy" size={15}/>Mastery</span><strong>+{reward.masteryXp || 0} MXP</strong>{masteryUp&&<small>{lang==='en'?'Mastery level up!':'Mastery naik level!'}</small>}</div><div><span><Icon name="spark" size={15}/>Season</span><strong>+{reward.seasonXp || 0} SXP</strong>{seasonUp&&<small>{lang==='en'?'Season level up!':'Season naik level!'}</small>}</div><div><span><Icon name="bolt" size={15}/>Event</span><strong>{reward.eventBonus ? `+${reward.eventBonus} XP` : '—'}</strong><small>{reward.eventBonus ? reward.event?.title?.[lang] : (lang==='en'?'No bonus this run':'Tidak ada bonus')}</small></div></div>
-    {insights.length>0 && <div className="post-game-insights"><div className="post-game-insights-head"><span><Icon name="activity" size={15}/></span><div><small>{lang==='en'?'POST-GAME INSIGHTS':'INSIGHT SETELAH GAME'}</small><strong>{lang==='en'?'What this run tells you':'Yang bisa dipelajari dari run ini'}</strong></div></div><div className="post-game-insights-grid">{insights.map((item,index)=><article key={`${item.title}-${index}`} className={`insight-${item.tone}`}><span><Icon name={item.icon} size={15}/></span><div><strong>{item.title}</strong><p>{item.text}</p></div></article>)}</div></div>}
-    <div className="brain-coach-v2-result"><span><Icon name="brain" size={17}/></span><div><small>BRAIN COACH v2 · {lang==='en'?'NEXT FOCUS':'FOKUS BERIKUTNYA'}</small><strong>{coachFocus}</strong></div></div>
-    <div className="result-challenge-code"><span><Icon name="hash" size={14}/>{lang==='en'?'Challenge code':'Kode challenge'}</span><code>{reward.challengeCode}</code></div>
-  </div>;
-}
-
-export function MultiEndCard({ winner, score1, score2, p1Label, p2Label, onBack, onPlayAgain, lang }) {
-  const draw = winner === 'draw';
-  const reward = useCompletionReward({ outcome:draw?'draw':winner===1?'win':'loss' });
-  const p1 = p1Label || (lang === 'en' ? 'Player 1' : 'Pemain 1');
-  const p2 = p2Label || (lang === 'en' ? 'Player 2' : 'Pemain 2');
-  const title = draw ? (lang === 'en' ? 'A well-matched duel!' : 'Pertandingan berakhir seri!') : `${winner === 1 ? p1 : p2} ${lang === 'en' ? 'wins!' : 'menang!'}`;
-  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'FINAL RESULT' : 'HASIL AKHIR'}</p><h2>{title}</h2><p>{lang === 'en' ? 'Every round is another chance to improve.' : 'Setiap ronde adalah kesempatan untuk jadi lebih baik.'}</p>
-    <div className="play-result-scores">{[{ name: p1, score: score1 }, { name: p2, score: score2 }].map((p, i) => <div key={i} className={winner === i + 1 ? 'winner' : ''}><span>{p.name}{winner === i + 1 && <Icon name="trophy" size={13}/>}</span><strong>{p.score}</strong><small>{lang === 'en' ? 'points' : 'poin'}</small></div>)}</div>
-    <XpRewardPanel reward={reward} lang={lang}/>
-    <ResultActions onBack={onBack} onPlayAgain={onPlayAgain} lang={lang} reward={reward}/>
-  </div>;
-}
-
-function ResultActions({ onBack, onPlayAgain, lang, label, reward }) {
-  const { prepareFreshSession,arenaRun,continueArenaRun,selectReplay }=useArena();
-  const gameId=typeof window!=='undefined'?resolveRoute(window.location.hash):null;
-  const replay=()=>{ if (reward?.matchId) { selectReplay(reward.matchId); window.location.hash=routeHash('replay'); } };
-  const playAgain=()=>{ if (gameById(gameId)) prepareFreshSession(gameId); onPlayAgain(); };
-  const arenaRelevant=Boolean(reward?.arenaRunId && arenaRun?.id===reward.arenaRunId);
-  const continueRun=()=>{ const target=continueArenaRun(); window.location.hash=routeHash(target); };
-  return <div className="play-result-actions">{arenaRelevant&&<button className="uw-btn uw-btn-primary" onClick={continueRun}><Icon name="trophy" size={16}/>{arenaRun?.status==='complete'?(lang==='en'?'Arena Run results':'Hasil Arena Run'):(lang==='en'?'Next Arena stage':'Lanjut Arena')}</button>}<button className="uw-btn uw-btn-neutral" onClick={replay} disabled={!reward?.matchId}><Icon name="play" size={16}/>{lang==='en'?'Replay':'Replay'}</button><button className="uw-btn uw-btn-neutral" onClick={onBack}><Icon name="home" size={16}/>{lang === 'en' ? 'Back to home' : 'Ke beranda'}</button><button className="uw-btn uw-btn-primary" onClick={playAgain}><Icon name="refresh" size={16}/>{label ?? (lang === 'en' ? 'Play again' : 'Main lagi')}</button></div>;
-}
-
-export function SoloEndCard({ heading, subtext, onBack, onPlayAgain, playAgainLabel, lang, stats = null, children, outcome = 'completed', result = {} }) {
-  const reward = useCompletionReward({ ...result, outcome });
-  return <div className="play-result"><div className="play-result-icon"><Icon name="trophy" size={30}/></div><p className="play-kicker">{lang === 'en' ? 'CHALLENGE COMPLETE' : 'TANTANGAN SELESAI'}</p><h2>{heading}</h2>{subtext && <p>{subtext}</p>}{Array.isArray(stats) && stats.length > 0 && <div className="play-result-scores">{stats.map((stat, i) => <div key={i}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</div>}{children}<XpRewardPanel reward={reward} lang={lang}/><ResultActions onBack={onBack} onPlayAgain={onPlayAgain} label={playAgainLabel} lang={lang} reward={reward}/></div>;
-}
-
-export function ConfirmModal({ isOpen, title, message, confirmText, cancelText, onConfirm, onCancel, lang, isDangerous = false }) {
-  return <Dialog open={isOpen} onClose={onCancel} title={title}><p className="dialog-description">{message}</p><div className="dialog-actions"><button className="ba-button outline" onClick={onCancel}>{cancelText ?? (lang === 'en' ? 'Cancel' : 'Batal')}</button><button className={`ba-button ${isDangerous ? 'danger' : 'primary'}`} onClick={onConfirm}>{confirmText ?? (lang === 'en' ? 'Confirm' : 'Konfirmasi')}</button></div></Dialog>;
-}
+export function ConfirmModal({isOpen,title,message,confirmText,cancelText,onConfirm,onCancel,lang,isDangerous=false}){return <Dialog open={isOpen} onClose={onCancel} title={title}><p className="dialog-description">{message}</p><div className="dialog-actions"><button className="ba-button outline" onClick={onCancel}>{cancelText??(lang==='en'?'Cancel':'Batal')}</button><button className={`ba-button ${isDangerous?'danger':'primary'}`} onClick={onConfirm}>{confirmText??(lang==='en'?'Confirm':'Konfirmasi')}</button></div></Dialog>;}

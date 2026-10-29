@@ -1,3 +1,5 @@
+import {useUniversityGameplay} from '../hooks/useUniversityGameplay.js';
+import {currentUniversityVariant,encodeArithmeticQuestion} from '../utils/universityGameplay.js';
 import { useArena } from '../context/ArenaContext.jsx';
 import { sessionRandom } from '../utils/competitive.js';
 import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
@@ -11,7 +13,7 @@ import Icon from '../components/Icon.jsx';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
+import { SetupCard, SoloEndCard } from '../components/GameShell';
 
 // Normalisasi jawaban untuk toleransi format (koma/titik desimal, pemisah ribuan, spasi, huruf besar/kecil)
 const random=()=>sessionRandom('300');
@@ -34,7 +36,7 @@ const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
 const lcm = (a, b) => (a * b) / gcd(a, b);
 
 export default function Game300({ onBack, onNavigate }) {
-  const {recordGameCompletion}=useArena();
+  const {recordGameCompletion,beginGameSession}=useArena();
   const { lang } = useLanguage();
   const [mode, setMode] = useState(()=>initialGameOption('300','mode',null)); // null, 'practice_setup', 'war_setup', 'practice', 'war'
   const [schoolLevel, setSchoolLevel] = useState(()=>initialGameSetting('300','schoolLevels','universitas')); // 'sd', 'smp', 'sma', 'universitas'
@@ -94,6 +96,8 @@ export default function Game300({ onBack, onNavigate }) {
   const [practiceFeedback, setPracticeFeedback] = useState(null);
   const [practiceCount, setPracticeCount] = useState(0);
 
+  const challenge=useUniversityGameplay('300',schoolLevel,(mode==='practice'&&practiceCount<practiceQuestionsCount&&!practiceFeedback)||(mode==='war'&&timerActive&&!isCompleted&&penaltyTime===0));
+  useEffect(()=>{if(challenge.id==='arithmetic-deadline'&&challenge.active&&challenge.seconds>=180)challenge.fail({id:'Batas 180 detik habis sebelum seluruh soal selesai.',en:'The 180-second limit expired before every question was completed.'});},[challenge]);
   // Refs
   const gridContainerRef = useRef(null);
   const inputsRef = useRef([]);
@@ -142,7 +146,7 @@ export default function Game300({ onBack, onNavigate }) {
       } else if (schoolLevel === 'smp') {
         ['smpNegComplex', 'smpExponentRoot', 'smpNumberPattern', 'smpSequences', 'smpProportions', 'smpSocialMid'].forEach((k) => (next[k] = enabled));
         if (!enabled) next.smpNegComplex = true;
-      } else if (schoolLevel === 'sma') {
+      } else if ((schoolLevel === 'sma' || schoolLevel === 'sma-plus')) {
         ['smaAdvLog', 'smaAdvSequences', 'smaInfiniteGeom', 'smaInduction', 'smaFinance'].forEach((k) => (next[k] = enabled));
         if (!enabled) next.smaAdvLog = true;
       } else {
@@ -157,10 +161,12 @@ export default function Game300({ onBack, onNavigate }) {
   };
 
   // ─── GENERATOR MATEMATIKA DINAMIS ──────────────────────────────────────────
-  const generateEquation = useCallback(
+  const baseEquation = useCallback(
     (lvl = schoolLevel) => {
       let multiplier = 1;
-      if (lvl === 'universitas') {
+      if (lvl === 'sma-plus') {
+        multiplier=2.25;
+      } else if (lvl === 'universitas') {
         multiplier = universityDifficulty === 'impossible' ? 3.4 : universityDifficulty === 'very-hard' ? 2.25 : 1.6;
       } else {
         if (difficulty === 'easy') multiplier = 0.5;
@@ -343,7 +349,7 @@ export default function Game300({ onBack, onNavigate }) {
       }
 
       // 3. SMA
-      if (lvl === 'sma') {
+      if ((lvl === 'sma' || lvl === 'sma-plus')) {
         const active = [];
         if (categories.smaAdvLog) active.push('advLog');
         if (categories.smaAdvSequences) active.push('advSequences');
@@ -465,6 +471,11 @@ export default function Game300({ onBack, onNavigate }) {
     [categories, difficulty, universityDifficulty, lang, schoolLevel]
   );
 
+  const generateEquation=(lvl=schoolLevel)=>{
+    const question=baseEquation(lvl);
+    return lvl==='universitas'&&currentUniversityVariant('300')==='offset-arithmetic'?encodeArithmeticQuestion(question,2+Math.floor(random()*8)):question;
+  };
+
   // ─── PEMBERSIHAN MEMORY SAAT UNMOUNT ────────────────────────────────────────
   useEffect(() => {
     return () => {
@@ -511,6 +522,7 @@ export default function Game300({ onBack, onNavigate }) {
 
   // ─── PRACTICE MODE LOGIC ───────────────────────────────────────────────────
   const startPracticeMode = () => {
+    beginGameSession('300');
     setMode('practice');
     setPracticeCount(0);
     setPracticeFeedback(null);
@@ -541,12 +553,14 @@ export default function Game300({ onBack, onNavigate }) {
         return nextVal;
       });
     } else {
+      if(challenge.id==='perfect-arithmetic'){challenge.fail({id:'Satu jawaban salah mengakhiri tantangan ini.',en:'One wrong answer ends this challenge.'});return;}
       setPracticeFeedback('wrong');
     }
   };
 
   // ─── ARENA / WAR MODE LOGIC ────────────────────────────────────────────────
   const startWarMode = () => {
+    beginGameSession('300');
     const allPages = [];
     for (let p = 0; p < warPagesCount; p++) {
       const pageQs = [];
@@ -625,6 +639,7 @@ export default function Game300({ onBack, onNavigate }) {
         }, 150);
       }
     } else {
+      if(challenge.id==='perfect-arithmetic'){challenge.fail({id:'Ada jawaban salah pada halaman yang dikirim.',en:'The submitted page contains an incorrect answer.'});return;}
       // Ada kesalahan -> Berikan penalti 10 detik
       setTotalErrorsEncountered((prev) => prev + errors);
       setPenaltyTime(10); addClockPenalty(10000);
@@ -652,19 +667,19 @@ export default function Game300({ onBack, onNavigate }) {
   const rules =
     lang === 'en'
       ? [
-          `In Arena Mode, solve a total of ${warPagesCount * 30} questions in rapid succession.`,
+          `In Question Set, solve a total of ${warPagesCount * 30} questions in rapid succession.`,
           `The test is split into ${warPagesCount} page(s) with exactly 30 questions per page.`,
           'You can only advance to the next page once ALL 30 questions on the current page are 100% correct.',
           'Submitting incorrect answers locks the inputs for a 10-second penalty.',
-          'Every new session regenerates the numbers, operators, and University question variants. University Arena Mode has Hard, Very Hard, and Impossible.',
+          'Five levels: SD, SMP, SMA, SMA+, Universitas. Universitas randomly selects one of three gameplay rules on every start.',
           'Use the Enter or Arrow keys to quickly jump between question inputs.',
         ]
       : [
-          `Dalam Mode Arena, selesaikan total ${warPagesCount * 30} soal hitungan secepat mungkin.`,
+          `Dalam Mode Paket Soal, selesaikan total ${warPagesCount * 30} soal hitungan secepat mungkin.`,
           `Ujian dibagi menjadi ${warPagesCount} halaman dengan tepat 30 soal per halaman.`,
           'Anda hanya dapat melanjutkan ke halaman berikutnya jika seluruh 30 soal di halaman tersebut 100% benar.',
           'Jika terdapat jawaban salah saat mengirim halaman, input akan terkunci selama 10 detik sebagai penalti.',
-          'Setiap sesi baru mengacak kembali angka, operator, dan variasi soal Universitas. Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible.',
+          'Lima tingkat: SD, SMP, SMA, SMA+, Universitas. Universitas memilih satu dari tiga aturan gameplay secara acak setiap mulai.',
           'Gunakan tombol Enter atau tombol Panah pada keyboard untuk berpindah soal secara cepat.',
         ];
 
@@ -673,7 +688,7 @@ export default function Game300({ onBack, onNavigate }) {
     selectLevel: lang === 'en' ? 'Select Education Level:' : 'Pilih Jenjang Pendidikan:',
     chooseMode: lang === 'en' ? 'Choose challenge mode:' : 'Pilih mode tantangan:',
     practiceMode: lang === 'en' ? 'Practice Mode' : 'Mode Latihan',
-    warMode: lang === 'en' ? 'Arena Mode' : 'Mode Arena',
+    warMode: lang === 'en' ? 'Question Set' : 'Mode Paket Soal',
     quit: lang === 'en' ? 'Quit' : 'Keluar',
     submit: lang === 'en' ? 'Submit' : 'Kirim',
     selectAll: lang === 'en' ? 'Select All' : 'Pilih Semua',
@@ -683,28 +698,29 @@ export default function Game300({ onBack, onNavigate }) {
   useGameCheckpoint('300',{mode,schoolLevel,difficulty,universityDifficulty,warPagesCount,practiceQuestionsCount,categories,timer,timerActive,pages,currentPageIdx,userAnswers,pageResults,penaltyTime,isCompleted,totalErrorsEncountered,practiceQuestion,practiceInput,practiceFeedback,practiceCount},saved=>{setMode(saved.mode);setSchoolLevel(saved.schoolLevel);setDifficulty(saved.difficulty);setUniversityDifficulty(saved.universityDifficulty);setWarPagesCount(saved.warPagesCount);setPracticeQuestionsCount(saved.practiceQuestionsCount);setCategories(saved.categories);setTimer(saved.timer);setTimerActive(saved.timerActive);setPages(saved.pages);setCurrentPageIdx(saved.currentPageIdx);setUserAnswers(saved.userAnswers);setPageResults(saved.pageResults);setPenaltyTime(saved.penaltyTime);setIsCompleted(saved.isCompleted);setTotalErrorsEncountered(saved.totalErrorsEncountered);setPracticeQuestion(saved.practiceQuestion);setPracticeInput(saved.practiceInput);setPracticeFeedback(saved.practiceFeedback);setPracticeCount(saved.practiceCount);},(mode==='war'&&!isCompleted&&penaltyTime===0)||(mode==='practice'&&!practiceFeedback),(mode==='war'&&timerActive&&!isCompleted&&penaltyTime===0)||(mode==='practice'&&!practiceFeedback));
 
   return (
-    <GameScreen gameId="300" lang={lang} state={isCompleted || (mode === 'practice' && practiceCount >= practiceQuestionsCount) ? 'ended' : (mode || 'setup')} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
+    <GameScreen universityMode={challenge} gameId="300" lang={lang} state={isCompleted || (mode === 'practice' && practiceCount >= practiceQuestionsCount) ? 'ended' : (mode || 'setup')} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)}>
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
         ruleList={rules}
-        gameName={lang === 'en' ? 'Speed Arithmetic Arena' : 'Arena Hitung Cepat 300'}
+        gameName={lang === 'en' ? 'Arithmetic Blitz' : 'Blitz Aritmatika'}
       />
 
 
 
+      {challenge.id==='arithmetic-deadline'&&challenge.active&&<p className="university-local-rule" role="timer">{lang==='id'?'Sisa waktu':'Time left'}: {Math.max(0,180-challenge.seconds)}s</p>}
       {/* ══════════════ 1. BERANDA / PILIH MODE ══════════════ */}
       {!mode ? (
         <SetupCard heading={lang === 'en' ? 'Find your rhythm' : 'Mulai dari ritmemu'} schoolLevel={schoolLevel} onLevelChange={setSchoolLevel} lang={lang}
-          desc={lang === 'en' ? 'Practice one question at a time, or challenge yourself to 30-300 questions in arena mode.' : 'Latihan satu per satu, atau tantang diri dengan 30-300 soal dalam mode arena.'}>
-          <button className="uw-btn uw-btn-primary play-mode-button" onClick={() => { setDifficulty('medium'); setMode('practice_setup'); }}><Icon name="bolt" size={19}/><span><strong>{t.practiceMode}</strong><small>{lang === 'en' ? 'One question at a time' : 'Fokus satu soal setiap langkah'}</small></span><Icon name="arrow" size={17}/></button>
-          <button className="uw-btn uw-btn-neutral play-mode-button" onClick={() => { setDifficulty('medium'); setMode('war_setup'); }}><Icon name="trophy" size={19}/><span><strong>{t.warMode}</strong><small>{lang === 'en' ? 'A bigger challenge' : 'Tantangan yang lebih besar'}</small></span><Icon name="arrow" size={17}/></button>
+          desc={lang === 'en' ? 'Practice one question at a time, or challenge yourself to 30-300 questions in question-set mode.' : 'Latihan satu per satu, atau tantang diri dengan 30-300 soal dalam mode paket soal.'}>
+          <button className="uw-btn uw-btn-primary play-mode-button" onClick={() => { setDifficulty(schoolLevel==='sd'?'easy':schoolLevel==='sma-plus'?'hard':'medium'); setMode('practice_setup'); }}><Icon name="bolt" size={19}/><span><strong>{t.practiceMode}</strong><small>{lang === 'en' ? 'One question at a time' : 'Fokus satu soal setiap langkah'}</small></span><Icon name="arrow" size={17}/></button>
+          <button className="uw-btn uw-btn-neutral play-mode-button" onClick={() => { setDifficulty(schoolLevel==='sd'?'easy':schoolLevel==='sma-plus'?'hard':'medium'); setMode('war_setup'); }}><Icon name="trophy" size={19}/><span><strong>{t.warMode}</strong><small>{lang === 'en' ? 'A bigger challenge' : 'Tantangan yang lebih besar'}</small></span><Icon name="arrow" size={17}/></button>
         </SetupCard>
       ) : mode === 'practice_setup' || mode === 'war_setup' ? (
         /* ══════════════ 2. SETUP (PRACTICE & WAR) ══════════════ */
         <div className="arithmetic-config" style={{ maxWidth: '580px', margin: '0 auto', padding: 'var(--uw-space-3)' }}>
           <h3 style={{ fontSize: '2rem', color: 'var(--uw-primary)', marginBottom: '16px', textAlign: 'center', }}>
-            {mode === 'war_setup' ? (lang === 'en' ? 'ARENA CONFIGURATION' : 'PENGATURAN ARENA') : (lang === 'en' ? 'PRACTICE CONFIGURATION' : 'PENGATURAN LATIHAN')}
+            {mode === 'war_setup' ? (lang === 'en' ? 'QUESTION SET SETTINGS' : 'PENGATURAN PAKET SOAL') : (lang === 'en' ? 'PRACTICE CONFIGURATION' : 'PENGATURAN LATIHAN')}
           </h3>
 
           {/* Checklist Box */}
@@ -719,7 +735,7 @@ export default function Game300({ onBack, onNavigate }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid var(--uw-border)', paddingBottom: '8px' }}>
               <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--uw-primary)', }}>
-                {lang === 'en' ? 'TOPIC CATEGORIES' : 'KATEGORI MATERI'} ({schoolLevel.toUpperCase()})
+                {lang === 'en' ? 'TOPIC CATEGORIES' : 'KATEGORI MATERI'} ({schoolLevel==='sma-plus'?'SMA+':schoolLevel==='universitas'?'Universitas':schoolLevel.toUpperCase()})
               </span>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -763,7 +779,7 @@ export default function Game300({ onBack, onNavigate }) {
                 </>
               )}
 
-              {schoolLevel === 'sma' && (
+              {(schoolLevel === 'sma' || schoolLevel === 'sma-plus') && (
                 <>
                   <CategoryItem label={lang === 'en' ? 'Logarithms & Powers' : 'Eksponen & Logaritma'} checked={categories.smaAdvLog} onChange={() => toggleCategory('smaAdvLog')} />
                   <CategoryItem label={lang === 'en' ? 'Advanced Sequences' : 'Barisan & Deret Lanjut'} checked={categories.smaAdvSequences} onChange={() => toggleCategory('smaAdvSequences')} />
@@ -859,37 +875,7 @@ export default function Game300({ onBack, onNavigate }) {
               </div>
             )}
 
-            {/* Tingkat Kesulitan */}
-            {schoolLevel === 'universitas' ? (
-              <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>
-            ) : (
-              <div style={{ borderTop: '1px solid var(--uw-border)', paddingTop: '12px' }}>
-                <span style={{ display: 'block', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '8px' }}>
-                  ⚡ {lang === 'en' ? 'Difficulty Scale:' : 'Tingkat Kesulitan:'}
-                </span>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {['easy', 'medium', 'hard', 'impossible'].map((diff) => (
-                    <button
-                      key={diff}
-                      type="button"
-                      onClick={() => setDifficulty(diff)}
-                      style={{
-                        flex: 1,
-                        padding: '8px 4px',
-                        fontSize: '0.9rem',
-                        backgroundColor: difficulty === diff ? 'var(--uw-secondary)' : 'var(--uw-bg)',
-                        color: difficulty === diff ? '#ffffff' : 'var(--uw-text)',
-                        border: '1px solid var(--uw-border)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {diff.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -901,7 +887,7 @@ export default function Game300({ onBack, onNavigate }) {
               style={{ flex: 1, padding: '12px', fontSize: '1.15rem', }}
               onClick={mode === 'war_setup' ? startWarMode : startPracticeMode}
             >
-              {mode === 'war_setup' ? (lang === 'en' ? 'ENTER ARENA' : 'MASUK ARENA') : (lang === 'en' ? 'START PRACTICE' : 'MULAI LATIHAN')}
+              {mode === 'war_setup' ? (lang === 'en' ? 'START QUESTION SET' : 'MULAI PAKET SOAL') : (lang === 'en' ? 'START PRACTICE' : 'MULAI LATIHAN')}
             </button>
           </div>
         </div>
@@ -1044,7 +1030,7 @@ export default function Game300({ onBack, onNavigate }) {
             /* Halaman Tamat Arena */
             <div style={{ textAlign: 'center' }}>
               <SoloEndCard
-                heading={lang === 'en' ? 'ARENA CONQUERED!' : 'ARENA SELESAI DITAKLUKKAN!'}
+                heading={lang === 'en' ? 'QUESTION SET COMPLETE!' : 'PAKET SOAL SELESAI!'}
                 subtext={
                   lang === 'en'
                     ? `You finished all ${pages.length * 30} arithmetic problems in ${formatTime(timer)} with ${totalErrorsEncountered} errors penalty!`
@@ -1052,7 +1038,7 @@ export default function Game300({ onBack, onNavigate }) {
                 }
                 onBack={handleExit}
                 onPlayAgain={startWarMode}
-                playAgainLabel={lang === 'en' ? 'Restart Arena' : 'Ulangi Arena'}
+                playAgainLabel={lang === 'en' ? 'Restart question set' : 'Ulang paket soal'}
                 lang={lang}
               />
             </div>

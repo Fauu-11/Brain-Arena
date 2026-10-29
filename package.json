@@ -1,7 +1,7 @@
 {
   "name": "universitywar",
   "private": true,
-  "version": "1.21.0",
+  "version": "1.24.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,7 +29,7 @@
     "react-test-renderer": "19.2.7",
     "vite": "^8.1.1"
   },
-  "description": "Brain Arena v1.21.0 - mobile game shell, bottom navigation, responsive feature pages, board zoom and touch layouts for 12 games",
+  "description": "Brain Arena v1.24.0 - 17 games, five levels and 51 Universitas gameplay variations",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   }

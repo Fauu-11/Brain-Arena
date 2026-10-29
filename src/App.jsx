@@ -1,138 +1,38 @@
-import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, {lazy,Suspense,useCallback,useEffect,useRef,useState} from 'react';
 import Layout from './components/Layout.jsx';
-import Icon from './components/Icon.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
-import { LanguageProvider, useLanguage } from './context/LanguageContext.jsx';
-import { ArenaProvider, useArena } from './context/ArenaContext.jsx';
-import { gameById, resolveRoute, routeHash } from './data/games.js';
-const Home = lazy(() => import('./pages/Home.jsx'));
-const Challenges = lazy(() => import('./pages/Challenges.jsx'));
-const Progress = lazy(() => import('./pages/Progress.jsx'));
-const Game300 = lazy(() => import('./games/Game300.jsx'));
-const GamePrime = lazy(() => import('./games/GamePrime.jsx'));
-const GamePixel = lazy(() => import('./games/GamePixel.jsx'));
-const GameMnM = lazy(() => import('./games/GameMnM.jsx'));
-const GameCube = lazy(() => import('./games/GameCube.jsx'));
-const GameRPS = lazy(() => import('./games/GameRPS.jsx'));
-const GameSudoku = lazy(() => import('./games/GameSudoku.jsx'));
-const GameMinesweeper = lazy(() => import('./games/GameMinesweeper.jsx'));
-const GameMaze = lazy(() => import('./games/GameMaze.jsx'));
-const GameMemoryMatrix = lazy(() => import('./games/GameMemoryMatrix.jsx'));
-const GameNonogram = lazy(() => import('./games/GameNonogram.jsx'));
-const Game2048 = lazy(() => import('./games/Game2048.jsx'));
-const TipsPage = lazy(() => import('./pages/TipsPage.jsx'));
-const Activity = lazy(() => import('./pages/Activity.jsx'));
-const Guides = lazy(() => import('./pages/Guides.jsx'));
-const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'));
-const Profile = lazy(() => import('./pages/Profile.jsx'));
-const Achievements = lazy(() => import('./pages/Achievements.jsx'));
-const Missions = lazy(() => import('./pages/Missions.jsx'));
-const Leaderboard = lazy(() => import('./pages/Leaderboard.jsx'));
-const Rank = lazy(() => import('./pages/Rank.jsx'));
-const CustomizeProfile = lazy(() => import('./pages/CustomizeProfile.jsx'));
-const Statistics = lazy(() => import('./pages/Statistics.jsx'));
-const ActivityCalendar = lazy(() => import('./pages/ActivityCalendar.jsx'));
-const Season = lazy(() => import('./pages/Season.jsx'));
-const Events = lazy(() => import('./pages/Events.jsx'));
-const Mastery = lazy(() => import('./pages/Mastery.jsx'));
-const Settings = lazy(() => import('./pages/Settings.jsx'));
-const ArenaRun = lazy(() => import('./pages/ArenaRun.jsx'));
-const MatchHistory = lazy(() => import('./pages/MatchHistory.jsx'));
-const ReplayViewer = lazy(() => import('./pages/ReplayViewer.jsx'));
-const GameCompletion = lazy(() => import('./pages/GameCompletion.jsx'));
-const Feedback = lazy(() => import('./pages/Feedback.jsx'));
-const ChallengeShare = lazy(() => import('./pages/ChallengeShare.jsx'));
-const ArenaBuilder = lazy(() => import('./pages/ArenaBuilder.jsx'));
-const DailyArchive = lazy(() => import('./pages/DailyArchive.jsx'));
-const DataHealth = lazy(() => import('./pages/DataHealth.jsx'));
-const OfflineManager = lazy(() => import('./pages/OfflineManager.jsx'));
-const Goals = lazy(() => import('./pages/Goals.jsx'));
-const LocalProfiles = lazy(() => import('./pages/LocalProfiles.jsx'));
-const Showcase = lazy(() => import('./pages/Showcase.jsx'));
-const ResultCard = lazy(() => import('./pages/ResultCard.jsx'));
-const ArenaCup = lazy(() => import('./pages/ArenaCup.jsx'));
-const PracticeLab = lazy(() => import('./pages/PracticeLab.jsx'));
-const SaveSlots = lazy(() => import('./pages/SaveSlots.jsx'));
-const StorageCenter = lazy(() => import('./pages/StorageCenter.jsx'));
-const SystemDiagnostics = lazy(() => import('./pages/SystemDiagnostics.jsx'));
-const CloudReadiness = lazy(() => import('./pages/CloudReadiness.jsx'));
-const Controls = lazy(() => import('./pages/Controls.jsx'));
-const GAME_COMPONENTS = { '300':Game300, prime:GamePrime, pixel:GamePixel, mnm:GameMnM, cube:GameCube, rps:GameRPS, sudoku:GameSudoku, minesweeper:GameMinesweeper, maze:GameMaze, matrix:GameMemoryMatrix, nonogram:GameNonogram, game2048:Game2048 };
-function AppContent() {
-  const { lang } = useLanguage(); const { recordVisit,leaveGameSession } = useArena();
-  const [view, setView] = useState(() => resolveRoute(window.location.hash)); const previous = useRef(null);
-  const navigate = useCallback(next => {
-    const target = routeHash(next);
-    if (window.location.hash === target) setView(resolveRoute(target));
-    else window.location.hash = target;
-  }, []);
-  useEffect(() => { const sync=()=>setView(resolveRoute(window.location.hash)); window.addEventListener('hashchange',sync); return()=>window.removeEventListener('hashchange',sync); }, []);
-  useEffect(() => {
-    const schedule=window.requestIdleCallback || (cb=>setTimeout(cb,900));
-    const cancel=window.cancelIdleCallback || clearTimeout;
-    const handle=schedule(()=>{
-      // Warm only a few high-frequency meta pages after the current route is interactive.
-      import('./pages/DailyChallenge.jsx');
-      import('./pages/Settings.jsx');
-      import('./pages/MatchHistory.jsx');
-    });
-    return()=>cancel(handle);
-  },[]);
-  useEffect(() => {
-    if (gameById(view) && previous.current !== view) recordVisit(view);
-    if (!gameById(view) || (previous.current!==view && gameById(previous.current))) leaveGameSession();
-    if (previous.current !== view) {
-      window.scrollTo({ top:0, behavior:'instant' });
-      if (previous.current !== null) document.getElementById('main-content')?.focus({ preventScroll:true });
-      previous.current = view;
-    }
-    const title = gameById(view)?.title[lang] || (view.startsWith('tips-') ? (lang==='id'?'Panduan bermain':'Game guide') : (lang==='id'?'Arena matematika, logika & strategi':'Math, logic & strategy arena'));
-    document.title = `${title} | Brain Arena`;
-  }, [view,lang,recordVisit,leaveGameSession]);
-  const back=()=>navigate('home'); const Game=GAME_COMPONENTS[view];
-  let content;
-  if (Game) content=<Game onBack={back} onNavigate={navigate}/>;
-  else if (['home','games','favorites'].includes(view)) content=<Home view={view} onSelectGame={navigate}/>;
-  else if (view==='challenges') content=<Challenges onNavigate={navigate}/>;
-  else if (view==='progress') content=<Progress onNavigate={navigate}/>;
-  else if (view==='activity') content=<Activity onNavigate={navigate}/>;
-  else if (view==='guides') content=<Guides onNavigate={navigate}/>;
-  else if (view==='daily') content=<DailyChallenge onNavigate={navigate}/>;
-  else if (view==='profile') content=<Profile onNavigate={navigate}/>;
-  else if (view==='achievements') content=<Achievements onNavigate={navigate}/>;
-  else if (view==='missions') content=<Missions onNavigate={navigate}/>;
-  else if (view==='leaderboard') content=<Leaderboard onNavigate={navigate}/>;
-  else if (view==='rank') content=<Rank onNavigate={navigate}/>;
-  else if (view==='customize') content=<CustomizeProfile onNavigate={navigate}/>;
-  else if (view==='statistics') content=<Statistics onNavigate={navigate}/>;
-  else if (view==='activity-calendar') content=<ActivityCalendar onNavigate={navigate}/>;
-  else if (view==='season') content=<Season onNavigate={navigate}/>;
-  else if (view==='events') content=<Events onNavigate={navigate}/>;
-  else if (view==='mastery') content=<Mastery onNavigate={navigate}/>;
-  else if (view==='settings') content=<Settings onNavigate={navigate}/>;
-  else if (view==='arena-run') content=<ArenaRun onNavigate={navigate}/>;
-  else if (view==='history') content=<MatchHistory onNavigate={navigate}/>;
-  else if (view==='replay') content=<ReplayViewer onNavigate={navigate}/>;
-  else if (view==='completion') content=<GameCompletion onNavigate={navigate}/>;
-  else if (view==='feedback') content=<Feedback onNavigate={navigate}/>;
-  else if (view==='challenge') content=<ChallengeShare onNavigate={navigate}/>;
-  else if (view==='arena-builder') content=<ArenaBuilder onNavigate={navigate}/>;
-  else if (view==='daily-archive') content=<DailyArchive onNavigate={navigate}/>;
-  else if (view==='data-health') content=<DataHealth onNavigate={navigate}/>;
-  else if (view==='offline') content=<OfflineManager onNavigate={navigate}/>;
-  else if (view==='goals') content=<Goals onNavigate={navigate}/>;
-  else if (view==='profiles') content=<LocalProfiles onNavigate={navigate}/>;
-  else if (view==='showcase') content=<Showcase onNavigate={navigate}/>;
-  else if (view==='share-result') content=<ResultCard onNavigate={navigate}/>;
-  else if (view==='arena-cup') content=<ArenaCup onNavigate={navigate}/>;
-  else if (view==='practice-lab') content=<PracticeLab onNavigate={navigate}/>;
-  else if (view==='save-slots') content=<SaveSlots onNavigate={navigate}/>;
-  else if (view==='storage-center') content=<StorageCenter onNavigate={navigate}/>;
-  else if (view==='diagnostics') content=<SystemDiagnostics onNavigate={navigate}/>;
-  else if (view==='cloud-readiness') content=<CloudReadiness onNavigate={navigate}/>;
-  else if (view==='controls') content=<Controls onNavigate={navigate}/>;
-  else if (view.startsWith('tips-')) content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
-  else content=<div className="empty-state not-found"><span className="not-found-code">404</span><h1>{lang==='id'?'Arena tidak ditemukan.':'This arena is missing.'}</h1><p>{lang==='id'?'Tautan ini tidak tersedia. Tantangan lainnya menantimu di beranda.':'That page is unavailable. More challenges are waiting on the home page.'}</p><button className="ba-button primary" onClick={back}>{lang==='id'?'Kembali ke beranda':'Back to home'}<Icon name="arrow" size={17}/></button></div>;
-  return <Layout currentView={view} onViewChange={navigate}><ErrorBoundary key={view} lang={lang}><Suspense fallback={<div className="loading-state" role="status"><span className="loading-spinner"/>{lang==='id'?'Menyiapkan arena...':'Preparing your arena...'}</div>}>{content}</Suspense></ErrorBoundary></Layout>;
+import {LanguageProvider,useLanguage} from './context/LanguageContext.jsx';
+import {ArenaProvider,useArena} from './context/ArenaContext.jsx';
+import {gameById,resolveRoute,routeHash} from './data/games.js';
+const Home=lazy(()=>import('./pages/Home.jsx'));
+const Settings=lazy(()=>import('./pages/Settings.jsx'));
+const Guides=lazy(()=>import('./pages/Guides.jsx'));
+const TipsPage=lazy(()=>import('./pages/TipsPage.jsx'));
+const games={
+  '300':lazy(()=>import('./games/Game300.jsx')),prime:lazy(()=>import('./games/GamePrime.jsx')),pixel:lazy(()=>import('./games/GamePixel.jsx')),mnm:lazy(()=>import('./games/GameMnM.jsx')),cube:lazy(()=>import('./games/GameCube.jsx')),rps:lazy(()=>import('./games/GameRPS.jsx')),sudoku:lazy(()=>import('./games/GameSudoku.jsx')),minesweeper:lazy(()=>import('./games/GameMinesweeper.jsx')),maze:lazy(()=>import('./games/GameMaze.jsx')),matrix:lazy(()=>import('./games/GameMemoryMatrix.jsx')),nonogram:lazy(()=>import('./games/GameNonogram.jsx')),game2048:lazy(()=>import('./games/Game2048.jsx')),
+  codebreaker:lazy(()=>import('./games/ExtraGames.jsx').then(module=>({default:module.GameCodeBreaker}))),
+  lightsout:lazy(()=>import('./games/ExtraGames.jsx').then(module=>({default:module.GameLightsOut}))),
+  sequence:lazy(()=>import('./games/ExtraGames.jsx').then(module=>({default:module.GameSequenceRecall}))),
+  kakuro:lazy(()=>import('./games/ExtraGames.jsx').then(module=>({default:module.GameKakuro}))),
+  slitherlink:lazy(()=>import('./games/ExtraGames.jsx').then(module=>({default:module.GameSlitherlink}))),
+};
+function AppContent(){
+  const {lang}=useLanguage();const {leaveGameSession}=useArena();
+  const [gameAttempt,setGameAttempt]=useState(0);
+  const [view,setView]=useState(()=>resolveRoute(window.location.hash));const previous=useRef(null);
+  const navigate=useCallback(next=>{const hash=routeHash(next);if(window.location.hash===hash)setView(resolveRoute(hash));else window.location.hash=hash;},[]);
+  useEffect(()=>{const sync=()=>setView(resolveRoute(window.location.hash));window.addEventListener('hashchange',sync);return()=>window.removeEventListener('hashchange',sync);},[]);
+  useEffect(()=>{
+    if(previous.current!==view){leaveGameSession();window.scrollTo({top:0,behavior:'instant'});previous.current=view;}
+    document.title=`${gameById(view)?.title[lang]||(lang==='id'?'Game hafalan, logika & hitung':'Memory, logic & math games')} | Brain Arena`;
+  },[view,lang,leaveGameSession]);
+  useEffect(()=>{const retry=()=>{leaveGameSession();setGameAttempt(value=>value+1);};window.addEventListener('ba-retry-game',retry);return()=>window.removeEventListener('ba-retry-game',retry);},[leaveGameSession]);
+  const Game=games[view];let content;
+  if(Game)content=<Game key={`${view}-${gameAttempt}`} onBack={()=>navigate('games')} onNavigate={navigate}/>;
+  else if(view==='settings')content=<Settings/>;
+  else if(view==='guides')content=<Guides onNavigate={navigate}/>;
+  else if(view.startsWith('tips-'))content=<TipsPage gameId={view.slice(5)} onBack={()=>navigate(view.slice(5))} onNavigate={navigate}/>;
+  else content=<Home onSelectGame={navigate}/>;
+  return <Layout currentView={view} onViewChange={navigate}><ErrorBoundary key={view} lang={lang}><Suspense fallback={<div className="loading-state" role="status">{lang==='id'?'Menyiapkan permainan…':'Loading game…'}</div>}>{content}</Suspense></ErrorBoundary></Layout>;
 }
-export default function App() { return <LanguageProvider><ArenaProvider><AppContent/></ArenaProvider></LanguageProvider>; }
+export default function App(){return <LanguageProvider><ArenaProvider><AppContent/></ArenaProvider></LanguageProvider>;}

@@ -19,7 +19,7 @@ test('every catalog game has a complete learning guide', () => {
     assert.ok(guide.solve.steps.length >= 3, `${game.id}: solve steps`);
     assert.ok(bilingual(guide.solve.example), `${game.id}: solve example`);
     assert.ok(guide.mistakes.length >= 3, `${game.id}: mistakes`);
-    assert.ok(guide.levels.length >= 4, `${game.id}: levels`);
+    assert.deepEqual(guide.levels.map(level=>level.name),['SD','SMP','SMA','SMA+','Universitas'],`${game.id}: levels`);
   }
 });
 

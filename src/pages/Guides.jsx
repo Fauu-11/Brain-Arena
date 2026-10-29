@@ -27,7 +27,7 @@ export default function Guides({ onNavigate }) {
 
     <div className="section-heading guide-library-heading"><div><h2>{copy('Pilih permainan yang ingin dikuasai','Choose a game to master')}</h2><p>{copy('Setiap panduan bisa langsung dipakai sebagai tutorial sebelum bermain.','Each guide works as a practical tutorial before you play.')}</p></div><span className="muted-text">{GAMES.length} {copy('panduan lengkap','complete guides')}</span></div>
     <div className="guides-grid">{GAMES.map(game => <article className={`guide-card guide-card-v15 color-${game.color}`} key={game.id}>
-      <div className="guide-card-top"><span className="mini-game-icon"><Icon name={game.icon} size={24}/></span><span className="guide-card-season">S{game.season}</span></div>
+      <div className="guide-card-top"><span className="mini-game-icon"><Icon name={game.icon} size={24}/></span><span className="guide-card-season">5 {copy('tingkat','levels')}</span></div>
       <span className="eyebrow">{CATEGORIES[game.category][lang]}</span>
       <h2>{game.title[lang]}</h2>
       <p>{game.description[lang]}</p>

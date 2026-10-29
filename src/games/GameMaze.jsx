@@ -1,3 +1,5 @@
+import {useUniversityGameplay,useUniversityEvent} from '../hooks/useUniversityGameplay.js';
+import {revealWindow} from '../utils/universityGameplay.js';
 import BoardZoom from '../components/BoardZoom.jsx';
 import { useBoardSizing } from '../hooks/useBoardSizing.js';
 import { sessionRandom } from '../utils/competitive.js';
@@ -8,10 +10,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import RulesModal from '../components/RulesModal.jsx';
-import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell.jsx';
+import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useArena } from '../context/ArenaContext.jsx';
-import { readText, writeText } from '../utils/storage.js';
 import { formatMinesweeperTime } from '../utils/minesweeper.js';
 import { chooseMazeEndpoints, generateMaze, moveInMaze } from '../utils/maze.js';
 
@@ -21,23 +22,20 @@ const BASE_LEVELS = {
   sd: { rows: 7, cols: 7 },
   smp: { rows: 10, cols: 10 },
   sma: { rows: 14, cols: 14 },
+  'sma-plus': { rows: 20, cols: 20 },
 };
 const UNIVERSITY_LEVELS = {
   hard: { rows: 18, cols: 18 },
   'very-hard': { rows: 24, cols: 24 },
   impossible: { rows: 32, cols: 32 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+const UNIVERSITY_LABELS = { impossible: 'Universitas' };
 const DIR_KEYS = {
   ArrowUp: 'up', w: 'up', W: 'up',
   ArrowRight: 'right', d: 'right', D: 'right',
   ArrowDown: 'down', s: 'down', S: 'down',
   ArrowLeft: 'left', a: 'left', A: 'left',
 };
-
-function difficultyKey(level, universityDifficulty) {
-  return level === 'universitas' ? `${level}_${universityDifficulty}` : level;
-}
 
 export default function GameMaze({ onBack, onNavigate }) {
   const { lang } = useLanguage();
@@ -56,9 +54,11 @@ export default function GameMaze({ onBack, onNavigate }) {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const [optimalMoves, setOptimalMoves] = useState(0);
-  const [bestTime, setBestTime] = useState(null);
 
   const config = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : BASE_LEVELS[schoolLevel];
+  const challenge=useUniversityGameplay('maze',schoolLevel,gameState==='playing'&&!paused);
+  const wallsVisible=challenge.id!=='vanishing-walls'||revealWindow(challenge.seconds,8,60,5);
+  useUniversityEvent(challenge,'shifting-maze',20,gameState==='playing'&&!paused,()=>{setMaze(generateMaze(config.rows,config.cols,random));setVisited(new Set([position]));setOptimalMoves(0);});
   const boardSizing=useBoardSizing(config.cols,{min:18,max:44,gutter:8});
   useEffect(()=>{
     const node=boardSizing.element;if(!node||gameState!=='playing')return;
@@ -66,13 +66,7 @@ export default function GameMaze({ onBack, onNavigate }) {
     const top=(Math.floor(position/config.cols)+.5)*boardSizing.cell-node.clientHeight/2;
     node.scrollTo({left:Math.max(0,left),top:Math.max(0,top),behavior:'instant'});
   },[position,config.cols,boardSizing.cell,boardSizing.element,gameState]);
-  const recordKey = `maze_best_${difficultyKey(schoolLevel, universityDifficulty)}`;
 
-  useEffect(() => {
-    const raw = readText(recordKey);
-    const value = Number(raw);
-    setBestTime(raw !== null && Number.isFinite(value) && value >= 0 ? value : null);
-  }, [recordKey]);
 
   useEffect(() => {
     if (gameState !== 'playing' || paused) return undefined;
@@ -84,18 +78,12 @@ export default function GameMaze({ onBack, onNavigate }) {
     setMoves(finalMoves);
     setPaused(false);
     setGameState('ended');
-    const raw = readText(recordKey);
-    const previous = raw === null ? null : Number(raw);
-    if (previous === null || !Number.isFinite(previous) || elapsed < previous) {
-      writeText(recordKey, elapsed);
-      setBestTime(elapsed);
-    }
-  }, [elapsed, recordKey]);
+  }, []);
 
   const move = useCallback((direction) => {
     if (gameState !== 'playing' || paused || !maze.length) return;
     const next = moveInMaze(maze, config.rows, config.cols, position, direction);
-    if (next === position) return;
+    if (next === position) {if(challenge.id==='fatal-wall')challenge.fail({id:'Kamu menabrak dinding. Pada variasi ini satu benturan langsung kalah.',en:'You hit a wall. In this variation, one collision ends the run.'});return;}
     const nextMoves = moves + 1;
     setPosition(next);
     setMoves(nextMoves);
@@ -105,12 +93,12 @@ export default function GameMaze({ onBack, onNavigate }) {
       return nextVisited;
     });
     if (next === target) finishGame(nextMoves);
-  }, [gameState, paused, maze, config.rows, config.cols, position, moves, target, finishGame]);
+  }, [gameState, paused, maze, config.rows, config.cols, position, moves, target, finishGame, challenge]);
 
   useEffect(() => {
     const handleKey = event => {
       const direction = DIR_KEYS[event.key];
-      if (!direction) return;
+      if (!direction||document.querySelector('dialog[open]')) return;
       const element = event.target;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(element?.tagName) || element?.isContentEditable) return;
       if (gameState === 'playing' && !paused) {
@@ -149,13 +137,13 @@ export default function GameMaze({ onBack, onNavigate }) {
     'Move with Arrow Keys or WASD on desktop. On touch devices, use the direction pad below the maze.',
     'Walls block movement. Valid steps are counted; bumping into a wall does not add a move.',
     'The maze is generated as a perfect maze, so every board is solvable and has one unique route between any two cells.',
-    'University Arena Mode adds Hard, Very Hard, and Impossible sizes. Your fastest clear time is saved separately for each difficulty.',
+    'Five levels: SD, SMP, SMA, SMA+, Universitas. Universitas randomly selects one of three gameplay rules on every start.',
   ] : [
     'Setiap permainan baru mengacak bentuk labirin sekaligus posisi START dan EXIT di sisi luar papan. Capai bendera dari titik mulai ungu.',
     'Gunakan tombol panah atau WASD di desktop. Di layar sentuh, gunakan tombol arah di bawah labirin.',
     'Dinding menghalangi gerakan. Hanya langkah yang berhasil yang dihitung; menabrak dinding tidak menambah langkah.',
     'Labirin dibuat sebagai perfect maze, sehingga setiap papan pasti dapat diselesaikan dan memiliki satu jalur unik antara dua petak.',
-    'Mode Arena Universitas memiliki Hard, Very Hard, dan Impossible. Waktu tercepat disimpan terpisah untuk setiap tingkat.',
+    'Lima tingkat: SD, SMP, SMA, SMA+, Universitas. Universitas memilih satu dari tiga aturan gameplay secara acak setiap mulai.',
   ];
 
   const mazeCells = useMemo(() => maze.map((walls, index) => {
@@ -165,17 +153,17 @@ export default function GameMaze({ onBack, onNavigate }) {
     const isExit = index === target;
     const isVisited = visited.has(index);
     const style = {
-      borderTop: walls & 1 ? '2px solid #75628a' : '2px solid transparent',
-      borderLeft: walls & 8 ? '2px solid #75628a' : '2px solid transparent',
-      borderRight: col === config.cols - 1 && (walls & 2) ? '2px solid #75628a' : '2px solid transparent',
-      borderBottom: row === config.rows - 1 && (walls & 4) ? '2px solid #75628a' : '2px solid transparent',
+      borderTop: walls & 1 ? `2px solid ${wallsVisible?'#75628a':'transparent'}` : '2px solid transparent',
+      borderLeft: walls & 8 ? `2px solid ${wallsVisible?'#75628a':'transparent'}` : '2px solid transparent',
+      borderRight: col === config.cols - 1 && (walls & 2) ? `2px solid ${wallsVisible?'#75628a':'transparent'}` : '2px solid transparent',
+      borderBottom: row === config.rows - 1 && (walls & 4) ? `2px solid ${wallsVisible?'#75628a':'transparent'}` : '2px solid transparent',
     };
     return <div key={index} className={`maze-cell ${isVisited ? 'visited' : ''} ${isExit ? 'exit' : ''}`} style={style} aria-hidden="true">
       {index === startIndex && !isPlayer && <span className="maze-start-dot"/>}
       {isExit && <Icon name="flag" size={Math.max(8, Math.min(16, 310 / config.cols))}/>} 
       {isPlayer && <span className="maze-player"><span/></span>}
     </div>;
-  }), [maze, config.cols, config.rows, position, startIndex, target, visited]);
+  }), [maze, config.cols, config.rows, position, startIndex, target, visited, wallsVisible]);
 
   const efficiency = optimalMoves > 0 ? Math.max(1, Math.round((optimalMoves / Math.max(moves, 1)) * 100)) : 100;
   const boardWidth = config.cols*boardSizing.cell;
@@ -186,7 +174,7 @@ export default function GameMaze({ onBack, onNavigate }) {
 
   useGameCheckpoint('maze',{gameState,schoolLevel,universityDifficulty,maze,startIndex,target,position,visited,moves,elapsed,paused,optimalMoves},saved=>{setGameState(saved.gameState);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setMaze(saved.maze);setStartIndex(saved.startIndex);setTarget(saved.target);setPosition(saved.position);setVisited(saved.visited);setMoves(saved.moves);setElapsed(saved.elapsed);setPaused(saved.paused);setOptimalMoves(saved.optimalMoves);},gameState==='playing',gameState==='playing'&&!paused);
 
-  return <GameScreen gameId="maze" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={stats}>
+  return <GameScreen universityMode={challenge} gameId="maze" lang={lang} state={gameState} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={stats}>
     {gameState === 'setup' && <SetupCard
       heading={copy('Pilih labirin Maze Escape', 'Choose your Maze Escape')}
       schoolLevel={schoolLevel}
@@ -194,9 +182,8 @@ export default function GameMaze({ onBack, onNavigate }) {
       desc={descriptions[schoolLevel]}
       lang={lang}
       badge={`${config.rows}×${config.cols}${schoolLevel === 'universitas' ? ` · ${UNIVERSITY_LABELS[universityDifficulty]}` : ''}`}
-      bestRecord={bestTime === null ? null : formatMinesweeperTime(bestTime)}
     >
-      {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>} 
+       
       <button className="uw-btn uw-btn-primary" onClick={startGame}><Icon name="play" size={16}/>{copy('Masuk labirin', 'Enter maze')}</button>
       <TipsButton lang={lang} onClick={() => onNavigate?.('tips-maze')}/>
     </SetupCard>}
@@ -235,8 +222,7 @@ export default function GameMaze({ onBack, onNavigate }) {
       stats={[
         { label: copy('Waktu', 'Time'), value: formatMinesweeperTime(elapsed) },
         { label: copy('Langkah', 'Moves'), value: moves },
-        { label: copy('Efisiensi', 'Efficiency'), value: `${efficiency}%` },
-        { label: copy('Rekor', 'Best'), value: bestTime === null ? '—' : formatMinesweeperTime(bestTime) },
+        { label: challenge.id==='shifting-maze'?copy('Perubahan','Shifts'):copy('Efisiensi','Efficiency'), value: challenge.id==='shifting-maze'?Math.floor(challenge.seconds/20):`${Math.min(100,efficiency)}%` },
       ]}
     >
       <button type="button" className="ms-change-level" onClick={() => setGameState('setup')}>{copy('Ganti tingkat kesulitan', 'Change difficulty')}</button>

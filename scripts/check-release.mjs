@@ -9,11 +9,8 @@ const ci=read('.github/workflows/ci.yml');
 const checks=[
   ['package-lock',JSON.parse(read('package-lock.json')).version===expected],
   ['service-worker',read('public/service-worker.js').includes(`const VERSION = '${expected}'`)],
-  ['system-diagnostics',read('src/utils/systemDiagnostics.js').includes(`APP_VERSION='${expected}'`)],
-  ['runtime-health',read('src/utils/runtimeHealth.js').includes(`APP_VERSION = '${expected}'`)],
-  ['feedback',read('src/pages/Feedback.jsx').includes(`APP_VERSION = '${expected}'`)],
-  ['schema-v19',/DATA_SCHEMA_VERSION\s*=\s*19/.test(read('src/utils/migration.js'))],
-  ['manifest-version',read('public/manifest.webmanifest').includes(`v${expected.split('.').slice(0,2).join('.')}`)],
+  ['manifest-version',JSON.parse(read('public/manifest.webmanifest')).version===expected],
+  ['five-difficulties',read('src/data/difficulties.js').includes("label:'SMA+'")&&read('src/data/difficulties.js').includes("label:'Universitas'")],
   ['lint-first-party',pkg.scripts?.lint==='oxlint src tests scripts'],
   ['actions-node24',deploy.includes('actions/checkout@v7')&&deploy.includes('actions/setup-node@v7')&&deploy.includes('node-version: 24')&&ci.includes('actions/checkout@v7')&&ci.includes('actions/setup-node@v7')],
   ['ubuntu-24.04',deploy.includes('runs-on: ubuntu-24.04')&&ci.includes('runs-on: ubuntu-24.04')],

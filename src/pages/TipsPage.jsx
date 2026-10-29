@@ -1,21 +1,10 @@
+import {EXTRA_CONTENT} from '../data/newGameContent.js';
+import {UNIVERSITY_GAMEPLAY} from '../utils/universityGameplay.js';
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { GAMES, CATEGORIES, gameById } from '../data/games.js';
 import { GUIDE_DETAILS, pickGuideText } from '../data/guideDetails.js';
 import Icon from '../components/Icon.jsx';
-
-export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
-  const { lang } = useLanguage();
-
-  // Normalize gameId (removes "tips-" prefix if routed as "tips-prime", "tips-pixel", etc.)
-  const normalizedInitialId = (gameId || '300').replace(/^tips-/, '');
-  const [selectedGame, setSelectedGame] = useState(normalizedInitialId);
-  const [levelFilter, setLevelFilter] = useState('all'); // 'all', 'sd', 'smp', 'sma', 'univ'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
-  const [completedSteps, setCompletedSteps] = useState({});
-
-  const GAME_LIST = GAMES;
 
   const TIPS_DATABASE = {
     '300': {
@@ -405,8 +394,8 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
             {
               titleEn: 'Chunk the maze into zones',
               titleId: 'Bagi labirin menjadi beberapa zona',
-              textEn: 'Hard, Very Hard, and Impossible boards are easier to track if you remember progress by regions rather than by individual cells.',
-              textId: 'Papan Hard, Very Hard, dan Impossible lebih mudah diikuti jika kamu mengingat progres per wilayah, bukan per petak satu per satu.'
+              textEn: 'SD, SMP, SMA, SMA+, Universitas boards are easier to track if you remember progress by regions rather than by individual cells.',
+              textId: 'Papan SD, SMP, SMA, SMA+, Universitas lebih mudah diikuti jika kamu mengingat progres per wilayah, bukan per petak satu per satu.'
             }
           ]
         }
@@ -443,8 +432,8 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
             {
               titleEn: 'Anchor the extremes first',
               titleId: 'Jadikan sisi terluar sebagai jangkar',
-              textEn: 'On 6×6 to 8×8 matrices, remember corner and edge cells first, then fill the interior clusters. Impossible mode rewards spatial chunking more than raw repetition.',
-              textId: 'Pada matriks 6×6 hingga 8×8, ingat petak sudut dan tepi terlebih dahulu, lalu isi kelompok bagian dalam. Mode Impossible lebih mengandalkan pengelompokan spasial daripada pengulangan mentah.'
+              textEn: 'On 6×6 to 8×8 matrices, remember corner and edge cells first, then fill the interior clusters. Universitas rewards spatial chunking more than raw repetition.',
+              textId: 'Pada matriks 6×6 hingga 8×8, ingat petak sudut dan tepi terlebih dahulu, lalu isi kelompok bagian dalam. Tingkat Universitas lebih mengandalkan pengelompokan spasial daripada pengulangan mentah.'
             }
           ]
         }
@@ -525,13 +514,27 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
     }
   };
 
-  const activeData = TIPS_DATABASE[selectedGame] || TIPS_DATABASE['300'];
+export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
+  const { lang } = useLanguage();
+
+  // Normalize gameId (removes "tips-" prefix if routed as "tips-prime", "tips-pixel", etc.)
+  const normalizedInitialId = (gameId || '300').replace(/^tips-/, '');
+  const [selectedGame, setSelectedGame] = useState(normalizedInitialId);
+  const [levelFilter, setLevelFilter] = useState('all'); // 'all', 'sd', 'smp', 'sma', 'univ'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [completedSteps, setCompletedSteps] = useState({});
+
+  const GAME_LIST = GAMES;
+
+  const extra=EXTRA_CONTENT[selectedGame];
+  const activeData = useMemo(()=>extra?{sections:[{tier:'all',headingId:extra.title.id,headingEn:extra.title.en,tips:extra.tips.map((tip,i)=>({titleId:`Strategi ${i+1}`,titleEn:`Strategy ${i+1}`,textId:tip.id,textEn:tip.en}))}]}:TIPS_DATABASE[selectedGame]||TIPS_DATABASE['300'],[extra,selectedGame]);
 
   // Filter sections by selected difficulty tier and search query
   const filteredSections = useMemo(() => {
     return activeData.sections
       .map(sec => {
-        if (levelFilter !== 'all' && sec.tier !== 'all' && sec.tier !== levelFilter) {
+        if (levelFilter !== 'all' && sec.tier !== 'all' && sec.tier !== (levelFilter==='sma-plus'?'sma':levelFilter)) {
           return null;
         }
 
@@ -601,6 +604,7 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
           <article className="manual-card manual-controls"><div className="manual-card-title"><Icon name="gamepad" size={19}/><div><small>{copy('KONTROL', 'CONTROLS')}</small><h3>{copy('Cara berinteraksi', 'How to interact')}</h3></div></div><ol>{detail.controls.map((control, index) => <li key={index}><span>{index + 1}</span><p>{text(control)}</p></li>)}</ol></article>
           <article className="manual-card manual-level-card"><div className="manual-card-title"><Icon name="layers" size={19}/><div><small>{copy('TINGKAT KESULITAN', 'DIFFICULTY')}</small><h3>{copy('Apa yang berubah?', 'What changes?')}</h3></div></div><div className="manual-level-list">{detail.levels.map((entry, index) => <div key={`${entry.name}-${index}`}><strong>{entry.name}</strong><p>{text(entry.detail)}</p></div>)}</div></article>
         </div>
+        <article className="manual-card university-guide"><div className="manual-card-title"><Icon name="spark" size={19}/><div><small>UNIVERSITAS</small><h3>{copy('Tiga gameplay acak','Three random gameplay rules')}</h3></div></div><p>{copy('Satu aturan dipilih setiap mulai. Perhatikan banner di atas papan.','One rule is drawn on each start. Check the banner above the board.')}</p><ul className="university-variant-list">{UNIVERSITY_GAMEPLAY[selectedGame]?.map(item=><li key={item.id}><strong>{item.name[lang]}</strong><span>{item.note[lang]}</span></li>)}</ul></article>
         <article className="manual-callout"><span className="manual-callout-icon"><Icon name="brain" size={22}/></span><div><small>{copy('PRINSIP UTAMA', 'CORE PRINCIPLE')}</small><strong>{text(detail.solve.title)}</strong><p>{text(detail.solve.intro)}</p></div><button onClick={() => setActiveTab('solve')}>{copy('Pelajari metode', 'Learn the method')}<Icon name="arrow" size={15}/></button></article>
       </div>}
 
@@ -623,7 +627,7 @@ export default function TipsPage({ gameId = '300', onBack, onNavigate }) {
       {activeTab === 'strategy' && <div className="manual-section">
         <div className="manual-section-heading"><span>04</span><div><p className="eyebrow">{copy('STRATEGI LANJUTAN', 'ADVANCED STRATEGY')}</p><h2>{copy('Trik, pola, dan rumus yang bisa langsung dipakai', 'Practical tricks, patterns, and formulas')}</h2><p>{copy('Gunakan filter tingkat dan pencarian untuk menemukan teknik yang kamu butuhkan.', 'Use the level filter and search to find the technique you need.')}</p></div></div>
         <div className="manual-filterbar">
-          <div className="manual-tier-filter"><span>{copy('TINGKAT', 'LEVEL')}</span>{[{id:'all',label:copy('Semua','All')},{id:'sd',label:'SD'},{id:'smp',label:'SMP'},{id:'sma',label:'SMA'},{id:'univ',label:copy('Universitas','University')}].map((tier) => <button key={tier.id} className={levelFilter === tier.id ? 'active' : ''} onClick={() => setLevelFilter(tier.id)}>{tier.label}</button>)}</div>
+          <div className="manual-tier-filter"><span>{copy('TINGKAT', 'LEVEL')}</span>{[{id:'all',label:copy('Semua','All')},{id:'sd',label:'SD'},{id:'smp',label:'SMP'},{id:'sma',label:'SMA'},{id:'sma-plus',label:'SMA+'},{id:'univ',label:'Universitas'}].map((tier) => <button key={tier.id} className={levelFilter === tier.id ? 'active' : ''} onClick={() => setLevelFilter(tier.id)}>{tier.label}</button>)}</div>
           <label className="manual-search"><Icon name="search" size={15}/><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder={copy('Cari pola, rumus, strategi...', 'Search patterns, formulas, strategies...')}/></label>
         </div>
         {filteredSections.length === 0 ? <div className="manual-empty"><Icon name="search" size={28}/><strong>{copy('Tidak ada strategi yang cocok.', 'No matching strategy found.')}</strong><p>{copy('Coba hapus kata pencarian atau pilih tingkat lain.', 'Clear the search or choose another level.')}</p></div> : <div className="manual-strategy-sections">{filteredSections.map((sec, sectionIndex) => <section key={sectionIndex}><header><div><span>{sec.tier === 'all' ? copy('SEMUA TINGKAT', 'ALL LEVELS') : sec.tier.toUpperCase()}</span><h3>{lang === 'en' ? sec.headingEn : sec.headingId}</h3></div><strong>{sec.tips.length} {copy('teknik', 'tips')}</strong></header><div className="manual-strategy-grid">{sec.tips.map((tip, tipIndex) => <article key={tipIndex}><span className="manual-strategy-number">{String(tipIndex + 1).padStart(2, '0')}</span><div><h4>{lang === 'en' ? tip.titleEn : tip.titleId}</h4><p>{lang === 'en' ? tip.textEn : tip.textId}</p>{tip.formula && <code>{tip.formula}</code>}</div></article>)}</div></section>)}</div>}

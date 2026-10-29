@@ -1,3 +1,5 @@
+import {useUniversityGameplay,useUniversityEvent} from '../hooks/useUniversityGameplay.js';
+import {revealWindow,rotate180} from '../utils/universityGameplay.js';
 import { useArena } from '../context/ArenaContext.jsx';
 import { sessionRandom } from '../utils/competitive.js';
 import { gameTimeout as setTimeout } from '../utils/sessionClock.js';
@@ -9,11 +11,10 @@ import GameScreen from '../components/GameScreen.jsx';
 import Icon from '../components/Icon.jsx';
 import { generateSudokuMatrix } from '../utils/sudoku.js';
 import { getAudioContext, getAudioDestination } from '../utils/audio.js';
-import { readText, writeText } from '../utils/storage.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import RulesModal from '../components/RulesModal';
 import { useLanguage } from '../context/LanguageContext';
-import { SetupCard, TipsButton, SoloEndCard, UniversityDifficultySelector } from '../components/GameShell';
+import { SetupCard, TipsButton, SoloEndCard } from '../components/GameShell';
 
 // Synthesized Audio Engine (No external sound files required)
 const random=()=>sessionRandom('sudoku');
@@ -107,13 +108,14 @@ const LEVEL_CONFIG = {
   sd: { size: 4, boxRows: 2, boxCols: 2, hiddenMin: 4, hiddenMax: 6, maxPeeks: 3 },
   smp: { size: 6, boxRows: 2, boxCols: 3, hiddenMin: 10, hiddenMax: 14, maxPeeks: 2 },
   sma: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 22, hiddenMax: 26, maxPeeks: 2 },
+  'sma-plus': { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 38, hiddenMax: 44, maxPeeks: 1 },
 };
 const UNIVERSITY_LEVELS = {
   hard: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 34, hiddenMax: 40, maxPeeks: 1 },
   'very-hard': { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 44, hiddenMax: 50, maxPeeks: 1 },
   impossible: { size: 9, boxRows: 3, boxCols: 3, hiddenMin: 52, hiddenMax: 58, maxPeeks: 0 },
 };
-const UNIVERSITY_LABELS = { hard: 'Hard', 'very-hard': 'Very Hard', impossible: 'Impossible' };
+const UNIVERSITY_LABELS = { impossible: 'Universitas' };
 
 export default function GameSudoku({ onBack, onNavigate }) {
   const {restartGameSession}=useArena();
@@ -133,34 +135,32 @@ export default function GameSudoku({ onBack, onNavigate }) {
   const [memoTime, setMemoTime] = useState(0);
   const [peeksLeft, setPeeksLeft] = useState(2);
   const [isPeeking, setIsPeeking] = useState(false);
-  const [bestTime, setBestTime] = useState(null);
 
   const activeConfig = schoolLevel === 'universitas' ? UNIVERSITY_LEVELS[universityDifficulty] : (LEVEL_CONFIG[schoolLevel] || LEVEL_CONFIG.smp);
-  const recordKey = schoolLevel === 'universitas' ? `blind_sudoku_best_${schoolLevel}_${universityDifficulty}` : `blind_sudoku_best_${schoolLevel}`;
   const { size, boxRows, boxCols } = activeConfig;
+  const challenge=useUniversityGameplay('sudoku',schoolLevel,phase==='playing'&&!feedback&&!isPeeking);
+  const entriesVisible=challenge.id!=='fading-entries'||revealWindow(challenge.seconds,3,20,3);
+  useUniversityEvent(challenge,'rotating-sudoku',20,phase==='playing'&&!feedback&&!isPeeking,()=>{setSolution(rotate180(solution));setCluesMask(rotate180(cluesMask));setUserAnswers(rotate180(userAnswers));setSelectedCell(old=>old===null?null:solution.length-1-old);});
+
 
   // Load best time from localStorage
-  useEffect(() => {
-    const saved = readText(recordKey);
-    setBestTime(saved !== null && Number.isFinite(Number(saved)) && Number(saved) >= 0 ? Number(saved) : null);
-  }, [recordKey]);
 
   const rules = lang === 'en' ? [
     "Blind Sudoku tests your visual memory and logical deduction combined!",
-    "Format Levels: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Classic), University Arena (9×9 Hard, Very Hard, or Impossible).",
+    "Format Levels: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Classic), SMA+ (9×9), Universitas (9×9 tanpa intip).",
     "Memorization Phase: A completed solution grid is revealed. Take your time to study and memorize the layout.",
     "Active Play Phase: Hidden cells are masked. Rely on your memory and standard Sudoku rules (no duplicate numbers in any row, column, or block).",
     "Controls: Tap any editable cell, then use the on-screen keypad (or physical keyboard 1–9, Arrow Keys, Backspace) to enter digits.",
     "Peek Assistance: Stuck? Use 'Quick Peek' to glimpse the original board for 2 seconds (limited charges).",
-    "Submit your board once filled to claim victory and set a new personal record!"
+    "Submit your board once filled to complete the game!"
   ] : [
     "Sudoku Buta memadukan daya ingat visual dengan logika deduktif angka!",
-    "Format Grid: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Klasik), Arena Universitas (9×9 Hard, Very Hard, atau Impossible).",
+    "Format Grid: SD (4×4 Mini), SMP (6×6 Midi), SMA (9×9 Klasik), SMA+ (9×9), Universitas (9×9 tanpa intip).",
     "Fase Memorisasi: Papan solusi penuh ditampilkan. Gunakan waktu Anda untuk menghafal pola angka di dalamnya.",
     "Fase Bermain: Sel rahasia ditutup. Isi sel kosong dari ingatan dan logika Sudoku (tidak boleh ada angka kembar dalam baris, kolom, atau blok).",
     "Kontrol: Ketuk sel kosong, lalu gunakan keypad angka di layar (atau keyboard fisik 1–9, tombol panah, Backspace).",
     "Bantuan Intip: Terjebak? Gunakan 'Intip Kilat' untuk melihat papan asli selama 2 detik (jumlah penggunaan terbatas).",
-    "Tekan 'Periksa Papan' saat selesai untuk mencetak rekor waktu terbaik!"
+    "Tekan 'Periksa Papan' saat selesai untuk menyelesaikan permainan!"
   ];
 
   // Initialize Puzzle
@@ -209,6 +209,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
 
   const enterValueAtCell = useCallback((cellIdx, val) => {
     if (cellIdx === null || cluesMask[cellIdx]) return;
+    if(challenge.id==='perfect-entry'&&val!==''&&Number(val)!==solution[cellIdx]){challenge.fail({id:'Angka yang dimasukkan tidak cocok dengan papan hafalan.',en:'The entered digit does not match the memorized board.'});return;}
     if (val === '') {
       playSound('erase');
     } else {
@@ -220,7 +221,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
       next[cellIdx] = val;
       return next;
     });
-  }, [cluesMask]);
+  }, [cluesMask,challenge,solution]);
 
   // Keyboard navigation & inputs
   useEffect(() => {
@@ -302,13 +303,6 @@ export default function GameSudoku({ onBack, onNavigate }) {
         msg: lang === 'en' ? '🎉 Brilliant! Board perfectly solved!' : '🎉 Luar Biasa! Semua angka tepat!'
       });
 
-      // Update best time
-      const finalTime = elapsedTime;
-      if (bestTime === null || finalTime < bestTime) {
-        writeText(recordKey, finalTime.toString());
-        setBestTime(finalTime);
-      }
-
       setTimeout(() => {
         setPhase('ended');
       }, 1200);
@@ -327,7 +321,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
     sdDesc: lang === 'en' ? 'SD: 4×4 Mini Grid (Quick memory intro)' : 'Level SD: Grid 4×4 Mini (Pengenalan memori)',
     smpDesc: lang === 'en' ? 'SMP: 6×6 Midi Grid (Moderate logic & recall)' : 'Level SMP: Grid 6×6 Midi (Logika & ingatan seimbang)',
     smaDesc: lang === 'en' ? 'SMA: 9×9 Classic Grid (Challenging full Sudoku)' : 'Level SMA: Grid 9×9 Klasik (Sudoku standar menantang)',
-    univDesc: lang === 'en' ? `University Arena: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} hidden cells · ${activeConfig.maxPeeks} peek` : `Arena Universitas: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} sel tersembunyi · ${activeConfig.maxPeeks} intip`,
+    univDesc: lang === 'en' ? `Universitas: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} hidden cells · ${activeConfig.maxPeeks} peek` : `Universitas: 9×9 · ${UNIVERSITY_LABELS[universityDifficulty]} · ${activeConfig.hiddenMin}–${activeConfig.hiddenMax} sel tersembunyi · ${activeConfig.maxPeeks} intip`,
     startSetup: lang === 'en' ? 'Generate Puzzle' : 'Buat Teka-Teki',
     memoPhase: lang === 'en' ? 'Memorization Phase' : 'Fase Memorisasi',
     memoDesc: lang === 'en'
@@ -374,7 +368,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
   useGameCheckpoint('sudoku',{phase,schoolLevel,universityDifficulty,solution,cluesMask,userAnswers,selectedCell,feedback,elapsedTime,memoTime,peeksLeft,isPeeking},saved=>{setPhase(saved.phase);setSchoolLevel(saved.schoolLevel);setUniversityDifficulty(saved.universityDifficulty);setSolution(saved.solution);setCluesMask(saved.cluesMask);setUserAnswers(saved.userAnswers);setSelectedCell(saved.selectedCell);setFeedback(saved.feedback);setElapsedTime(saved.elapsedTime);setMemoTime(saved.memoTime);setPeeksLeft(saved.peeksLeft);setIsPeeking(saved.isPeeking);},['start','playing'].includes(phase)&&!feedback&&!isPeeking,phase==='playing');
 
   return (
-    <GameScreen gameId="sudoku" lang={lang} state={phase} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{phase === "start" ? `${memoTime}s` : `${elapsedTime}s`}</span>{bestTime !== null && <span><Icon name="trophy" size={14}/>{bestTime}s</span>}</>}>
+    <GameScreen universityMode={challenge} gameId="sudoku" lang={lang} state={phase} level={schoolLevel} onBack={onBack} onNavigate={onNavigate} onRules={() => setShowRules(true)} stats={<><span><Icon name="clock" size={14}/>{phase === "start" ? `${memoTime}s` : `${elapsedTime}s`}</span></>}>
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
@@ -400,7 +394,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
           }
           lang={lang}
         >
-          {schoolLevel === 'universitas' && <UniversityDifficultySelector value={universityDifficulty} onChange={setUniversityDifficulty} lang={lang}/>}
+          
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               className="uw-btn uw-btn-primary"
@@ -593,7 +587,7 @@ export default function GameSudoku({ onBack, onNavigate }) {
               const inBoxBottom = (r + 1) % boxRows === 0 && r !== size - 1;
 
               const { isSelected, isRelated, isSameVal } = getHighlightStatus(idx);
-              const displayVal = isPeeking ? solution[idx] : val;
+              const displayVal = isPeeking ? solution[idx] : (isClue||isSelected||entriesVisible?val:val?'·':'');
 
               let cellBg = isClue ? 'var(--uw-surface)' : 'var(--uw-surface-strong)';
               if (isSelected) cellBg = 'rgba(113, 80, 201, 0.24)';
